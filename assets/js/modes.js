@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize } from "./scoring.js";
-import { addStat, getStrictness } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -18,6 +18,12 @@ function micWarning() {
 // ====================================================
 export function renderHome(view, navigate) {
   const stats = JSON.parse(localStorage.getItem("stats") || "{}");
+  const daily = getDaily();
+  const streak = getStreak();
+  const goal = getDailyGoal();
+  const pct = Math.min(100, Math.round((daily.count / goal) * 100));
+  const reached = daily.count >= goal;
+  const remain = Math.max(0, goal - daily.count);
   const modes = [
     { r: "shadowing", ico: "🎤", t: "跟讀糾音", d: "聽老師示範，開口跟讀，逐字即時糾正發音。" },
     { r: "dictation", ico: "✍️", t: "聽寫練習", d: "只聽聲音，把句子打出來，訓練聽力與拼寫。" },
@@ -39,6 +45,21 @@ export function renderHome(view, navigate) {
           <div class="stat"><b>${stats.words || 0}</b><span>看過單字</span></div>
         </div>
       </div>
+
+      <div class="card daily-card">
+        <div class="daily-top">
+          <div class="streak ${streak.count > 0 ? "streak-on" : ""}">
+            <span class="flame">🔥</span>
+            <div class="streak-num"><b>${streak.count}</b><span>連續天數</span></div>
+          </div>
+          <div class="daily-label">${reached ? "🎉 今日目標達成！" : `今日目標 <b>${daily.count}/${goal}</b>`}</div>
+        </div>
+        <div class="progress daily-prog"><i style="width:${pct}%"></i></div>
+        <div class="daily-hint">${reached
+          ? `做得好！明天再回來就能把連續天數變成 ${streak.count + 1} 天 💪`
+          : `今天再完成 <b>${remain}</b> 個練習就達標 — 任何一種學習方式都算數，現在就開始吧！`}${streak.best > 1 ? `　·　最佳紀錄 ${streak.best} 天` : ""}</div>
+      </div>
+
       <div class="section-title">選一種學習方式</div>
       <div class="mode-grid" id="modeGrid"></div>
     </div>
