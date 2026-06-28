@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -24,6 +24,7 @@ export function renderHome(view, navigate) {
   const pct = Math.min(100, Math.round((daily.count / goal) * 100));
   const reached = daily.count >= goal;
   const remain = Math.max(0, goal - daily.count);
+  const mistakeCount = getMistakeCount();
   const modes = [
     { r: "shadowing", ico: "🎤", t: "跟讀糾音", d: "聽老師示範，開口跟讀，逐字即時糾正發音。" },
     { r: "dictation", ico: "✍️", t: "聽寫練習", d: "只聽聲音，把句子打出來，訓練聽力與拼寫。" },
@@ -60,10 +61,26 @@ export function renderHome(view, navigate) {
           : `今天再完成 <b>${remain}</b> 個練習就達標 — 任何一種學習方式都算數，現在就開始吧！`}${streak.best > 1 ? `　·　最佳紀錄 ${streak.best} 天` : ""}</div>
       </div>
 
+      ${mistakeCount > 0 ? `
+      <div class="card review-card" id="reviewCard" role="button" tabindex="0">
+        <div class="review-ico">📒</div>
+        <div class="review-body">
+          <b>複習錯題 ${mistakeCount} 題</b>
+          <span>把答錯的再做一次，答對就畢業 — 複習錯題最有效率</span>
+        </div>
+        <div class="review-go">→</div>
+      </div>` : ""}
+
       <div class="section-title">選一種學習方式</div>
       <div class="mode-grid" id="modeGrid"></div>
     </div>
   `));
+  if (mistakeCount > 0) {
+    const rc = $("#reviewCard", view);
+    const go = () => navigate("review");
+    rc.addEventListener("click", go);
+    rc.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  }
   const grid = $("#modeGrid", view);
   modes.forEach((m) => {
     const c = el(`<div class="mode-card"><div class="mc-ico">${m.ico}</div><h3>${m.t}</h3><p>${m.d}</p></div>`);
@@ -259,6 +276,7 @@ export function renderDictation(view) {
     const score = Math.round(result.accuracy * 100);
     const grade = gradeLabel(score);
     addStat({ practiced: 1, best: score });
+    if (score < 60) addMistake({ key: `d${idx}`, type: "dictation", sIndex: idx });
 
     const words = s.en.split(/\s+/);
     let html = '<div class="target-sentence" style="font-size:20px">';
@@ -474,7 +492,144 @@ export function renderGrammar(view) {
     $("#blank", view).textContent = q.options[q.answer];
     speak(q.prompt.replace("___", q.options[q.answer]));
     addStat({ practiced: 1, best: ok ? 100 : 0 });
-    $("#gramResult", view).innerHTML = `<div class="explain mt"><b>${ok ? "✅ 答對了！" : "❌ 再想想"}</b>　${esc(q.explain)}</div>`;
+    if (!ok) addMistake({ key: `g${i}`, type: "grammar", qIndex: i });
+    $("#gramResult", view).innerHTML = `<div class="explain mt"><b>${ok ? "✅ 答對了！" : "❌ 再想想"}</b>　${esc(q.explain)}${ok ? "" : `<div class="muted mt" style="font-size:13px">📒 已加入錯題本，稍後可在首頁「複習錯題」再練。</div>`}</div>`;
   }
+  draw();
+}
+
+// ====================================================
+// 複習錯題（容易學：主動回憶 retrieval，答對才畢業；一次一題、低壓力小批次）
+// ====================================================
+export function renderReview(view) {
+  const queue = getMistakes().map((m) => m.key); // 本次複習順序
+  const startTotal = queue.length;
+
+  function currentMistake() {
+    const live = getMistakes();
+    while (queue.length) {
+      const m = live.find((x) => x.key === queue[0]);
+      if (m) return m;
+      queue.shift(); // 已畢業/不存在 → 跳過
+    }
+    return null;
+  }
+  function graduateAdvance() { queue.shift(); draw(); }      // 答對：已移出錯題本
+  function keepAdvance() { queue.push(queue.shift()); draw(); } // 答錯：輪到隊尾，避免卡住
+
+  function draw() {
+    view.innerHTML = "";
+    const m = currentMistake();
+    const remaining = getMistakes().length;
+    if (!m) {
+      view.append(el(`
+        <div>
+          <div class="lesson-head"><div class="ttl">📒 複習錯題</div></div>
+          <div class="card center">
+            <div style="font-size:40px">🎉</div>
+            <b>${startTotal > 0 ? "錯題全部複習完，太棒了！" : "目前沒有錯題"}</b>
+            <p class="translation">答錯的文法 / 聽寫題會自動收進這裡，用「再作答」幫你變熟練；答對就畢業。</p>
+            <div class="btn-row mt"><button class="btn btn-primary btn-block" id="goHome">回首頁</button></div>
+          </div>
+        </div>`));
+      $("#goHome", view).onclick = () => navigate("home");
+      return;
+    }
+    const done = startTotal - remaining;
+    view.append(el(`
+      <div>
+        <div class="lesson-head">
+          <div class="ttl">📒 複習錯題</div>
+          <span class="pill pill-lv">剩 ${remaining} 題</span>
+        </div>
+        <div class="progress"><i style="width:${startTotal ? Math.round((done / startTotal) * 100) : 0}%"></i></div>
+        <div class="card" id="reviewBody"></div>
+      </div>`));
+    const body = $("#reviewBody", view);
+    if (m.type === "grammar") drawGrammarReview(body, m);
+    else if (m.type === "dictation") drawDictationReview(body, m);
+    else { removeMistake(m.key); graduateAdvance(); }
+  }
+
+  function drawGrammarReview(body, m) {
+    const q = GRAMMAR[m.qIndex];
+    if (!q) { removeMistake(m.key); return graduateAdvance(); }
+    let answered = false;
+    const parts = q.prompt.split("___");
+    body.innerHTML = `
+      <div class="gap-sentence">${esc(parts[0])}<span class="gap-blank" id="rblank">____</span>${esc(parts[1] || "")}</div>
+      <div class="translation mb">${esc(q.zh)}</div>
+      <div class="opt-grid" id="ropts"></div>
+      <div id="rresult"></div>`;
+    const opts = $("#ropts", body);
+    q.options.forEach((o, oi) => {
+      const b = el(`<button class="opt">${String.fromCharCode(65 + oi)}. ${esc(o)}</button>`);
+      b.onclick = () => {
+        if (answered) return; answered = true;
+        [...body.querySelectorAll(".opt")].forEach((bb, bi) => {
+          bb.disabled = true;
+          if (bi === q.answer) bb.classList.add("correct");
+          else if (bi === oi) bb.classList.add("wrong");
+        });
+        const ok = oi === q.answer;
+        $("#rblank", body).textContent = q.options[q.answer];
+        speak(q.prompt.replace("___", q.options[q.answer]));
+        addStat({ practiced: 1 });
+        if (ok) removeMistake(m.key);
+        $("#rresult", body).innerHTML = `
+          <div class="explain mt"><b>${ok ? "✅ 答對，這題畢業！" : "❌ 還不熟，留著下次再練"}</b>　${esc(q.explain)}</div>
+          <div class="btn-row mt"><button class="btn btn-primary btn-block" id="rnext">${ok ? "下一題 →" : "先練下一題 →"}</button></div>`;
+        $("#rnext", body).onclick = () => (ok ? graduateAdvance() : keepAdvance());
+      };
+      opts.append(b);
+    });
+  }
+
+  function drawDictationReview(body, m) {
+    const s = SENTENCES[m.sIndex];
+    if (!s) { removeMistake(m.key); return graduateAdvance(); }
+    body.innerHTML = `
+      <p class="translation">再聽一次，把句子打出來（答對 80 分以上就畢業）：</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="rplay">🔊 播放</button>
+        <button class="btn btn-ghost" id="rslow">🐢 慢速</button>
+      </div>
+      <input class="input-line mt" id="rans" placeholder="輸入你聽到的句子…" autocomplete="off" autocapitalize="off" />
+      <div class="btn-row mt"><button class="btn btn-ok btn-block" id="rcheck">✓ 對答案</button></div>
+      <div id="rdict"></div>`;
+    setTimeout(() => speak(s.en), 250);
+    $("#rplay", body).onclick = () => speak(s.en);
+    $("#rslow", body).onclick = () => speak(s.en, { rate: 0.6 });
+    const check = () => {
+      const ans = $("#rans", body).value.trim();
+      if (!ans) { $("#rans", body).focus(); return; }
+      const result = alignAndScore(s.en, ans, "normal");
+      const score = Math.round(result.accuracy * 100);
+      const grade = gradeLabel(score);
+      const ok = score >= 80;
+      addStat({ practiced: 1 });
+      if (ok) removeMistake(m.key);
+      const words = s.en.split(/\s+/);
+      let html = '<div class="target-sentence" style="font-size:20px">';
+      words.forEach((w, i) => {
+        const st = result.tStatus[i]?.status;
+        const cls = st === "ok" || st === "near" ? "w-ok" : st === "miss" ? "w-miss" : "w-bad";
+        html += `<span class="w ${cls}">${esc(w)} </span>`;
+      });
+      html += "</div>";
+      $("#rdict", body).innerHTML = `
+        <div class="explain mt">
+          <div class="row"><b style="color:${grade.color};font-size:18px">${score} 分</b><span class="spacer"></span><span>${ok ? "✅ 畢業！" : "再練一次"}</span></div>
+          <div class="mt" style="color:var(--muted)">正解：</div>
+          ${html}
+          <div class="translation">${esc(s.zh)}</div>
+          <div class="btn-row mt"><button class="btn btn-primary btn-block" id="rnext">${ok ? "下一題 →" : "先練下一題 →"}</button></div>
+        </div>`;
+      $("#rnext", body).onclick = () => (ok ? graduateAdvance() : keepAdvance());
+    };
+    $("#rcheck", body).onclick = check;
+    $("#rans", body).addEventListener("keydown", (e) => { if (e.key === "Enter") check(); });
+  }
+
   draw();
 }

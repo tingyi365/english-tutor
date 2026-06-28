@@ -124,6 +124,17 @@ body {
 .daily-hint { font-size: 13px; color: var(--muted); line-height: 1.55; }
 .daily-hint b { color: #f0abfc; }
 
+/* 複習錯題入口卡 */
+.review-card { margin-top: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  cursor: pointer; border-color: rgba(245,158,11,.4); }
+.review-card:hover { border-color: rgba(245,158,11,.7); }
+.review-ico { font-size: 30px; flex: none; }
+.review-body { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.review-body b { font-size: 16px; }
+.review-body span { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.review-go { font-size: 22px; color: var(--muted); flex: none; }
+.muted { color: var(--muted); }
+
 .stat-row { display: flex; gap: 10px; margin-top: 14px; }
 .stat { flex: 1; text-align: center; background: var(--card); border: 1px solid var(--line);
   border-radius: 14px; padding: 12px 6px; }

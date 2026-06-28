@@ -3,10 +3,11 @@
 每輪開頭先讀此檔，結尾必 append 一筆。
 
 ## 正式線上站（往後都驗這個）
-- **https://english-tutor-e1l.pages.dev**（Cloudflare Pages，比照地球遊戲乾淨 `*.pages.dev` 根網址）
-- 註：`english-tutor.pages.dev` 子網域已被他站（Voice Recorder）全域佔用，Cloudflare 自動配發 `-e1l` 後綴；專案名仍為 `english-tutor`，功能完全相同。
+- **https://english-tutor-ai.pages.dev**（Cloudflare Pages 專案名 `english-tutor-ai`，乾淨根網址，2026-06-29 第 3 輪遷移到此）
+- 註：`english-tutor.pages.dev` 為全域唯一名、已被外部帳號（Voice Recorder）永久佔用，技術上不可取得 → 改用最貼近品牌的乾淨可用名 `english-tutor-ai`。
+- legacy alias：`https://english-tutor-e1l.pages.dev`（舊專案 `english-tutor`）保留可用、每輪一併部署不使其壞；驗證以新網址為準。
 - GitHub repo：`tingyi365/english-tutor`（main 分支）
-- 部署指令：`npx wrangler pages deploy . --project-name=english-tutor --branch=main --commit-dirty=true`
+- 部署指令（主）：`npx wrangler pages deploy . --project-name=english-tutor-ai --branch=main --commit-dirty=true`，再對 `--project-name=english-tutor` 跑一次更新 legacy alias。
 
 ---
 
@@ -68,3 +69,36 @@
 4. PWA：manifest + service worker，可安裝離線。
 5. 達標慶祝動畫升級（紙花/音效）強化正向回饋；連續天數里程碑徽章(3/7/30 天)。
 6. 內容再擴充：商務/旅遊主題句子分類、對話分支選項。
+
+[小組長 07:1x] 督導：站健康(200)、每日目標/streak 已線上實證(app.js bumpDaily/getStreak/goalSelect)、第2輪確實做了北極星研究+落實使用者親指#1、無空轉 → 已移除已完成的硬性指定區塊、改釘下一輪「錯題本/一鍵複習」為持久化主線導正，靜默不擾人。
+
+---
+
+### 第 3 輪 — 2026-06-29（第 0 優先：網址遷移 english-tutor-ai｜錯題本+一鍵複習上線）
+**第 0 優先：Cloudflare Pages 乾淨網址遷移 ✅**
+- 使用者指定要 `english-tutor.pages.dev`，但該名為**全域唯一名、已被外部帳號的「Voice Recorder」永久佔用**（curl 實證該網址回傳他站內容），技術上不可取得（`*.pages.dev` 全域唯一，非權限問題）。探測 englishtutor / speak-english / english-coach 亦被占（200）。
+- 解法：建新 Pages 專案 `english-tutor-ai`，分得**乾淨無後綴**網址 `https://english-tutor-ai.pages.dev`（最貼品牌的可用名）。舊 `english-tutor-e1l` 保留為 legacy alias，本輪一併部署不使其壞。
+- 已同步更新 instruction + 本 log 的網址與部署指令（主→ english-tutor-ai，再→ english-tutor 更新 alias）。
+
+**北極星研究（必做）**
+- WebSearch「Duolingo mistakes review / spaced repetition / 降低門檻」。借鏡：①答錯後**課末重練錯題**＋間隔複習 ②強調**主動回憶 retrieval**（從記憶產出答案 > 被動看），有效鞏固 ③**小批次**複習降低壓力。落地點子：錯題自動收集→一鍵只練錯題、複習採「再作答」主動回憶、答對才畢業、一次一題低壓力。
+- 來源：blog.duolingo.com/spaced-repetition-for-learning、geiger-wolf.com/archives/24、scrimmage.co 心理學分析。
+
+**本輪進化：錯題本 + 一鍵複習（持久化主線，降低「重學摩擦」＝容易學）**
+- 改動檔：`assets/js/app.js`(錯題本 store + review 路由 + reset 清錯題)、`assets/js/modes.js`(文法/聽寫收集錯題 + 首頁複習入口 + renderReview)、`assets/css/style.css`(review-card 樣式)。純加法、低風險、可回退。
+- 收集：文法答錯 → 自動入錯題本（key `g{i}`）；聽寫 <60 分 → 入錯題本（key `d{idx}`）；同題不重複。
+- 首頁：有錯題時顯示「📒 複習錯題 N 題」入口卡（無錯題自動隱藏，不增負擔）。
+- 複習模式 `#review`：**一次一題**（小批次低壓力），文法/聽寫皆以「再作答」**主動回憶**；**答對才畢業**（移出錯題本），答錯輪到隊尾續練；全畢業顯示鼓勵空狀態。
+- 「清除學習進度」一併清錯題本。
+
+**驗證證據**
+- 線上 `https://english-tutor-ai.pages.dev` HTTP 200、title/data.js/app.js streak 皆線上實證。
+- Chrome headless **端到端真機**（375px 手機）全綠、**0 console error**：文法答錯→錯題本存 g0(collected=true)→首頁出現「複習錯題 2 題」卡→進複習答對→g0 畢業(「✅ 答對，這題畢業！」)→聽寫複習打正解→全部畢業→顯示空狀態。
+- 舊 alias `english-tutor-e1l` 同步部署、仍 200。
+
+**下一輪 backlog 想法**
+1. 間隔重複(SRS) 弱點優先：認識/不熟回饋 + Leitner 盒排序；錯題「答對 N 次才畢業」精熟門檻。
+2. 跟讀逐詞高亮（speak onWord boundary 已備）。
+3. PWA：manifest + service worker，可安裝離線。
+4. 達標慶祝動畫/里程碑徽章(3/7/30 天)。
+5. 內容再擴充：商務/旅遊主題分類、對話分支選項。

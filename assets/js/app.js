@@ -1,6 +1,6 @@
 // ============ 主程式：路由 / 設定 / 狀態 ============
 import { speechSupport, getEnglishVoices, setVoice, setRate, getRate } from "./speech.js";
-import { renderHome, renderShadowing, renderDictation, renderConversation, renderFlashcard, renderGrammar } from "./modes.js";
+import { renderHome, renderShadowing, renderDictation, renderConversation, renderFlashcard, renderGrammar, renderReview } from "./modes.js";
 
 const view = document.getElementById("view");
 const tabbar = document.getElementById("tabbar");
@@ -12,6 +12,7 @@ const ROUTES = {
   conversation: renderConversation,
   flashcard: renderFlashcard,
   grammar: renderGrammar,
+  review: renderReview,
 };
 
 let current = "";
@@ -87,6 +88,22 @@ export function getStrictness() {
   return localStorage.getItem("strictness") || "normal";
 }
 
+// ---------- 錯題本（容易學：答錯自動收集，用「再作答」主動回憶，答對才畢業） ----------
+export function getMistakes() {
+  try { return JSON.parse(localStorage.getItem("mistakes") || "[]"); } catch { return []; }
+}
+export function getMistakeCount() { return getMistakes().length; }
+export function addMistake(item) {
+  if (!item || !item.key) return;
+  const list = getMistakes();
+  if (list.some((m) => m.key === item.key)) return; // 同題不重複收集
+  list.push({ ...item, ts: Date.now() });
+  localStorage.setItem("mistakes", JSON.stringify(list));
+}
+export function removeMistake(key) {
+  localStorage.setItem("mistakes", JSON.stringify(getMistakes().filter((m) => m.key !== key)));
+}
+
 // ---------- 語音狀態徽章 ----------
 function updateVoiceBadge() {
   const badge = document.getElementById("voiceBadge");
@@ -140,6 +157,7 @@ function initSettings() {
     localStorage.removeItem("stats");
     localStorage.removeItem("daily");
     localStorage.removeItem("streak");
+    localStorage.removeItem("mistakes");
     close();
     if (current === "home") navigate("home");
     alert("學習進度已清除。");
