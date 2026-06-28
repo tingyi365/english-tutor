@@ -16,6 +16,16 @@ export const SENTENCES = [
   { lv: "進階", en: "Despite the difficulties, the team managed to finish on time.", zh: "儘管困難重重，團隊仍設法準時完成。", ipa: "/dɪˈspaɪt ðə ˈdɪfɪkəltiz ðə tiːm ˈmænɪdʒd tə ˈfɪnɪʃ ɒn taɪm/" },
   { lv: "進階", en: "I'd appreciate it if you could send me the report by Friday.", zh: "如果你能在週五前把報告寄給我，我會很感激。", ipa: "/aɪd əˈpriːʃieɪt ɪt ɪf juː kʊd sɛnd miː ðə rɪˈpɔːrt baɪ ˈfraɪdeɪ/" },
   { lv: "進階", en: "She has a remarkable ability to explain complex ideas clearly.", zh: "她有把複雜概念講清楚的非凡能力。", ipa: "/ʃiː hæz ə rɪˈmɑːrkəbl əˈbɪləti tə ɪkˈspleɪn ˈkɒmplɛks aɪˈdɪəz ˈklɪrli/" },
+  { lv: "初級", en: "Excuse me, can you help me, please?", zh: "不好意思，可以請你幫我嗎？", ipa: "/ɪkˈskjuːz miː kæn juː hɛlp miː pliːz/" },
+  { lv: "初級", en: "How much does this cost?", zh: "這個多少錢？", ipa: "/haʊ mʌtʃ dʌz ðɪs kɔːst/" },
+  { lv: "初級", en: "I don't understand. Can you repeat that?", zh: "我不懂，可以再說一次嗎？", ipa: "/aɪ doʊnt ˌʌndərˈstænd kæn juː rɪˈpiːt ðæt/" },
+  { lv: "初級", en: "Let's meet at the coffee shop at noon.", zh: "我們中午在咖啡店碰面吧。", ipa: "/lɛts miːt æt ðə ˈkɔːfi ʃɒp æt nuːn/" },
+  { lv: "中級", en: "Would you mind opening the window?", zh: "你介意把窗戶打開嗎？", ipa: "/wʊd juː maɪnd ˈoʊpənɪŋ ðə ˈwɪndoʊ/" },
+  { lv: "中級", en: "I'm not sure whether I can make it on time.", zh: "我不確定能不能準時到。", ipa: "/aɪm nɑːt ʃʊr ˈwɛðər aɪ kæn meɪk ɪt ɒn taɪm/" },
+  { lv: "中級", en: "She decided to take the job in another city.", zh: "她決定接下另一個城市的工作。", ipa: "/ʃiː dɪˈsaɪdɪd tə teɪk ðə dʒɒb ɪn əˈnʌðər ˈsɪti/" },
+  { lv: "進階", en: "Had I known earlier, I would have acted differently.", zh: "早知道的話，我會有不同的做法。", ipa: "/hæd aɪ noʊn ˈɜːrliər aɪ wʊd hæv ˈæktɪd ˈdɪfrəntli/" },
+  { lv: "進階", en: "The committee is considering several alternative proposals.", zh: "委員會正在考慮幾個替代方案。", ipa: "/ðə kəˈmɪti ɪz kənˈsɪdərɪŋ ˈsɛvrəl ɔːlˈtɜːrnətɪv prəˈpoʊzəlz/" },
+  { lv: "進階", en: "His argument, though compelling, lacked solid evidence.", zh: "他的論點雖然有說服力，卻缺乏確鑿證據。", ipa: "/hɪz ˈɑːrɡjumənt ðoʊ kəmˈpɛlɪŋ lækt ˈsɒlɪd ˈɛvɪdəns/" },
 ];
 
 // 單字卡
@@ -32,6 +42,16 @@ export const VOCAB = [
   { word: "experience", ipa: "/ɪkˈspɪriəns/", pos: "n.", zh: "經驗；體驗", ex: "She has a lot of teaching experience.", exZh: "她有很多教學經驗。" },
   { word: "necessary", ipa: "/ˈnɛsəsɛri/", pos: "adj.", zh: "必要的", ex: "It's not necessary to worry.", exZh: "沒必要擔心。" },
   { word: "particular", ipa: "/pərˈtɪkjələr/", pos: "adj.", zh: "特定的；講究的", ex: "Is there a particular topic you like?", exZh: "你有特別喜歡的主題嗎？" },
+  { word: "manage", ipa: "/ˈmænɪdʒ/", pos: "v.", zh: "設法做到；管理", ex: "She managed to solve the problem.", exZh: "她設法解決了那個問題。" },
+  { word: "obvious", ipa: "/ˈɒbviəs/", pos: "adj.", zh: "明顯的", ex: "The answer is quite obvious.", exZh: "答案相當明顯。" },
+  { word: "encourage", ipa: "/ɪnˈkʌrɪdʒ/", pos: "v.", zh: "鼓勵", ex: "My teacher always encourages me.", exZh: "我的老師總是鼓勵我。" },
+  { word: "purpose", ipa: "/ˈpɜːrpəs/", pos: "n.", zh: "目的；用途", ex: "What's the purpose of this meeting?", exZh: "這場會議的目的是什麼？" },
+  { word: "reduce", ipa: "/rɪˈdjuːs/", pos: "v.", zh: "減少；降低", ex: "We need to reduce our spending.", exZh: "我們需要減少開支。" },
+  { word: "familiar", ipa: "/fəˈmɪliər/", pos: "adj.", zh: "熟悉的", ex: "This place looks familiar.", exZh: "這個地方看起來很熟悉。" },
+  { word: "achieve", ipa: "/əˈtʃiːv/", pos: "v.", zh: "達成；實現", ex: "You can achieve your goals with effort.", exZh: "努力就能達成你的目標。" },
+  { word: "complain", ipa: "/kəmˈpleɪn/", pos: "v.", zh: "抱怨；投訴", ex: "There's no point in complaining.", exZh: "抱怨沒有意義。" },
+  { word: "polite", ipa: "/pəˈlaɪt/", pos: "adj.", zh: "有禮貌的", ex: "He is always polite to others.", exZh: "他對人總是很有禮貌。" },
+  { word: "suggest", ipa: "/səˈdʒɛst/", pos: "v.", zh: "建議；提議", ex: "Can you suggest a good movie?", exZh: "你能推薦一部好電影嗎？" },
 ];
 
 // 情境口說對話：AI 給提示句，學生開口回應，逐句推進
@@ -63,6 +83,26 @@ export const DIALOGUES = [
       { ai: "Hi, you look a little lost. Do you need help?", hint: "Yes, where is the train station?", zh: "是的，請問火車站在哪裡？" },
       { ai: "It's just two blocks away, on your left.", hint: "Thank you. Is it far to walk?", zh: "謝謝，走路會很遠嗎？" },
       { ai: "No, about five minutes on foot.", hint: "Great. Thank you so much for your help.", zh: "太好了，非常感謝你的幫忙。" },
+    ],
+  },
+  {
+    title: "餐廳訂位",
+    scene: "你打電話到餐廳預約晚餐的桌位。",
+    turns: [
+      { ai: "Good evening, Bella's Restaurant. How can I help you?", hint: "Hi, I'd like to book a table for two.", zh: "嗨，我想訂一張兩人的桌子。" },
+      { ai: "Sure. What time would you like?", hint: "At seven o'clock tonight, please.", zh: "今晚七點，謝謝。" },
+      { ai: "Perfect. Can I have your name?", hint: "It's Anna. Thank you.", zh: "我叫安娜，謝謝。" },
+      { ai: "Great, we'll see you tonight!", hint: "See you tonight. Goodbye!", zh: "今晚見，再見！" },
+    ],
+  },
+  {
+    title: "看醫生",
+    scene: "你覺得身體不舒服，去診所看醫生。",
+    turns: [
+      { ai: "Hello, what seems to be the problem?", hint: "I have a headache and a sore throat.", zh: "我頭痛又喉嚨痛。" },
+      { ai: "How long have you felt like this?", hint: "Since yesterday morning.", zh: "從昨天早上開始。" },
+      { ai: "I see. Do you have a fever?", hint: "Yes, a little. I feel very tired.", zh: "有一點，我覺得很累。" },
+      { ai: "Okay. Take this medicine and get some rest.", hint: "Thank you, doctor.", zh: "謝謝醫生。" },
     ],
   },
 ];
@@ -116,5 +156,47 @@ export const GRAMMAR = [
     options: ["fluent", "fluently", "more fluently", "most fluently"], answer: 2,
     zh: "她英文說得比她哥哥流利。",
     explain: "修飾動詞 speaks 用副詞，且為兩者比較 → more fluently。",
+  },
+  {
+    lv: "初級", prompt: "I ___ a student. I study at a university.",
+    options: ["am", "is", "are", "be"], answer: 0,
+    zh: "我是學生，我在大學念書。",
+    explain: "主詞 I 搭配的 be 動詞用 am。",
+  },
+  {
+    lv: "初級", prompt: "There are many ___ on the table.",
+    options: ["book", "books", "a book", "bookes"], answer: 1,
+    zh: "桌上有很多書。",
+    explain: "many 後接可數名詞的複數形 → books。",
+  },
+  {
+    lv: "中級", prompt: "He has been working here ___ five years.",
+    options: ["since", "for", "from", "in"], answer: 1,
+    zh: "他已經在這裡工作五年了。",
+    explain: "for 接「一段時間長度」（five years）；since 才接時間點。",
+  },
+  {
+    lv: "中級", prompt: "You ___ finish your homework before playing.",
+    options: ["should", "would", "could", "might"], answer: 0,
+    zh: "你應該先寫完作業再玩。",
+    explain: "表示「應該、義務」用 should。",
+  },
+  {
+    lv: "中級", prompt: "If I were you, I ___ accept the offer.",
+    options: ["will", "would", "can", "am"], answer: 1,
+    zh: "如果我是你，我會接受這個提議。",
+    explain: "與現在事實相反的假設（were），主句用 would + 原形動詞。",
+  },
+  {
+    lv: "進階", prompt: "By the time we arrived, the movie ___ already started.",
+    options: ["has", "had", "was", "have"], answer: 1,
+    zh: "我們到的時候，電影已經開始了。",
+    explain: "過去某時間點之前就完成的動作，用過去完成式 had + p.p.。",
+  },
+  {
+    lv: "進階", prompt: "I'd rather you ___ tell anyone about this.",
+    options: ["don't", "didn't", "won't", "not"], answer: 1,
+    zh: "我寧願你別跟任何人說這件事。",
+    explain: "would rather + 子句表現在/未來願望時，子句用過去式（didn't）表假設語氣。",
   },
 ];
