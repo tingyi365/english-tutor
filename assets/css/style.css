@@ -242,4 +242,14 @@ body {
 .empty { text-align: center; color: var(--muted); padding: 40px 16px; }
 .tip-banner { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); color: #fcd34d;
   border-radius: 12px; padding: 11px 13px; font-size: 13px; line-height: 1.5; margin-bottom: 14px; }
+/* ---- Leitner 間隔重複（熟練度 / 認識·不熟） ---- */
+.mastery-line { font-size: 13px; color: var(--muted); margin: 2px 2px 12px; }
+.mastery-dots { letter-spacing: 3px; color: var(--ok); font-size: 14px; }
+.mastery-tip { color: var(--muted); font-size: 12px; }
+.vocab-tag { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; justify-content: center; }
+.rate-row { display: flex; gap: 12px; margin-top: 16px; }
+.btn-rate { flex: 1; font-size: 15px; padding: 13px 10px; font-weight: 700; }
+.btn-known { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
+.btn-unknown { background: var(--card-2); color: #fcd34d; border: 1px solid rgba(245,158,11,.45); }
+.rate-hint { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }

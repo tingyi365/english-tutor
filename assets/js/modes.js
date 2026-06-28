@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, navigate } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -66,7 +66,7 @@ export function renderHome(view, navigate) {
         <div class="review-ico">📒</div>
         <div class="review-body">
           <b>複習錯題 ${mistakeCount} 題</b>
-          <span>把答錯的再做一次，答對就畢業 — 複習錯題最有效率</span>
+          <span>最不熟的先練，連續答對 ${MAX_BOX} 次才畢業 — 弱點優先最有效率</span>
         </div>
         <div class="review-go">→</div>
       </div>` : ""}
@@ -397,20 +397,31 @@ export function renderConversation(view) {
 // 單字卡
 // ====================================================
 export function renderFlashcard(view) {
-  let i = 0;
+  // 弱點優先：沒評過(box 0)與「不熟」(box 1) 的單字排最前面先複習，「認識」的排後面（Leitner）
+  const order = VOCAB.map((_, idx) => idx)
+    .sort((a, b) => getVocabBox(VOCAB[a].word) - getVocabBox(VOCAB[b].word));
+  let pos = 0;
+  const len = order.length;
+  const dots = (box) => "●".repeat(box) + "○".repeat(Math.max(0, MAX_BOX - box));
+  const tag = (box) => box === 0 ? "🆕 新字" : box >= MAX_BOX ? "🟢 已熟" : "🟡 複習中";
+
   function draw() {
+    bumpWords();
+    const i = order[pos];
     const v = VOCAB[i];
+    const box = getVocabBox(v.word);
     view.innerHTML = "";
     view.append(el(`
       <div>
         <div class="lesson-head">
           <div class="ttl">🃏 單字卡</div>
-          <span class="pill pill-lv">${i + 1}/${VOCAB.length}</span>
+          <span class="pill pill-lv">${pos + 1}/${len}</span>
         </div>
-        <div class="progress"><i style="width:${((i + 1) / VOCAB.length) * 100}%"></i></div>
+        <div class="progress"><i style="width:${((pos + 1) / len) * 100}%"></i></div>
         <div class="flash-wrap">
           <div class="flash" id="flash">
             <div class="flash-face flash-front">
+              <div class="vocab-tag">${tag(box)} <span class="mastery-dots">${dots(box)}</span></div>
               <div class="word">${esc(v.word)}</div>
               <div class="phonetic">${esc(v.ipa)} ・ ${esc(v.pos)}</div>
               <button class="btn btn-ghost" id="sayBtn">🔊 發音</button>
@@ -423,9 +434,14 @@ export function renderFlashcard(view) {
             </div>
           </div>
         </div>
+        <div class="rate-row">
+          <button class="btn btn-rate btn-unknown" id="rateUnknown">🤔 還不熟</button>
+          <button class="btn btn-rate btn-known" id="rateKnown">👍 認識了</button>
+        </div>
+        <div class="rate-hint">先翻卡看答案，再誠實點選 — 不熟的會優先排到前面多複習</div>
         <div class="btn-row mt">
           <button class="btn btn-ghost" id="prevBtn">← 上一張</button>
-          <button class="btn btn-primary" id="nextBtn">下一張 →</button>
+          <button class="btn btn-ghost" id="nextBtn">略過 →</button>
         </div>
       </div>
     `));
@@ -433,12 +449,14 @@ export function renderFlashcard(view) {
     flash.onclick = (e) => { if (e.target.closest("button")) return; flash.classList.toggle("flipped"); };
     $("#sayBtn", view).onclick = () => speak(v.word);
     $("#sayExBtn", view).onclick = () => speak(v.ex);
-    $("#prevBtn", view).onclick = () => { i = (i - 1 + VOCAB.length) % VOCAB.length; bumpWords(); draw(); };
-    $("#nextBtn", view).onclick = () => { i = (i + 1) % VOCAB.length; bumpWords(); draw(); };
+    $("#rateKnown", view).onclick = () => { rateVocab(v.word, true); advance(); };
+    $("#rateUnknown", view).onclick = () => { rateVocab(v.word, false); advance(); };
+    $("#prevBtn", view).onclick = () => { pos = (pos - 1 + len) % len; draw(); };
+    $("#nextBtn", view).onclick = () => { advance(); };
     setTimeout(() => speak(v.word), 200);
   }
+  function advance() { pos = (pos + 1) % len; draw(); }
   function bumpWords() { addStat({ words: 1 }); }
-  bumpWords();
   draw();
 }
 
@@ -499,23 +517,31 @@ export function renderGrammar(view) {
 }
 
 // ====================================================
-// 複習錯題（容易學：主動回憶 retrieval，答對才畢業；一次一題、低壓力小批次）
+// 複習錯題（容易學：主動回憶 retrieval + Leitner 間隔重複）
+//  · 弱點優先：依 Leitner 盒號升序排，最不熟的(第 1 盒)排最前先練。
+//  · 精熟門檻：答對升一盒、答錯歸第 1 盒；連續答對到頂盒才畢業(答對 MAX_BOX 次)。
+//  · 一次一題、低壓力小批次。
 // ====================================================
 export function renderReview(view) {
-  const queue = getMistakes().map((m) => m.key); // 本次複習順序
-  const startTotal = queue.length;
+  const startKeys = new Set(getMistakes().map((m) => m.key)); // 本次進來時的錯題集（算進度用）
+  const startTotal = startKeys.size;
+  let lastKey = null; // 避免同一題連續出現兩次
 
+  // 弱點優先：盒號小(最不熟)排最前，同盒看加入時間
   function currentMistake() {
-    const live = getMistakes();
-    while (queue.length) {
-      const m = live.find((x) => x.key === queue[0]);
-      if (m) return m;
-      queue.shift(); // 已畢業/不存在 → 跳過
-    }
-    return null;
+    const live = getMistakes().slice().sort((a, b) => (a.box - b.box) || (a.ts - b.ts));
+    if (!live.length) return null;
+    return live.find((m) => m.key !== lastKey) || live[0];
   }
-  function graduateAdvance() { queue.shift(); draw(); }      // 答對：已移出錯題本
-  function keepAdvance() { queue.push(queue.shift()); draw(); } // 答錯：輪到隊尾，避免卡住
+  // 答對：升盒/畢業後續下一題
+  function graduateAdvance(key) { lastKey = key; promoteMistake(key); draw(); }
+  // 答錯：歸第 1 盒後續下一題
+  function keepAdvance(key) { lastKey = key; demoteMistake(key); draw(); }
+
+  // 熟練度小點：已答對的盒數 / 需答對 MAX_BOX 次
+  function masteryDots(box) {
+    return "●".repeat(box) + "○".repeat(Math.max(0, MAX_BOX - box));
+  }
 
   function draw() {
     view.innerHTML = "";
@@ -528,7 +554,7 @@ export function renderReview(view) {
           <div class="card center">
             <div style="font-size:40px">🎉</div>
             <b>${startTotal > 0 ? "錯題全部複習完，太棒了！" : "目前沒有錯題"}</b>
-            <p class="translation">答錯的文法 / 聽寫題會自動收進這裡，用「再作答」幫你變熟練；答對就畢業。</p>
+            <p class="translation">答錯的文法 / 聽寫題會自動收進這裡，最不熟的優先排前面；連續答對 ${MAX_BOX} 次就畢業。</p>
             <div class="btn-row mt"><button class="btn btn-primary btn-block" id="goHome">回首頁</button></div>
           </div>
         </div>`));
@@ -543,17 +569,18 @@ export function renderReview(view) {
           <span class="pill pill-lv">剩 ${remaining} 題</span>
         </div>
         <div class="progress"><i style="width:${startTotal ? Math.round((done / startTotal) * 100) : 0}%"></i></div>
+        <div class="mastery-line">熟練度 <b class="mastery-dots">${masteryDots(m.box)}</b><span class="mastery-tip">　連續答對 ${MAX_BOX} 次就畢業</span></div>
         <div class="card" id="reviewBody"></div>
       </div>`));
     const body = $("#reviewBody", view);
     if (m.type === "grammar") drawGrammarReview(body, m);
     else if (m.type === "dictation") drawDictationReview(body, m);
-    else { removeMistake(m.key); graduateAdvance(); }
+    else { removeMistake(m.key); draw(); }
   }
 
   function drawGrammarReview(body, m) {
     const q = GRAMMAR[m.qIndex];
-    if (!q) { removeMistake(m.key); return graduateAdvance(); }
+    if (!q) { removeMistake(m.key); return draw(); }
     let answered = false;
     const parts = q.prompt.split("___");
     body.innerHTML = `
@@ -572,14 +599,15 @@ export function renderReview(view) {
           else if (bi === oi) bb.classList.add("wrong");
         });
         const ok = oi === q.answer;
+        const willGraduate = ok && m.box >= MAX_BOX;
         $("#rblank", body).textContent = q.options[q.answer];
         speak(q.prompt.replace("___", q.options[q.answer]));
         addStat({ practiced: 1 });
-        if (ok) removeMistake(m.key);
+        const msg = willGraduate ? "✅ 答對，這題畢業！" : ok ? `✅ 答對！再連對 ${MAX_BOX - m.box} 次就畢業` : "❌ 還不熟，歸回第 1 盒重練";
         $("#rresult", body).innerHTML = `
-          <div class="explain mt"><b>${ok ? "✅ 答對，這題畢業！" : "❌ 還不熟，留著下次再練"}</b>　${esc(q.explain)}</div>
+          <div class="explain mt"><b>${msg}</b>　${esc(q.explain)}</div>
           <div class="btn-row mt"><button class="btn btn-primary btn-block" id="rnext">${ok ? "下一題 →" : "先練下一題 →"}</button></div>`;
-        $("#rnext", body).onclick = () => (ok ? graduateAdvance() : keepAdvance());
+        $("#rnext", body).onclick = () => (ok ? graduateAdvance(m.key) : keepAdvance(m.key));
       };
       opts.append(b);
     });
@@ -587,7 +615,7 @@ export function renderReview(view) {
 
   function drawDictationReview(body, m) {
     const s = SENTENCES[m.sIndex];
-    if (!s) { removeMistake(m.key); return graduateAdvance(); }
+    if (!s) { removeMistake(m.key); return draw(); }
     body.innerHTML = `
       <p class="translation">再聽一次，把句子打出來（答對 80 分以上就畢業）：</p>
       <div class="btn-row">
@@ -607,8 +635,8 @@ export function renderReview(view) {
       const score = Math.round(result.accuracy * 100);
       const grade = gradeLabel(score);
       const ok = score >= 80;
+      const willGraduate = ok && m.box >= MAX_BOX;
       addStat({ practiced: 1 });
-      if (ok) removeMistake(m.key);
       const words = s.en.split(/\s+/);
       let html = '<div class="target-sentence" style="font-size:20px">';
       words.forEach((w, i) => {
@@ -617,15 +645,16 @@ export function renderReview(view) {
         html += `<span class="w ${cls}">${esc(w)} </span>`;
       });
       html += "</div>";
+      const stat = willGraduate ? "✅ 畢業！" : ok ? `✅ 答對！再連對 ${MAX_BOX - m.box} 次畢業` : "歸回第 1 盒再練";
       $("#rdict", body).innerHTML = `
         <div class="explain mt">
-          <div class="row"><b style="color:${grade.color};font-size:18px">${score} 分</b><span class="spacer"></span><span>${ok ? "✅ 畢業！" : "再練一次"}</span></div>
+          <div class="row"><b style="color:${grade.color};font-size:18px">${score} 分</b><span class="spacer"></span><span>${stat}</span></div>
           <div class="mt" style="color:var(--muted)">正解：</div>
           ${html}
           <div class="translation">${esc(s.zh)}</div>
           <div class="btn-row mt"><button class="btn btn-primary btn-block" id="rnext">${ok ? "下一題 →" : "先練下一題 →"}</button></div>
         </div>`;
-      $("#rnext", body).onclick = () => (ok ? graduateAdvance() : keepAdvance());
+      $("#rnext", body).onclick = () => (ok ? graduateAdvance(m.key) : keepAdvance(m.key));
     };
     $("#rcheck", body).onclick = check;
     $("#rans", body).addEventListener("keydown", (e) => { if (e.key === "Enter") check(); });

@@ -88,20 +88,57 @@ export function getStrictness() {
   return localStorage.getItem("strictness") || "normal";
 }
 
-// ---------- 錯題本（容易學：答錯自動收集，用「再作答」主動回憶，答對才畢業） ----------
+// ---------- 錯題本 + Leitner 間隔重複（容易學：主動回憶 + 弱點優先 + 精熟門檻） ----------
+// Leitner 盒：答錯歸第 1 盒，答對升一盒；連續答對升到頂盒以上才「畢業」(= 答對 MAX_BOX 次才精熟)。
+// 複習時依盒號升序排（最不熟的排最前），把弱點優先練。
+export const MAX_BOX = 3;
 export function getMistakes() {
-  try { return JSON.parse(localStorage.getItem("mistakes") || "[]"); } catch { return []; }
+  try {
+    const list = JSON.parse(localStorage.getItem("mistakes") || "[]");
+    return list.map((m) => ({ box: 1, ...m })); // 舊資料無 box → 視為第 1 盒
+  } catch { return []; }
 }
 export function getMistakeCount() { return getMistakes().length; }
+function saveMistakes(list) { localStorage.setItem("mistakes", JSON.stringify(list)); }
 export function addMistake(item) {
   if (!item || !item.key) return;
   const list = getMistakes();
   if (list.some((m) => m.key === item.key)) return; // 同題不重複收集
-  list.push({ ...item, ts: Date.now() });
-  localStorage.setItem("mistakes", JSON.stringify(list));
+  list.push({ ...item, box: 1, ts: Date.now() });
+  saveMistakes(list);
 }
 export function removeMistake(key) {
-  localStorage.setItem("mistakes", JSON.stringify(getMistakes().filter((m) => m.key !== key)));
+  saveMistakes(getMistakes().filter((m) => m.key !== key));
+}
+// 答對：升一盒；若已在頂盒 → 畢業（移出錯題本）。回傳 true=已畢業
+export function promoteMistake(key) {
+  const list = getMistakes();
+  const m = list.find((x) => x.key === key);
+  if (!m) return true;
+  if (m.box >= MAX_BOX) { saveMistakes(list.filter((x) => x.key !== key)); return true; }
+  m.box += 1; saveMistakes(list);
+  return false;
+}
+// 答錯：歸第 1 盒重練
+export function demoteMistake(key) {
+  const list = getMistakes();
+  const m = list.find((x) => x.key === key);
+  if (!m) return;
+  m.box = 1; saveMistakes(list);
+}
+
+// ---------- 單字卡 Leitner（認識/不熟 → 弱字優先複習） ----------
+export function getVocabSrs() {
+  try { return JSON.parse(localStorage.getItem("vocabSrs") || "{}"); } catch { return {}; }
+}
+export function getVocabBox(word) { return getVocabSrs()[word]?.box || 0; } // 0 = 還沒評過
+// known=true 認識→升盒(上限 MAX_BOX)；known=false 不熟→歸第 1 盒
+export function rateVocab(word, known) {
+  if (!word) return;
+  const srs = getVocabSrs();
+  const cur = srs[word]?.box || 0;
+  srs[word] = { box: known ? Math.min(MAX_BOX, cur + 1) : 1, ts: Date.now() };
+  localStorage.setItem("vocabSrs", JSON.stringify(srs));
 }
 
 // ---------- 語音狀態徽章 ----------
@@ -158,6 +195,7 @@ function initSettings() {
     localStorage.removeItem("daily");
     localStorage.removeItem("streak");
     localStorage.removeItem("mistakes");
+    localStorage.removeItem("vocabSrs");
     close();
     if (current === "home") navigate("home");
     alert("學習進度已清除。");
