@@ -794,6 +794,9 @@ export function renderShadowing(view) {
 // ====================================================
 export function renderDictation(view) {
   let idx = 0, revealed = false;
+  // 本回合計分：給「做完一輪」的完成感與平均分，並引導下一步（複習錯題）＝降低「不知道做完沒／接下來幹嘛」的摩擦（容易學，比照第28輪文法）。
+  let roundScores = {}; // idx -> 本回合該句分數（重練同句會更新，避免重複計）
+  const isLast = () => idx >= SENTENCES.length - 1;
 
   function draw() {
     const s = SENTENCES[idx];
@@ -819,7 +822,7 @@ export function renderDictation(view) {
         </div>
         <div class="btn-row mt">
           <button class="btn btn-ghost" id="prevBtn">← 上一句</button>
-          <button class="btn btn-primary" id="nextBtn">下一句 →</button>
+          <button class="btn btn-primary" id="nextBtn">${isLast() ? "完成本回合 →" : "下一句 →"}</button>
         </div>
       </div>
     `));
@@ -830,7 +833,7 @@ export function renderDictation(view) {
     $("#checkBtn", view).onclick = check;
     $("#answer", view).addEventListener("keydown", (e) => { if (e.key === "Enter") check(); });
     $("#prevBtn", view).onclick = () => { idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; draw(); };
-    $("#nextBtn", view).onclick = () => { idx = (idx + 1) % SENTENCES.length; draw(); };
+    $("#nextBtn", view).onclick = () => { if (isLast()) drawSummary(); else { idx += 1; draw(); } };
   }
 
   function check() {
@@ -841,6 +844,7 @@ export function renderDictation(view) {
     const score = Math.round(result.accuracy * 100);
     const grade = gradeLabel(score);
     addStat({ practiced: 1, best: score });
+    roundScores[idx] = score; // 本回合該句分數（重練同句會覆蓋更新）
     if (score < 60) addMistake({ key: `d${idx}`, type: "dictation", sIndex: idx });
 
     const words = s.en.split(/\s+/);
@@ -860,6 +864,38 @@ export function renderDictation(view) {
         <div class="translation">${esc(s.zh)}</div>
       </div>`;
     revealed = true;
+  }
+  // 一輪做完的總結：平均分 + 鼓勵 + 下一步（有錯題就引導去複習＝告訴使用者「接下來學什麼」）。
+  function drawSummary() {
+    const total = SENTENCES.length;
+    const done = Object.keys(roundScores).length;
+    const avg = done ? Math.round(Object.values(roundScores).reduce((a, b) => a + b, 0) / done) : 0;
+    const mistakeCount = getMistakeCount();
+    const praise = done === 0
+      ? "這一輪都跳過了，下次聽寫幾句看看吧！"
+      : avg >= 90 ? "聽力很準，幾乎都聽寫對了！🎉"
+      : avg >= 60 ? "不錯，把分數低的幾句再聽幾次就更穩了 💪"
+      : "沒關係，多聽幾次抓住發音，慢慢就準了 🌱";
+    view.innerHTML = "";
+    view.append(el(`
+      <div>
+        <div class="lesson-head"><div class="ttl">✍️ 聽寫練習</div><span class="pill pill-lv">本回合完成</span></div>
+        <div class="card center">
+          <div style="font-size:40px">${avg >= 90 ? "🏆" : avg >= 60 ? "🎉" : "📘"}</div>
+          <b style="font-size:22px">聽寫 ${done} / ${total} 句</b>
+          <p class="translation">${done ? `平均 ${avg} 分` : "這一輪沒有作答"}</p>
+          <p class="translation">${praise}</p>
+          <div class="btn-row mt" style="flex-direction:column;gap:8px">
+            ${mistakeCount > 0 ? `<button class="btn btn-primary btn-block" id="dReview">📒 複習錯題 ${mistakeCount} 題</button>` : ""}
+            <button class="btn ${mistakeCount > 0 ? "btn-ghost" : "btn-primary"} btn-block" id="dAgain">🔁 再來一輪</button>
+            <button class="btn btn-ghost btn-block" id="dHome">回首頁</button>
+          </div>
+        </div>
+      </div>`));
+    const r = $("#dReview", view);
+    if (r) r.onclick = () => navigate("review");
+    $("#dAgain", view).onclick = () => { idx = 0; roundScores = {}; draw(); };
+    $("#dHome", view).onclick = () => navigate("home");
   }
   draw();
 }
