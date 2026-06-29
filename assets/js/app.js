@@ -201,6 +201,94 @@ export function getStreakBadges() {
   return getEarnedBadges().slice().sort((a, b) => a - b).map((n) => ({ n, ico: badgeIcon(n) }));
 }
 
+// ---------- 成就牆（容易學：動力持續）----------
+// 借鏡 Duolingo：把所有成就收集在「一面牆」上，已解鎖的看得到、未解鎖的也看得到「再差多少」，
+// 用收集慾 + 看得見的下一個目標驅動「想再回來解一個」。全部由現有 localStorage 統計衍生，不另記狀態。
+export function getAchievements() {
+  const stats = JSON.parse(localStorage.getItem("stats") || "{}");
+  const streak = getStreak();
+  const earnedBadges = getEarnedBadges();
+  const streakProg = Math.max(streak.best || 0, streak.count || 0); // best 不因斷連歸零→進度不倒退
+  const mk = (ico, title, cur, target, earned) => ({
+    ico, title, cur, target, earned: !!earned,
+    pct: Math.min(100, Math.round((cur / target) * 100)),
+  });
+  const groups = [
+    { gico: "🔥", gtitle: "連續天數", items:
+      STREAK_MILESTONES.map((t) => mk(badgeIcon(t), `連續 ${t} 天`, streakProg, t,
+        earnedBadges.includes(t) || streakProg >= t)) },
+    { gico: "🎯", gtitle: "練習次數", items:
+      [10, 50, 100, 300].map((t) => mk("🎯", `練習 ${t} 次`, stats.practiced || 0, t, (stats.practiced || 0) >= t)) },
+    { gico: "📚", gtitle: "單字探索", items:
+      [20, 50, 150].map((t) => mk("📚", `看過 ${t} 字`, stats.words || 0, t, (stats.words || 0) >= t)) },
+    { gico: "🌟", gtitle: "高分挑戰", items:
+      [70, 85, 100].map((t) => mk("🌟", `跟讀得 ${t} 分`, stats.best || 0, t, (stats.best || 0) >= t)) },
+  ];
+  let earned = 0, total = 0;
+  groups.forEach((g) => g.items.forEach((it) => { total++; if (it.earned) earned++; }));
+  return { groups, earned, total };
+}
+export function showAchievementWall() {
+  if (document.getElementById("achievementWall")) return;
+  const { groups, earned, total } = getAchievements();
+  const cell = (a) => `
+    <div class="aw-cell ${a.earned ? "earned" : "locked"}">
+      <div class="aw-c-ico">${a.ico}</div>
+      <div class="aw-c-t">${a.title}</div>
+      ${a.earned
+        ? `<div class="aw-c-s done">✓ 已解鎖</div>`
+        : `<div class="aw-c-bar"><i style="width:${a.pct}%"></i></div><div class="aw-c-s">${a.cur}/${a.target}</div>`}
+    </div>`;
+  const groupHtml = groups.map((g) => `
+    <div class="aw-group">
+      <div class="aw-gtitle">${g.gico} ${g.gtitle}</div>
+      <div class="aw-grid">${g.items.map(cell).join("")}</div>
+    </div>`).join("");
+  const overlay = document.createElement("div");
+  overlay.id = "achievementWall";
+  overlay.className = "onb aw";
+  overlay.innerHTML = `
+    <div class="onb-card aw-card" role="dialog" aria-modal="true" aria-label="成就牆">
+      <div class="aw-head">
+        <div class="onb-ico">🏅</div>
+        <h2>成就牆</h2>
+        <p class="onb-sub">已解鎖 <b>${earned}</b> / ${total} — 每多解一個，都是你的堅持</p>
+      </div>
+      <div class="aw-scroll">${groupHtml}</div>
+      <div class="onb-actions"><button class="btn btn-primary" id="awClose" type="button">完成</button></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.querySelector("#awClose").onclick = close;
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+}
+
+// ---------- 達標輕量音效（尊重靜音：預設開、設定可關）----------
+let _audioCtx = null;
+export function isSoundOn() { return localStorage.getItem("soundOff") !== "1"; }
+export function setSoundOn(on) { localStorage.setItem("soundOff", on ? "0" : "1"); }
+// 短促上揚琶音（C5→E5→G5），best-effort、不支援/被擋就靜默
+function playChime() {
+  if (!isSoundOn()) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    _audioCtx = _audioCtx || new AC();
+    if (_audioCtx.state === "suspended") _audioCtx.resume();
+    const now = _audioCtx.currentTime;
+    [523.25, 659.25, 783.99].forEach((f, i) => {
+      const o = _audioCtx.createOscillator(), g = _audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      const t0 = now + i * 0.10;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(0.16, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
+      o.connect(g); g.connect(_audioCtx.destination);
+      o.start(t0); o.stop(t0 + 0.30);
+    });
+  } catch { /* 靜默 */ }
+}
+
 // 彩帶動畫（純 CSS 落下，pointer-events:none 不擋操作；2.6s 後自清）
 function fireConfetti() {
   const layer = document.createElement("div");
@@ -220,6 +308,7 @@ function fireConfetti() {
 // 達標/里程碑的慶祝吐司（淡入→停留→淡出移除）
 function showCelebration(title, sub) {
   fireConfetti();
+  playChime();
   const t = document.createElement("div");
   t.className = "celebrate-toast";
   t.innerHTML = `<div class="ct-title">${title}</div><div class="ct-sub">${sub}</div>`;
@@ -418,6 +507,15 @@ function initSettings() {
     goalSel.value = getDailyGoalLevel();
     goalSel.onchange = () => { setDailyGoalLevel(goalSel.value); if (current === "home") navigate("home"); };
   }
+
+  const soundToggle = document.getElementById("soundToggle");
+  if (soundToggle) {
+    soundToggle.checked = isSoundOn();
+    soundToggle.onchange = () => setSoundOn(soundToggle.checked);
+  }
+
+  const wallBtn = document.getElementById("openWall");
+  if (wallBtn) wallBtn.onclick = () => { close(); showAchievementWall(); };
 
   const replayBtn = document.getElementById("replayOnboarding");
   if (replayBtn) replayBtn.onclick = () => { close(); showOnboarding(); };

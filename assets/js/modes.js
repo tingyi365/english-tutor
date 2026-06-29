@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress, sentenceIntonation } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, navigate } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, showAchievementWall, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -76,9 +76,10 @@ export function renderHome(view, navigate) {
           ? `做得好！明天再回來就能把連續天數變成 ${streak.count + 1} 天 💪`
           : `今天再完成 <b>${remain}</b> 個練習就達標 — 任何一種學習方式都算數，現在就開始吧！`}${streak.best > 1 ? `　·　最佳紀錄 ${streak.best} 天` : ""}</div>
         ${(badges.length || nextMilestone) ? `
-        <div class="streak-badges">
+        <div class="streak-badges" id="streakBadges" role="button" tabindex="0" title="點開成就牆，看看所有成就">
           ${badges.map((b) => `<span class="sbadge" title="連續 ${b.n} 天里程碑">${b.ico}<i>${b.n}</i></span>`).join("")}
           ${nextMilestone ? `<span class="sbadge sbadge-next" title="下一個里程碑">🎯<i>${nextMilestone}天</i></span>` : ""}
+          <span class="sbadge-more">🏅 成就牆 →</span>
         </div>` : ""}
         ${freezeHtml}
       </div>
@@ -102,6 +103,12 @@ export function renderHome(view, navigate) {
     const go = () => navigate("review");
     rc.addEventListener("click", go);
     rc.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  }
+  const sb = $("#streakBadges", view);
+  if (sb) {
+    const openWall = () => showAchievementWall();
+    sb.addEventListener("click", openWall);
+    sb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openWall(); } });
   }
   const grid = $("#modeGrid", view);
   modes.forEach((m) => {
