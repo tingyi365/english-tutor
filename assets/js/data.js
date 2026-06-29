@@ -37,35 +37,44 @@ export const SENTENCES = [
 ];
 
 // 單字卡
+// topic：學習動機主題（travel/work/exam/daily），用於依使用者動機把對應主題單字排前（弱點優先仍是主排序）。
 export const VOCAB = [
-  { word: "appreciate", ipa: "/əˈpriːʃieɪt/", pos: "v.", zh: "感激；欣賞", ex: "I really appreciate your help.", exZh: "我真的很感激你的幫忙。" },
-  { word: "improve", ipa: "/ɪmˈpruːv/", pos: "v.", zh: "改善；進步", ex: "Practice helps you improve quickly.", exZh: "練習能幫助你快速進步。" },
-  { word: "confident", ipa: "/ˈkɒnfɪdənt/", pos: "adj.", zh: "有自信的", ex: "Speak slowly and stay confident.", exZh: "慢慢說，保持自信。" },
-  { word: "schedule", ipa: "/ˈskɛdʒuːl/", pos: "n.", zh: "行程；時間表", ex: "Let's check the schedule together.", exZh: "我們一起看一下行程。" },
-  { word: "available", ipa: "/əˈveɪləbl/", pos: "adj.", zh: "有空的；可用的", ex: "Are you available this afternoon?", exZh: "你今天下午有空嗎？" },
-  { word: "decision", ipa: "/dɪˈsɪʒən/", pos: "n.", zh: "決定", ex: "It was a difficult decision to make.", exZh: "那是個難下的決定。" },
-  { word: "recommend", ipa: "/ˌrɛkəˈmɛnd/", pos: "v.", zh: "推薦；建議", ex: "I recommend trying this restaurant.", exZh: "我推薦試試這家餐廳。" },
-  { word: "opportunity", ipa: "/ˌɒpərˈtjuːnəti/", pos: "n.", zh: "機會", ex: "This is a great opportunity for you.", exZh: "這對你是個很好的機會。" },
-  { word: "convenient", ipa: "/kənˈviːniənt/", pos: "adj.", zh: "方便的", ex: "Is this time convenient for you?", exZh: "這個時間對你方便嗎？" },
-  { word: "experience", ipa: "/ɪkˈspɪriəns/", pos: "n.", zh: "經驗；體驗", ex: "She has a lot of teaching experience.", exZh: "她有很多教學經驗。" },
-  { word: "necessary", ipa: "/ˈnɛsəsɛri/", pos: "adj.", zh: "必要的", ex: "It's not necessary to worry.", exZh: "沒必要擔心。" },
-  { word: "particular", ipa: "/pərˈtɪkjələr/", pos: "adj.", zh: "特定的；講究的", ex: "Is there a particular topic you like?", exZh: "你有特別喜歡的主題嗎？" },
-  { word: "manage", ipa: "/ˈmænɪdʒ/", pos: "v.", zh: "設法做到；管理", ex: "She managed to solve the problem.", exZh: "她設法解決了那個問題。" },
-  { word: "obvious", ipa: "/ˈɒbviəs/", pos: "adj.", zh: "明顯的", ex: "The answer is quite obvious.", exZh: "答案相當明顯。" },
-  { word: "encourage", ipa: "/ɪnˈkʌrɪdʒ/", pos: "v.", zh: "鼓勵", ex: "My teacher always encourages me.", exZh: "我的老師總是鼓勵我。" },
-  { word: "purpose", ipa: "/ˈpɜːrpəs/", pos: "n.", zh: "目的；用途", ex: "What's the purpose of this meeting?", exZh: "這場會議的目的是什麼？" },
-  { word: "reduce", ipa: "/rɪˈdjuːs/", pos: "v.", zh: "減少；降低", ex: "We need to reduce our spending.", exZh: "我們需要減少開支。" },
-  { word: "familiar", ipa: "/fəˈmɪliər/", pos: "adj.", zh: "熟悉的", ex: "This place looks familiar.", exZh: "這個地方看起來很熟悉。" },
-  { word: "achieve", ipa: "/əˈtʃiːv/", pos: "v.", zh: "達成；實現", ex: "You can achieve your goals with effort.", exZh: "努力就能達成你的目標。" },
-  { word: "complain", ipa: "/kəmˈpleɪn/", pos: "v.", zh: "抱怨；投訴", ex: "There's no point in complaining.", exZh: "抱怨沒有意義。" },
-  { word: "polite", ipa: "/pəˈlaɪt/", pos: "adj.", zh: "有禮貌的", ex: "He is always polite to others.", exZh: "他對人總是很有禮貌。" },
-  { word: "suggest", ipa: "/səˈdʒɛst/", pos: "v.", zh: "建議；提議", ex: "Can you suggest a good movie?", exZh: "你能推薦一部好電影嗎？" },
+  { word: "appreciate", ipa: "/əˈpriːʃieɪt/", pos: "v.", zh: "感激；欣賞", ex: "I really appreciate your help.", exZh: "我真的很感激你的幫忙。", topic: "daily" },
+  { word: "improve", ipa: "/ɪmˈpruːv/", pos: "v.", zh: "改善；進步", ex: "Practice helps you improve quickly.", exZh: "練習能幫助你快速進步。", topic: "daily" },
+  { word: "confident", ipa: "/ˈkɒnfɪdənt/", pos: "adj.", zh: "有自信的", ex: "Speak slowly and stay confident.", exZh: "慢慢說，保持自信。", topic: "daily" },
+  { word: "schedule", ipa: "/ˈskɛdʒuːl/", pos: "n.", zh: "行程；時間表", ex: "Let's check the schedule together.", exZh: "我們一起看一下行程。", topic: "work" },
+  { word: "available", ipa: "/əˈveɪləbl/", pos: "adj.", zh: "有空的；可用的", ex: "Are you available this afternoon?", exZh: "你今天下午有空嗎？", topic: "work" },
+  { word: "decision", ipa: "/dɪˈsɪʒən/", pos: "n.", zh: "決定", ex: "It was a difficult decision to make.", exZh: "那是個難下的決定。", topic: "work" },
+  { word: "recommend", ipa: "/ˌrɛkəˈmɛnd/", pos: "v.", zh: "推薦；建議", ex: "I recommend trying this restaurant.", exZh: "我推薦試試這家餐廳。", topic: "travel" },
+  { word: "opportunity", ipa: "/ˌɒpərˈtjuːnəti/", pos: "n.", zh: "機會", ex: "This is a great opportunity for you.", exZh: "這對你是個很好的機會。", topic: "work" },
+  { word: "convenient", ipa: "/kənˈviːniənt/", pos: "adj.", zh: "方便的", ex: "Is this time convenient for you?", exZh: "這個時間對你方便嗎？", topic: "daily" },
+  { word: "experience", ipa: "/ɪkˈspɪriəns/", pos: "n.", zh: "經驗；體驗", ex: "She has a lot of teaching experience.", exZh: "她有很多教學經驗。", topic: "work" },
+  { word: "necessary", ipa: "/ˈnɛsəsɛri/", pos: "adj.", zh: "必要的", ex: "It's not necessary to worry.", exZh: "沒必要擔心。", topic: "daily" },
+  { word: "particular", ipa: "/pərˈtɪkjələr/", pos: "adj.", zh: "特定的；講究的", ex: "Is there a particular topic you like?", exZh: "你有特別喜歡的主題嗎？", topic: "exam" },
+  { word: "manage", ipa: "/ˈmænɪdʒ/", pos: "v.", zh: "設法做到；管理", ex: "She managed to solve the problem.", exZh: "她設法解決了那個問題。", topic: "work" },
+  { word: "obvious", ipa: "/ˈɒbviəs/", pos: "adj.", zh: "明顯的", ex: "The answer is quite obvious.", exZh: "答案相當明顯。", topic: "exam" },
+  { word: "encourage", ipa: "/ɪnˈkʌrɪdʒ/", pos: "v.", zh: "鼓勵", ex: "My teacher always encourages me.", exZh: "我的老師總是鼓勵我。", topic: "daily" },
+  { word: "purpose", ipa: "/ˈpɜːrpəs/", pos: "n.", zh: "目的；用途", ex: "What's the purpose of this meeting?", exZh: "這場會議的目的是什麼？", topic: "work" },
+  { word: "reduce", ipa: "/rɪˈdjuːs/", pos: "v.", zh: "減少；降低", ex: "We need to reduce our spending.", exZh: "我們需要減少開支。", topic: "exam" },
+  { word: "familiar", ipa: "/fəˈmɪliər/", pos: "adj.", zh: "熟悉的", ex: "This place looks familiar.", exZh: "這個地方看起來很熟悉。", topic: "daily" },
+  { word: "achieve", ipa: "/əˈtʃiːv/", pos: "v.", zh: "達成；實現", ex: "You can achieve your goals with effort.", exZh: "努力就能達成你的目標。", topic: "work" },
+  { word: "complain", ipa: "/kəmˈpleɪn/", pos: "v.", zh: "抱怨；投訴", ex: "There's no point in complaining.", exZh: "抱怨沒有意義。", topic: "daily" },
+  { word: "polite", ipa: "/pəˈlaɪt/", pos: "adj.", zh: "有禮貌的", ex: "He is always polite to others.", exZh: "他對人總是很有禮貌。", topic: "daily" },
+  { word: "suggest", ipa: "/səˈdʒɛst/", pos: "v.", zh: "建議；提議", ex: "Can you suggest a good movie?", exZh: "你能推薦一部好電影嗎？", topic: "daily" },
+  // —— 第 22 輪：補齊 travel/exam 主題單字（讓動機=旅遊/考試的人也有對應主題字優先）。append-only ——
+  { word: "reservation", ipa: "/ˌrɛzərˈveɪʃən/", pos: "n.", zh: "預約；訂位", ex: "I have a reservation for two.", exZh: "我有一個兩人的訂位。", topic: "travel" },
+  { word: "passport", ipa: "/ˈpæspɔːrt/", pos: "n.", zh: "護照", ex: "Please show me your passport.", exZh: "請出示你的護照。", topic: "travel" },
+  { word: "luggage", ipa: "/ˈlʌɡɪdʒ/", pos: "n.", zh: "行李", ex: "Where can I pick up my luggage?", exZh: "我可以在哪裡領行李？", topic: "travel" },
+  { word: "passage", ipa: "/ˈpæsɪdʒ/", pos: "n.", zh: "（文章）段落", ex: "Read the passage and answer the questions.", exZh: "閱讀這段文章並回答問題。", topic: "exam" },
+  { word: "summarize", ipa: "/ˈsʌməraɪz/", pos: "v.", zh: "摘要；總結", ex: "Please summarize the main idea.", exZh: "請總結主要概念。", topic: "exam" },
 ];
 
 // 情境口說對話：AI 給提示句，學生開口回應，逐句推進
+// topic：學習動機主題（travel/work/daily）；level：難度（初級/中級）。
+// 用於依使用者動機把對應主題對話排前 + 可自由跳級篩選（借鏡 Babbel：依目標分主題、難度可自由跳、不鎖進度門＝容易學）。
 export const DIALOGUES = [
   {
-    title: "咖啡廳點餐",
+    title: "咖啡廳點餐", topic: "travel", level: "初級",
     scene: "你走進一家咖啡廳，店員開始招呼你。",
     turns: [
       { ai: "Hi! Welcome. What can I get for you today?", hint: "I'd like a latte, please.", zh: "我想要一杯拿鐵，謝謝。" },
@@ -75,7 +84,7 @@ export const DIALOGUES = [
     ],
   },
   {
-    title: "認識新朋友",
+    title: "認識新朋友", topic: "daily", level: "初級",
     scene: "你在語言交換活動中第一次見到一位新朋友。",
     turns: [
       { ai: "Hello! I don't think we've met. I'm David.", hint: "Hi David, I'm Anna. Nice to meet you.", zh: "嗨大衛，我是安娜，很高興認識你。" },
@@ -85,7 +94,7 @@ export const DIALOGUES = [
     ],
   },
   {
-    title: "問路",
+    title: "問路", topic: "travel", level: "初級",
     scene: "你在街上迷路了，向路人問路。",
     turns: [
       { ai: "Hi, you look a little lost. Do you need help?", hint: "Yes, where is the train station?", zh: "是的，請問火車站在哪裡？" },
@@ -94,7 +103,7 @@ export const DIALOGUES = [
     ],
   },
   {
-    title: "餐廳訂位",
+    title: "餐廳訂位", topic: "travel", level: "中級",
     scene: "你打電話到餐廳預約晚餐的桌位。",
     turns: [
       { ai: "Good evening, Bella's Restaurant. How can I help you?", hint: "Hi, I'd like to book a table for two.", zh: "嗨，我想訂一張兩人的桌子。" },
@@ -104,13 +113,43 @@ export const DIALOGUES = [
     ],
   },
   {
-    title: "看醫生",
+    title: "看醫生", topic: "daily", level: "中級",
     scene: "你覺得身體不舒服，去診所看醫生。",
     turns: [
       { ai: "Hello, what seems to be the problem?", hint: "I have a headache and a sore throat.", zh: "我頭痛又喉嚨痛。" },
       { ai: "How long have you felt like this?", hint: "Since yesterday morning.", zh: "從昨天早上開始。" },
       { ai: "I see. Do you have a fever?", hint: "Yes, a little. I feel very tired.", zh: "有一點，我覺得很累。" },
       { ai: "Okay. Take this medicine and get some rest.", hint: "Thank you, doctor.", zh: "謝謝醫生。" },
+    ],
+  },
+  // —— 第 22 輪：補齊「工作職場」主題對話（讓動機=工作的人也有對應情境內容），含難度分級。append-only ——
+  {
+    title: "跟同事約開會", topic: "work", level: "初級",
+    scene: "你想跟同事約個時間開會討論專案。",
+    turns: [
+      { ai: "Hi, do you have time to talk about the project?", hint: "Sure. When works for you?", zh: "當然，你什麼時間方便？" },
+      { ai: "How about tomorrow at ten?", hint: "Tomorrow at ten works for me.", zh: "明天十點我可以。" },
+      { ai: "Great. I'll send you a meeting invite.", hint: "Thanks. See you then.", zh: "謝謝，到時見。" },
+    ],
+  },
+  {
+    title: "工作面試自我介紹", topic: "work", level: "中級",
+    scene: "你正在參加一場英文工作面試，面試官請你做自我介紹。",
+    turns: [
+      { ai: "Thanks for coming. Could you tell me about yourself?", hint: "Sure. I have three years of experience in marketing.", zh: "好的，我有三年的行銷工作經驗。" },
+      { ai: "Why are you interested in this position?", hint: "I'd like to grow and take on more responsibility.", zh: "我想成長並承擔更多責任。" },
+      { ai: "What is your greatest strength?", hint: "I'm good at solving problems under pressure.", zh: "我擅長在壓力下解決問題。" },
+      { ai: "Great. Do you have any questions for us?", hint: "Yes, what does a typical day look like?", zh: "有的，請問一天的工作大概是什麼樣子？" },
+    ],
+  },
+  {
+    title: "商務電話留言", topic: "work", level: "中級",
+    scene: "你打電話找客戶，但對方不在，由同事接聽。",
+    turns: [
+      { ai: "Good morning, this is ABC Company. How can I help you?", hint: "Hi, may I speak to Mr. Lee, please?", zh: "嗨，請問李先生在嗎？" },
+      { ai: "I'm sorry, he's in a meeting right now.", hint: "Could I leave a message for him?", zh: "我可以留個言給他嗎？" },
+      { ai: "Of course. What would you like me to tell him?", hint: "Please ask him to call me back this afternoon.", zh: "請他下午回電給我。" },
+      { ai: "Sure, I'll pass that along.", hint: "Thank you. I appreciate it.", zh: "謝謝你，很感謝。" },
     ],
   },
 ];

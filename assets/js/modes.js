@@ -868,20 +868,40 @@ export function renderDictation(view) {
 // 情境對話
 // ====================================================
 export function renderConversation(view) {
-  let dIdx = 0, turn = 0, recognizer = null, listening = false;
+  let turn = 0, recognizer = null, listening = false;
+  // 依動機分主題 + 難度分級 + 可自由跳級（借鏡 Babbel：依目標分主題、難度可自由跳、不鎖進度門＝容易學）。
+  // 主題篩選 chip：「全部」＋實際存在的主題；選了學習動機就預設聚焦對應主題，讓「為你推薦」連對話內容也名副其實。
+  const TOPIC_META = { travel: { ico: "✈️", t: "旅遊" }, work: { ico: "💼", t: "工作" }, daily: { ico: "🗣️", t: "日常" }, exam: { ico: "📖", t: "考試" } };
+  const presentTopics = [...new Set(DIALOGUES.map((d) => d.topic).filter(Boolean))];
+  const motiveKey = getLearnMotive();
+  // 動機對應主題有對話才預設聚焦，否則「全部」（如動機=考試但對話無考試主題 → 全部，零摩擦不強迫）。
+  let filter = (motiveKey && presentTopics.includes(motiveKey)) ? motiveKey : "all";
+  const listFor = (f) => DIALOGUES.map((d, i) => ({ d, i })).filter((o) => f === "all" || o.d.topic === f).map((o) => o.i);
+  let list = listFor(filter);
+  let fpos = 0;
+
+  function chipsHtml() {
+    const chip = (key, label) =>
+      `<button type="button" class="conv-chip${filter === key ? " on" : ""}" data-f="${key}">${label}</button>`;
+    return `<div class="conv-chips" id="convChips">
+      ${chip("all", "全部")}
+      ${presentTopics.map((tp) => chip(tp, `${TOPIC_META[tp].ico} ${TOPIC_META[tp].t}`)).join("")}
+    </div>`;
+  }
 
   function draw() {
-    const d = DIALOGUES[dIdx];
+    const d = DIALOGUES[list[fpos]];
     view.innerHTML = "";
     view.append(el(`
       <div>
         ${micWarning()}
         <div class="lesson-head">
           <div class="ttl">💬 情境對話</div>
-          <span class="pill pill-lv">${dIdx + 1}/${DIALOGUES.length}</span>
+          <span class="pill pill-lv">${esc(d.level || "初級")}・${fpos + 1}/${list.length}</span>
         </div>
+        ${chipsHtml()}
         <div class="card">
-          <b>${esc(d.title)}</b>
+          <b>${TOPIC_META[d.topic] ? TOPIC_META[d.topic].ico + " " : ""}${esc(d.title)}</b>
           <p class="translation">${esc(d.scene)}</p>
         </div>
         <div class="chat mt" id="chat"></div>
@@ -892,7 +912,15 @@ export function renderConversation(view) {
       </div>
     `));
     turn = 0;
-    $("#switchBtn", view).onclick = () => { dIdx = (dIdx + 1) % DIALOGUES.length; draw(); };
+    // 主題 chip：自由跳級（不鎖進度門），切主題即重建清單並回到該主題第一個對話。
+    view.querySelectorAll(".conv-chip").forEach((c) => {
+      c.onclick = () => {
+        const f = c.dataset.f;
+        if (f === filter) return;
+        filter = f; list = listFor(filter); fpos = 0; draw();
+      };
+    });
+    $("#switchBtn", view).onclick = () => { fpos = (fpos + 1) % list.length; draw(); };
     nextTurn();
   }
 
@@ -903,7 +931,7 @@ export function renderConversation(view) {
   }
 
   function nextTurn() {
-    const d = DIALOGUES[dIdx];
+    const d = DIALOGUES[list[fpos]];
     if (turn >= d.turns.length) {
       $("#convCtl", view).innerHTML = `<div class="card center mt">🎉 對話完成！你完成了「${esc(d.title)}」。<div class="btn-row mt"><button class="btn btn-primary btn-block" id="againConv">再練一次</button></div></div>`;
       $("#againConv", view).onclick = draw;
@@ -962,9 +990,20 @@ export function renderConversation(view) {
 // 單字卡
 // ====================================================
 export function renderFlashcard(view) {
-  // 弱點優先：沒評過(box 0)與「不熟」(box 1) 的單字排最前面先複習，「認識」的排後面（Leitner）
+  // 弱點優先：沒評過(box 0)與「不熟」(box 1) 的單字排最前面先複習，「認識」的排後面（Leitner）。
+  // 次要排序：選了學習動機 → 同熟練度下，對應主題（旅遊/工作/考試/日常）的字優先排前（讓「為你推薦」連單字也貼動機＝容易學）。
+  const motiveKey = getLearnMotive();
   const order = VOCAB.map((_, idx) => idx)
-    .sort((a, b) => getVocabBox(VOCAB[a].word) - getVocabBox(VOCAB[b].word));
+    .sort((a, b) => {
+      const bd = getVocabBox(VOCAB[a].word) - getVocabBox(VOCAB[b].word);
+      if (bd !== 0) return bd;
+      if (motiveKey) {
+        const am = VOCAB[a].topic === motiveKey ? 0 : 1;
+        const bm = VOCAB[b].topic === motiveKey ? 0 : 1;
+        if (am !== bm) return am - bm;
+      }
+      return 0;
+    });
   let pos = 0;
   const len = order.length;
   const dots = (box) => "●".repeat(box) + "○".repeat(Math.max(0, MAX_BOX - box));

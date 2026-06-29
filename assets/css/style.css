@@ -156,6 +156,14 @@ body {
   background: linear-gradient(135deg, var(--brand), var(--brand-2)); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
 .muted { color: var(--muted); }
 
+/* 對話主題篩選 chip（依動機分主題 + 可自由跳級，第22輪） */
+.conv-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+.conv-chip { font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted);
+  background: var(--card-2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; transition: .16s; }
+.conv-chip:hover { border-color: var(--brand); color: var(--text); }
+.conv-chip.on { color: #fff; border-color: transparent;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
+
 .stat-row { display: flex; gap: 10px; margin-top: 14px; }
 .stat { flex: 1; text-align: center; background: var(--card); border: 1px solid var(--line);
   border-radius: 14px; padding: 12px 6px; }
