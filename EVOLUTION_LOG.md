@@ -801,7 +801,8 @@
 - 本機先跑**真機診斷**證實「sticky padding-bottom」非真 bug（六模式 overlapBehindBar=0px，見上）→ 不做該改動、改做主題。
 - 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server）端到端 **38/38 PASS、0 console error**（`tools/verify_theme.mjs`）：預設無 data-theme+深底(亮度0.07)+鈕🌙／切淺色→data-theme=light+localStorage+鈕☀️+meta #f3f5fb+亮底(0.96)深字(0.12)／9 個重映亮色文字在白底皆變深(w-ok/w-bad/w-miss/opt.correct/drill-near/pace-ok/into-arrow/phonetic 亮度0.23–0.39)／重整持久化仍淺色+head 防閃 inline script 在樣式前／六模式淺色皆渲染且內文深字可讀／切回深色+持久化。
 - regression 全綠、0 console error：`verify_exam_dialogue` **16/16**、`verify_branch_dialogue` **16/16**、`verify_motive_onboarding` **30/30**。
-- 線上部署＋線上真機驗證證據：見下方部署後補。
+- git 7fb4a38 push main + wrangler deploy 主(english-tutor-ai 5a3f66ee)+legacy(english-tutor-e1l b6e99555)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 31/31 PASS、0 console error**（`tools/verify_theme_live.mjs`）：線上 head 防閃 inline script 在／預設深色+鈕🌙／切淺色 data-theme+localStorage+鈕☀️+meta #f3f5fb+亮底深字／8 重映亮色文字白底皆變深／重整持久化仍淺色／六模式淺色渲染內文深／切回深色持久化。線上 style.css `data-theme="light"` 49 處、app.js toggleTheme/applyTheme 5 處實證。
 
 **下一輪 backlog 想法（優先序建議）**
 - ※「sticky padding-bottom」經真機診斷確認為**非 bug、已退役**（tabbar 流內 sticky、內容從不被遮）→ 勿再以此為由改動。深色/淺色（第25）已做、勿重做。
