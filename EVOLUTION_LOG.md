@@ -1227,4 +1227,43 @@
 2. 內容矩陣補強後現況（可量化、供下輪參考是否續補最單薄格）：跟讀句 daily10/travel6/work8/**exam6**、單字 daily10/work8/exam5/**travel4**、文法 work5/daily6/exam4/travel4、對話 travel3/daily4/work4/exam3（pin 明示對話均衡勿動）。**travel 單字仍4（單字模式最單薄）、exam 文法4**——若下輪稽核確認無摩擦，可續補 travel 單字 或 exam 文法（append-only、不動既有索引/錯題 key），但**須先真機稽核證實該格確為當下最單薄且無更高價值的真實摩擦**。
 3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染＝功能已存在、勿再以此為由重做。
 
+---
+
+### 第 37 輪 — 2026-06-30（真機稽核確認無真實摩擦 → 低風險內容擴充：補 travel 單字 4→6（內容矩陣最單薄格）｜正中第36輪 backlog #2「travel 單字仍4＝單字模式最單薄、可續補」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `https://english-tutor-ai.pages.dev`。開工前雙站健康（ai 0.15s / e1l 0.08s 皆 HTTP 200）、working tree 乾淨（HEAD=第36輪 docs 452c004）。
+
+**選題依據（避免空轉｜重要）**
+- 第36輪 backlog #1＝「五大層全飽和、五模式首屏指示全補齊、排程切走風險全模式已證乾淨。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實 result_summary 寫『無真實摩擦、本輪只做低風險內容/微文案』勝過硬造炫技」；backlog #2＝「**travel 單字仍4（單字模式最單薄）、exam 文法4**——可續補 travel 單字 或 exam 文法（append-only、不動既有索引/錯題 key），須先真機稽核證實該格確為當下最單薄且無更高價值的真實摩擦」。
+- 本輪嚴格照 🔴pin 先真機走全模式稽核找真實摩擦；確認無摩擦後做 pin 明許的低風險 append-only 內容擴充（補唯一可量化的最單薄內容格＝travel 單字）。
+- ⚠️ **誠實自評**：內容補強已連四輪（daily對話33、travel文法35、exam句36、本輪travel單字37）＝邊際遞減持續升高。本輪稽核確認**確實無真實操作摩擦**（見下），且 travel 單字（4）為跨四模式所有格中**唯一最單薄的內容格**、第36輪 backlog #2 已明許，故據 🔴pin「無摩擦則誠實只做低風險內容擴充」執行；**並非硬造炫技、未碰任何飽和層**。
+
+**北極星研究（必做）**
+- WebSearch「language learning app travel vocabulary beginner reduce friction easy to learn 2026 Duolingo Babbel」。借鏡：**Babbel** 在旅遊/數位游牧路線最強＝**實用情境（點餐、問路、訂位）＋短課＋清楚解說**，主打「學剛好夠用的語言去旅行/點餐/基本對話」；beginner 友善要件＝清楚、節奏、建立信心＋母語者語音。落地點子：對「為你推薦」依動機選內容的 app，**travel 單字（4）是跨四模式所有格中最單薄者**，補幾個**初學者旅遊最常用、最實用的具體名詞**（車票、方向/路線）＝既補最單薄格、又貼 Babbel「實用情境＋清楚解說」＝更容易學、更敢開口。
+- 來源：[Best Language Learning Apps for Travelers & Digital Nomads 2026｜Babbel](https://www.babbel.com/best-language-learning-apps-for-digital-nomads)、[Duolingo vs Babbel 2026｜PolyChat](https://www.polychatapp.com/blog/duolingo-vs-babbel)、[Best Apps for Beginners 2026｜Test Prep Insight](https://testprepinsight.com/best/best-language-learning-apps-for-beginners/)。
+
+**真機稽核（找真實摩擦點，避免為改而改）— `tools/diag_audit_r35.mjs`（線上站；手機375px + 桌面1280px 走全6模式 + 排程切走壓力測試）**
+- **乾淨面**：①全模式（手機+桌面）**0 console error、0 console warning**；②全模式 **0 橫向溢出（overflowX=0）、0 超界元素（offenders=0）**（無破版）；③五模式首屏皆有操作指示（hint=true 全綠）。
+- **排程切走壓力測試**（跟讀🔊聽示範→切走、單字卡🔊發音→切走、聽寫🔊播放→切走、對話略過→切走）：**全 0 新增 console error**＝第34輪後排程切走風險全模式持續乾淨。
+- **唯一可量化缺口＝內容矩陣最單薄格**：以模組實算各模式 topic 分佈——單字 daily10/work8/exam5/**travel4**、跟讀句 daily10/travel6/work8/exam6、文法 work5/daily6/exam4/travel4、對話 travel3/daily4/work4/exam3（對話 pin 明示均衡勿動）。**travel 單字僅 4＝跨四模式所有 16 格中最單薄的一格**（旅遊正是初學者最有動機學的情境）。這是唯一可量化的內容不均衡，非操作摩擦。
+- 稽核結論：**無真實操作摩擦／破版／console 問題／排程風險**。最大風險＝為了有 pin 可做硬造炫技（歷輪反覆示警）。據 🔴pin 明許與第36輪 backlog #2，本輪只做**低風險純內容量擴充 append-only**，補唯一可量化最單薄格（travel 單字），**不碰五大飽和層、不加新機制、不動既有索引/錯題 key**。
+
+**本輪進化：補 travel 單字 4→6（旅遊動機單字均衡＝旅遊族群「為你推薦」名副其實＝容易學）**
+- 改動檔：`assets/js/data.js`（VOCAB 陣列**末端 append** 2 個初學者旅遊最常用實用名詞）：①「ticket /ˈtɪkɪt/ n. 票；車票」例「Where can I buy a train ticket?」；②「direction /dɪˈrɛkʃən/ n. 方向；路線」例「Can you show me the direction to the hotel?」。皆 `topic:"travel"`、皆含 IPA／詞性／中文／實用例句＋例句翻譯（北極星＝Babbel 旅遊實用情境＋清楚解說）。
+- **純資料層 append-only、零索引依賴**：單字卡 SRS（vocabSrs）以 **`word` 字串為 key**（`getVocabBox(word)`），非陣列索引 → 新增不同字串的字**與既有 SRS 資料零碰撞**；單字卡 order 每次依 Leitner 盒況+動機動態重算，append 不影響既有字排序。**既有 0~26 索引一字未動**。
+- **不破壞**：弱點優先排序、動機優先排序、認識/不熟 Leitner 回饋、走完一圈完成總結（第30輪單字卡收尾）皆一字未動，僅 travel 單字量 4→6。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r35.mjs`（線上）證實「全模式 0 error/0 warn/0 破版、排程切走 0 風險、唯一量化缺口＝travel 單字 4＝跨四模式 16 格中最單薄」＝選「補最單薄內容格」而非硬造炫技。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **18/18 PASS、0 console error**（`tools/verify_travel_vocab.mjs`）：VOCAB 總數29/travel補至6/其他主題未動(daily10/work8/exam5)/四主題皆有字/全字結構合法/**既有 VOCAB[0]=appreciate、[21]=suggest、[26]=summarize 未動(零回歸)**/新2字皆 travel 合法(ticket/direction)/單字字串唯一(SRS key 零碰撞)/單字卡總29張/走訪整圈確實出現 ticket+direction(新字真的在線可練)/動機=travel 第一張為 travel 主題字/卡片可翻面/末張按鈕「完成這一輪」/完成顯示走完一圈總結卡（第30輪收尾回歸）。
+- regression 全綠、0 console error：`verify_exam_sentence`(第36 exam句 + data.js 仍正常解析、SENTENCES/聽寫收尾未破壞) **15/15**、`verify_grammar_travel`(第35旅遊文法) **13/13**。
+- git 7870ef8 push main + wrangler deploy 主(english-tutor-ai e5ca53ca)+legacy(english-tutor-e1l 975eff88)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 18/18 PASS、0 console error**（`verify_travel_vocab.mjs <URL>`）；線上 curl data.js grep「ticket|direction」=3 實證新字在線。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※travel 單字擴充(第37)已做、勿重做。五大層（口說8–17／動力18–20／內容分主題21–24+31／深淺主題25–27／三練習收尾28–30）＋文法指示32＋daily對話33＋對話指示34＋旅遊文法35＋exam句36＋travel單字37 皆飽和或已做＝勿重做。
+1. ⚠️⚠️ **內容矩陣補強已連四輪（daily對話33、travel文法35、exam句36、travel單字37）＝邊際遞減已很高**。五大層全飽和、五模式首屏指示全補齊、排程切走風險全模式已證乾淨。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝此時最該做的是『不為改而改』、甚至誠實寫「本輪稽核無摩擦、無高價值內容缺口、僅微文案或不動」**。**嚴禁**為了有 pin 可做而硬補邊際內容或造炫技。
+2. 內容矩陣補強後現況（可量化、供下輪參考；**但續補前須嚴格自問是否仍為當下最高價值，抑或已淪為為有 pin 可做**）：跟讀句 daily10/travel6/work8/exam6、單字 daily10/work8/**exam5**/**travel6**、文法 work5/daily6/**exam4**/**travel4**、對話 travel3/daily4/work4/exam3（pin 明示對話均衡勿動）。最單薄格現為 **exam 文法4／travel 文法4**（文法模式 travel/exam 並列最低）；若下輪稽核確認無摩擦且判定確為最高價值，可續補 exam 或 travel 文法（append-only、不動既有索引/錯題 key），否則誠實少做。
+3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染＝功能已存在、勿再以此為由重做。
+
 [小組長 00:35] 督導：雙站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.11s)；lock 00:33:33 新鮮＝第37輪正在跑，未跑會 race 的重型 headless，僅憑雙站 200+前輪實證判健康。第36輪「真機稽核確認無真實摩擦→補 exam 句 4→6」確實照🔴pin 執行(先稽核證 0 error/0 破版/排程切走乾淨，才據 backlog #2 補唯一可量化最單薄格、且補上 exam 全進階缺的中級 on-ramp，append 末端不動既有索引/錯題 key，15本機+15線上真機 0 console error、2 組 regression 全綠、線上 curl 實證)＝本輪本身無偏離、誠實。**但達升級門檻(方向分岔)**：軌跡 33(補內容)→34(真修摩擦+console bug)→35(補內容)→36(補內容)＝近四輪三輪純內容 padding(每輪 +2 句/題)，邊際價值趨近零；五大層(口說8–17／動力18–20／內容依動機分主題21–24+31／深淺主題25–27／三練習收尾28–30)＋五模式首屏指示全飽和。**上一位小組長(00:03)已預先設線「若第36/37輪再現無摩擦→只補內容且無新價值＝達連續空轉門檻，屆時喊使用者決策方向轉向(帳號/雲端同步/新題型/真AI發音API 等超出純前端)」，第36輪正是此情形**。真正能再提升「容易學」的下一步皆超出自動 evolve worker 安全範圍(需預算/API key/後端/auth)、屬使用者策略決策，非 worker 可自決。→ 升級準則(c)方向分岔達成(非(a)站壞、非(b)硬性3連空轉)：①已 Send-AIWFToTG 給使用者(chat 845969871)附 A/B/C/D 四選項按鈕(A 接真AI發音評分API／B 帳號+雲端同步／C 維持每30分微補內容／D 宣告夠好·evolve 降頻或暫停省 token)等其決策；②已導正 evolve_instruction backlog：把「純內容量擴充」明降為**最末位低價值選項**、置頂加註「產品已飽和+方向待使用者決策中，無真實摩擦時誠實 no-op(只健康檢查+記一行)勝過硬補內容」，避免第37+輪繼續無腦 padding 燒 token。pin 既有大方向(先真機稽核、不為改而改、五大層飽和、否決每日目標重選)正確不動。稽核時 lock 新鮮＝第37輪已讀過 instruction 不受本次編輯影響(保護第38輪)，第37輪讀 log 會見本註自帶防護。本次因屬方向分岔、依鐵律喊使用者一次(非重複 ping)。
