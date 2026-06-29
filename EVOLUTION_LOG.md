@@ -370,3 +370,34 @@
 6. UX 體質：sticky 底部導覽列會蓋住長頁底部內容，考慮給 `.view` 補足夠 padding-bottom 讓任何內容都能捲離導覽列（一次性低風險體質改善）。
 
 [小組長 12:21] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 4263 一致，lock 已釋放=第12輪 worker 已收工無輪次在跑)。第12輪「句子節奏🥁節拍器(每拍一重音、聽得到打得出)」確實上線、正中 backlog #1＋我 11:51 ⭐pin「節拍器同步」，做了北極星研究(ELSA+教學界 60bpm 一拍一重音/身體節奏)、15本機+15線上真機 0 console error、regression 全綠(rhythm13/shadowing12/stress12)，第8→9→10→11→12**連五輪深化發音/口說核心**(單字音素→錄音對照→音節重音→句節奏→節拍器)、無空轉無偏離，產品本命扎實推進。→ 導正動作：發現 evolve_instruction 的 ✅清單只到第11輪、⭐pin 仍寫「節拍器同步」(=第12輪已做)，正是反覆示警的「殘留 pin 誘導下一輪重做＝空轉」風險；已將第12輪節拍器補進已完成清單、⭐pin 改釘真正未做的口說缺口「錄音 vs 示範波形/時長對齊(第9輪延伸)+單字 drill 逐字錄音對照+節拍器調速」並明標第10/11/12輪勿重做，與 log 對齊、緊扣口說本命。靜默不擾人。
+
+---
+
+### 第 13 輪 — 2026-06-29（發音核心再深化：我的聲音波形 + 速度對照條｜backlog #1，正中小組長 12:21 ⭐pin「波形/時長對齊」）
+**第 0 優先（網址）：第 3 輪已處理完畢、本輪不需重做**
+- `english-tutor.pages.dev` 為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。本輪開工前雙站健康（HTTP 200），working tree 乾淨。
+
+**北極星研究（必做）**
+- WebSearch「ELSA record yourself waveform duration compare native pace too fast/slow」。借鏡：①ELSA 給 fluency 回饋（停頓/猶豫/語速），能判斷你唸得太快/太慢；②**ELSA 本身缺波形視覺化**＝回饋深度受限，而 Oxford University Press「Say It」App **用聲波圖**讓你把自己的發音波形跟母語者對照；③色彩/視覺化定位錯誤對初學者最友善。落地 3 點子：①把學生錄音畫成**聲波圖**，看得到自己的重音落點與停頓 ②量測示範 vs 我的錄音**時長**並列長短條，直觀看出快慢 ③一句話判語（太快/太慢/剛好）給可立即照做的修正。
+- 來源：fluentu.com/blog/reviews/elsa-speak、speechanalyzer.elsaspeak.com、blog.elsaspeak.com（advantage of feedback）。
+
+**本輪進化：錄音對照卡加「我的聲音波形 + 速度對照」（口說核心＝容易學的本命，正中 backlog #1／⭐pin）**
+- 改動檔：`assets/js/modes.js`（finishRecording 加 `decodeRecording`/`envelope`/`drawWave`、回傳 `{url,dur,peaks}`；evaluate 對照卡渲染波形 canvas + 速度對照條 `renderPace`；readAlong 回傳 promise 供量測示範時長）、`assets/css/style.css`（`.wave-*`/`.pace-*`）。純加法、低風險、可回退。
+- **我的聲音波形**：用 WebAudio `decodeAudioData` 解碼錄音、算 48 段 RMS 包絡畫成聲波圖（canvas），把「我唸得重/輕、哪裡停頓」變成**看得見**（借鏡 Oxford Say It）。高=重音/大聲、低/平=輕或停頓，呼應第 10/11/12 輪重音/節奏教學。
+- **速度對照條（太快/太慢/剛好）**：量測「🔊 老師示範」的**真實播放時長**（非估計）對比我的錄音時長，並列長短條 + 一句判語——慢(ratio>1.25)→稍微加快連起來、快(ratio<0.8)→放慢把重音字唸足、差不多→節奏抓得好👍。直觀回答「我唸太快/太慢了嗎」。
+- **絕不破壞既有＋不增負擔**：全程 best-effort——decode 失敗/不支援 → 不出波形與速度卡，STT/評分/drill/錄音回放一切照舊；換句/換頁 clearRecording 釋放麥克風、revoke URL，波形/速度卡一併清除不殘留。
+- 註：第 6 輪逐詞高亮、第 8 輪逐音 drill、第 9 輪錄音對照、第 10 輪音節+字重音、第 11 輪句重音、第 12 輪節拍器全維持；本輪把第 9 輪「聽得到」的錄音對照升級成「**看得到波形、比得出快慢**」。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、fake 音訊裝置→真實 getUserMedia→MediaRecorder→真實 decodeAudioData、受控 fake TTS 走真實量測示範時長→renderPace、375px 手機）端到端 **16/16 PASS、0 console error**（`tools/verify_wave.mjs`）：錄到音(408 bytes)→出對照卡→**波形 canvas 真畫出像素(1106 個非透明)**→速度提示顯示我的秒數(0.6s)→點老師示範→量到示範時長→速度對照條(老師/你兩列+非零寬度+判語 pace-ok)→我的錄音回放無錯→既有 drill 卡無回歸→換句波形/對照卡清除不殘留。
+- regression 全綠、確認無回歸：錄音對照 `verify_compare.mjs` **12/12**、節拍器 `verify_metronome_e2e.mjs` **15/15**、句子節奏 `verify_rhythm_e2e.mjs` **13/13**、逐音 drill `verify_shadowing.mjs` **12/12**、音節+重音 `verify_stress.mjs` **12/12**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 8/8 PASS、0 console error**（`tools/verify_wave_live.mjs`）：波形真畫出(1060 像素)、速度對照條(老師/你+判語 pace-ok)、drill 無回歸。線上 curl 實證 modes.js(decodeRecording/drawWave/renderPace)、style.css(.wave-cv/.pace-bars/.pace-verdict) 皆在。
+- git e4ca1fc push main + wrangler deploy 主(english-tutor-ai b043b7c8)+legacy(english-tutor-e1l b5715767)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：**單字 drill 也加「錄我的這個字 vs 示範」逐字對照**（接本輪錄音對照，下沉到單字層）、或波形上疊示範參考線/標出停頓段。
+2. 節奏教學深化：常見句重音規則小卡（資訊焦點/對比重音、句尾上揚 vs 下降語調）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+6. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
