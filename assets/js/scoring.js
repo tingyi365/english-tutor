@@ -412,6 +412,51 @@ export function syllableStress(word) {
   return { syllables: syl, stress: guessStress(w, syl), source: "guess" };
 }
 
+// ============ 句子層級「句重音 / 節奏」標記（借鏡 ELSA Sentence Stress：教使用者該重讀哪幾個字）============
+// 英文是「重音節拍(stress-timed)」語言：實詞(content words)唸重、長、清楚，虛詞(function words)弱化、快、含糊。
+// 華語是「音節節拍(syllable-timed)」——每個字平均出力，所以華語母語者最常見的不道地點，就是「每個字都唸一樣重」。
+// 把句子裡「該重讀的實詞」標大、把「該弱化的虛詞」標灰，初學者一眼看到節奏在哪，跟著唸就自然有英文的抑揚＝更容易學、更聽得懂。
+
+// 虛詞(function words)：冠詞/代名詞/介系詞/連接詞/助動詞 — 句中通常弱化、不重讀。
+// 不在此表的字一律視為實詞(名詞/動詞/形容詞/副詞/疑問詞/數詞/否定詞)→ 重讀。
+const FUNCTION_WORDS = new Set([
+  // 冠詞
+  "a", "an", "the",
+  // 人稱 / 所有格代名詞
+  "i", "you", "he", "she", "it", "we", "they",
+  "me", "him", "her", "us", "them",
+  "my", "your", "his", "its", "our", "their",
+  "mine", "yours", "hers", "ours", "theirs",
+  // be / 助動詞 / 情態（句中通常弱化）
+  "am", "is", "are", "was", "were", "be", "been", "being",
+  "do", "does", "did", "have", "has", "had",
+  "will", "would", "shall", "should", "can", "could", "may", "might", "must",
+  // 連接詞 / 從屬詞
+  "and", "or", "but", "nor", "so", "yet", "as", "if", "than", "that", "whether",
+  // 介系詞（核心、句中常弱化）
+  "in", "on", "at", "to", "of", "for", "with", "from", "by",
+  "into", "about", "than",
+  // 其他常見虛詞
+  "there",
+]);
+
+// 判斷單一字（含縮寫/標點）是否為「弱化的虛詞」。否定詞(n't)永遠重讀。
+export function isFunctionWord(raw) {
+  let w = (raw || "").toLowerCase().replace(/[^a-z'’]/g, "").replace(/^['’]+|['’]+$/g, "");
+  if (!w) return false;
+  if (/n['’]?t$/.test(w)) return false;        // don't / can't / won't … 否定要重讀
+  w = w.replace(/['’](s|re|ve|ll|d|m)$/, "");   // it's→it、they're→they、i'm→i
+  return FUNCTION_WORDS.has(w);
+}
+
+// 對外：把句子標成「逐字 + 是否重讀」。stressed=true 代表實詞(該唸重)。
+export function sentenceStress(text) {
+  return (text || "").split(/\s+/).filter(Boolean).map((word) => ({
+    word,
+    stressed: !isFunctionWord(word),
+  }));
+}
+
 // 從評分結果挑出需要重點練的字（唸錯/近音/漏唸），附音素提示，供「逐音 drill」用。
 // 去重、最多 4 個，避免一次給太多造成壓力（小批次＝容易學）。
 export function wordDrills(result) {

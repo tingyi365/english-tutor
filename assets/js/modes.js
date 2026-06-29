@@ -1,7 +1,7 @@
 // ============ 各學習模式 ============
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
-import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills } from "./scoring.js";
+import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress } from "./scoring.js";
 import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -165,9 +165,11 @@ export function renderShadowing(view) {
           <div class="btn-row mt">
             <button class="btn btn-ghost" id="listenBtn">🔊 聽示範</button>
             <button class="btn btn-ghost" id="slowBtn">🐢 慢速</button>
+            <button class="btn btn-ghost" id="rhythmBtn">🎵 句子節奏</button>
             <button class="btn btn-mic" id="micBtn" ${speechSupport.stt ? "" : "disabled"}>🎙️ 開口跟讀</button>
           </div>
           <div class="read-hint">🎯 按「聽示範」時，老師唸到哪個字就會<b>點亮哪個字</b> — 跟著亮起來的字一起唸，最容易上口。</div>
+          <div id="rhythm"></div>
           <div class="heard mt" id="heard"><span class="muted">點「開口跟讀」後，這裡會顯示聽到的內容…</span></div>
         </div>
 
@@ -183,6 +185,7 @@ export function renderShadowing(view) {
 
     $("#listenBtn", view).onclick = () => readAlong(s.en);
     $("#slowBtn", view).onclick = () => readAlong(s.en, 0.6);
+    $("#rhythmBtn", view).onclick = () => toggleRhythm(s.en);
     $("#prevBtn", view).onclick = () => { clearRecording(); idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
     $("#nextBtn", view).onclick = () => { clearRecording(); idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
     $("#micBtn", view).onclick = toggleMic;
@@ -234,6 +237,29 @@ export function renderShadowing(view) {
       cur = wi; if (spans[wi]) spans[wi].classList.add("w-now");
     };
     speak(text, { rate, onWord }).then(clear);
+  }
+
+  // 句子節奏 / 句重音導覽（借鏡 ELSA Sentence Stress）：把該重讀的實詞放大、該弱化的虛詞縮灰，
+  // 讓「英文是重音節拍語言」這件抽象的事變成看得見的小步驟＝更容易學、唸起來更道地。
+  function toggleRhythm(text) {
+    const box = $("#rhythm", view);
+    if (!box) return;
+    if (box.dataset.open === "1") { box.innerHTML = ""; box.dataset.open = ""; return; }
+    const marks = sentenceStress(text);
+    const chips = marks.map((m) => {
+      const cls = m.stressed ? "beat beat-strong" : "beat beat-weak";
+      const dot = m.stressed ? "●" : "·";
+      return `<span class="${cls}"><span class="beat-dot">${dot}</span><span class="beat-w">${esc(m.word)}</span></span>`;
+    }).join("");
+    box.innerHTML = `
+      <div class="rhythm-card">
+        <div class="rhythm-tip">🎵 英文是<b>重音節拍</b>語言：<b class="rhythm-hi">放大的實詞</b>（名詞／動詞／形容詞）唸得<b>重、長、清楚</b>，<span class="muted">灰色虛詞（the／a／to／of…）輕輕快快帶過</span>，整句就有道地的抑揚。</div>
+        <div class="rhythm-line">${chips}</div>
+        <div class="btn-row mt"><button class="btn btn-ghost" id="rhythmPlay">🔊 跟著節奏唸一次</button></div>
+      </div>`;
+    box.dataset.open = "1";
+    const play = $("#rhythmPlay", box);
+    if (play) play.onclick = () => readAlong(text, 0.8);
   }
 
   function toggleMic() {

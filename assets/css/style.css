@@ -347,6 +347,21 @@ body {
 .syl-tip { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
 .syl-tip b { color: var(--text); }
 
+/* ---- 句子節奏 / 句重音（容易學：看得到該重讀哪幾個字 → 跟著唸就有英文抑揚） ---- */
+.rhythm-card { margin-top: 10px; padding: 12px 13px; border-radius: 13px;
+  background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.28); }
+.rhythm-tip { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 11px; }
+.rhythm-tip b { color: var(--text); }
+.rhythm-tip .rhythm-hi { color: #c4b5fd; }
+.rhythm-line { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 4px 8px; }
+.beat { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.beat-dot { font-size: 10px; opacity: .8; margin-bottom: 1px; }
+.beat-w { white-space: nowrap; }
+.beat-strong .beat-dot { color: var(--brand-2); }
+.beat-strong .beat-w { font-size: 21px; font-weight: 900; color: #ede9fe; }
+.beat-weak .beat-dot { color: var(--muted); opacity: .45; }
+.beat-weak .beat-w { font-size: 14px; font-weight: 500; color: var(--muted); opacity: .75; }
+
 /* ---- 範例 vs 我的錄音對照（容易學：聽自己 vs 聽範例，最快抓到差異） ---- */
 .compare-card { border-color: rgba(56,189,248,.35); }
 .compare-head { font-size: 14px; line-height: 1.55; color: var(--text); margin-bottom: 12px; }
