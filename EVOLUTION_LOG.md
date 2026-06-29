@@ -1073,3 +1073,40 @@
 3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染首頁＝功能已存在、勿再以此為由重做。
 
 [小組長 22:30] 督導：雙站皆健康(english-tutor-ai 200/0.07s、legacy e1l 200，size 一致 5703)。第32輪「真機稽核→文法填空首屏補操作指示」確實上線實證(線上 modes.js curl「從下面四個選項挑出空格裡正確的字」在線=1；app.js 線上含 showOnboarding/initPWA/showCelebration/setLearnMotive/getThemePref=第5~27輪功能全在線無回歸)，**完全照🔴pin「先真機稽核找真實摩擦、禁為改而改」執行**——diag_audit_r32 走全模式實測 0 console error/warning/0 破版/內容不單薄，找到唯一真實摩擦＝五模式中唯獨文法首屏無操作指示(跟讀/聽寫/單字卡/對話皆有)，才據此補一行 read-hint(沿用既有 class 零 CSS、不動題庫/排序/收尾)；北極星研究(Babbel/Duolingo 清楚指示降初學者猜測式挫折)精準命中該摩擦、9本機+9線上真機 0 console error、regression grammar_motive11/grammar_summary11/motive30 全綠＝無空轉無偏離、緊扣容易學。**嘉許**：本輪是「先稽核證明摩擦真實存在(非臆測)才動手」的範本，正中歷輪反覆示警的「為了有 pin 可做硬造炫技」防線。→ 導正(又見「殘留清單滯後＝誘導重做」老模式)：evolve_instruction ✅清單停在第31輪、次選清單(line 41)仍把第32輪剛做完的「更清楚的操作指示」列為「剩可做」、🔴pin 勿重做清單未含文法指示，三處都會誘導第33輪重做文法操作指示。已①✅清單 append 第32輪文法操作指示(含 read-hint 細節)；②次選清單把「操作指示」標為第32輪已做、勿再以「某模式缺操作指示/文案不清」為由重做文法指示；③🔴pin 勿重做清單補上「文法操作指示(第32)」。pin 大方向(先真機稽核、五大層飽和、不為改而改、否決每日目標重選)正確不動，僅校正已完成狀態(第33輪尚未起跑無 race，保護不重做第32輪)。靜默不擾人。
+
+---
+
+### 第 33 輪 — 2026-06-29（真機稽核確認無真實摩擦 → 低風險內容擴充：補足 daily 主題對話 2→4｜正中第32輪 backlog #1「五大層全飽和、務必先真機稽核、極可能無高價值新點＝最該做不為改而改、只做低風險內容擴充」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `https://english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、ai 0.11s/e1l 0.13s）、working tree 乾淨（HEAD=第32輪 docs d99e5eb）。
+
+**選題依據（避免空轉｜重要）**
+- 第32輪 backlog #1＝「**五大層全飽和 + 文法指示已補**。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實只做低風險內容/微文案勝過硬造炫技」；backlog #2(b)＝「純內容量擴充（各主題對話/句/題 append-only、不動既有索引/錯題 key）」。
+- 本輪嚴格照 🔴pin 先真機走全模式稽核找真實摩擦；確認無摩擦後做 pin 明許的低風險 append-only 內容擴充。
+
+**北極星研究（必做）**
+- WebSearch「language learning app beginner empty state encouragement microcopy 2026 Duolingo Babbel reduce friction」。借鏡：①初學者 app 的核心＝**清晰、適當節奏、建立信心**（greetings/travel phrases/basics 等貼近生活的內容）；②Babbel 的強項是**真實生活對話**（realistic dialogues，travel/exam 尤強）＝貼近真實情境的對話能讓初學者更敢開口、更願持續；③Duolingo 用 streak 等機制降低「開始練習」的摩擦。落地點子：**對話是 app 最貼「敢開口、容易學」的內容**，主題對話量越均衡、初學者越能在自己最常用的情境多練不無聊。
+- 來源：[Best Apps for Beginners 2026｜Test Prep Insight](https://testprepinsight.com/best/best-language-learning-apps-for-beginners/)、[Ultimate Guide 2026｜Olesen Tuition](https://www.olesentuition.co.uk/single-post/which-app-should-i-use-to-learn-a-language-duolingo-memrise-babbel-quizlet-busuu)、[Babbel：Best Apps 2026](https://www.babbel.com/compare-best-language-learning-apps)。
+
+**真機稽核（找真實摩擦點，避免為改而改）**
+- `tools/diag_audit_r33.mjs`（375px 手機、走訪線上站）：①首訪 onboarding 引導正常、按鈕齊、無破版（onboarding 另經 verify_motive_onboarding 30/30 證健康）；②**各模式 0 console error、0 console warning、0 橫向溢出、0 超界元素**；③**複習入口卡在無錯題時不出現＝設計合理、無空狀態摩擦**；④五模式皆有完成態與首屏操作指示（第28–32輪成果）。
+- **量化發現（內容均衡）**：各主題對話數＝旅遊3／**日常(daily)2**／工作4／考試3、全部14（含分支）。**daily 為各主題最單薄（僅2則），而 daily 是初學者最通用、最高頻的情境**——這是唯一可量化的內容不均衡，非操作摩擦。
+- **稽核結論：無真實操作摩擦／破版／console 問題**。最大風險＝為了有 pin 可做硬造炫技（歷輪示警）。據第32輪 backlog #2(b) + 🔴pin 明許，本輪只做**低風險純內容量擴充 append-only**，補最單薄且最通用的 daily 對話，**不碰五大飽和層、不動既有索引/錯題 key**。
+
+**本輪進化：補足 daily 主題對話量 2→4（內容均衡＝最常用情境多練不無聊＝容易學）**
+- 改動檔：`assets/js/data.js`（DIALOGUES 陣列**末端 append** 2 則初級 daily 對話）：①「在商店買東西」（服飾店挑 T 恤，含分支：藍色／黑色）；②「聊週末計畫」（朋友問週末打算，含分支：開車／搭火車）。皆 `level: "初級"`（北極星＝初學者友善）、皆含 `choices` 分支（沿用第23輪互動模式＝更像真實互動、更敢開口）。
+- **純資料層 append-only、零索引依賴**：modes.js `renderConversation` 用 `DIALOGUES.map((d,i)=>...)` 動態算索引、`presentTopics` 自動偵測主題、chip 自動產生；對話**不入錯題本**（無 `g<idx>` 類固定 key），故陣列末端新增完全安全、不破壞任何既有索引或錯題回放。
+- **不破壞**：主題 chip 自由跳級（第22）、分支 choices→reply→rejoin（第23）、🎉 完成態、難度徽章皆沿用，僅 daily 內容量增加。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r33.mjs` 證實「無真實操作摩擦、唯一量化缺口＝daily 對話最單薄」＝選「補最單薄最通用主題的內容擴充」而非硬造炫技。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **13/13 PASS、0 console error**（`tools/verify_daily_dialogue.mjs`）：daily≥4／全對話仍有 topic+level／其他主題數不變(travel3/work4/exam3 零回歸)／兩則新對話存在且初級且含分支／動機=daily 預設聚焦 daily／可循環到新對話／分支 .conv-choice 渲染→點選→略過→對方依選擇回覆 bubble／走到底出🎉完成態／未選動機 filter=all 照常(零回歸)。
+- regression 全綠、0 console error：`verify_topic_dialogue`（第22對話分主題）**19/19**、`verify_branch_dialogue`（第23分支）**16/16**、`verify_exam_dialogue`（第24）**16/16**、`verify_motive_onboarding`（onboarding）**30/30**。
+- git 0e6d176 push main + wrangler deploy 主(english-tutor-ai f85ca9d4)+legacy(english-tutor-e1l 2ada5fa7)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 13/13 PASS、0 console error**（`verify_daily_dialogue.mjs <URL>`）；線上 curl data.js「在商店買東西」「聊週末計畫」實證在（grep -c=2）。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※daily 對話擴充（第33）已做、勿重做；五大層（口說8–17／動力18–20／內容分主題21–24+31／深淺主題25–27／三練習收尾28–30）＋文法指示(第32)皆飽和或已做＝勿重做。
+1. ⚠️ **五大層全飽和**。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝此時最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實 result_summary 寫「無真實摩擦、本輪只做低風險內容/微文案」勝過硬造炫技。
+2. 可考慮的低風險內容擴充（皆 append-only、不動既有索引/錯題 key）：(a) 若某主題對話/句/單字/題仍偏少可續補（目前對話 travel3/daily4/work4/exam3 已較均衡）；(b) 各模式首屏微文案若真機稽核發現仍有不清楚處再微調。
+3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染＝功能已存在、勿再以此為由重做。
