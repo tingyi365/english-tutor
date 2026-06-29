@@ -172,17 +172,56 @@ export function renderShadowing(view) {
       } catch (_) { resolve({ dur: null, peaks: null }); }
     });
   }
-  function drawWave(canvas, peaks) {
+  // 從波形包絡偵測「內部停頓段」：連續低能量 bin（排除頭尾靜音）＝唸到一半停頓/猶豫，標出來讓學生看到要把字連起來。
+  function detectPauses(peaks, thr = 0.1, minRun = 3) {
+    const n = peaks.length;
+    let lo = 0, hi = n - 1;
+    while (lo < n && peaks[lo] < thr) lo++;          // 頭尾靜音（還沒開口/收尾）不算停頓
+    while (hi >= 0 && peaks[hi] < thr) hi--;
+    const out = []; let s = -1;
+    for (let i = lo; i <= hi; i++) {
+      if (peaks[i] < thr) { if (s < 0) s = i; }
+      else { if (s >= 0 && i - s >= minRun) out.push({ start: s, end: i }); s = -1; }
+    }
+    return out;
+  }
+  // 把句子「實詞重、虛詞輕」的節奏（借第11輪 sentenceStress）轉成示範參考包絡：實詞=高、虛詞=低，依字序由左到右。
+  function stressEnvelope(text) {
+    try {
+      const marks = sentenceStress(text);
+      if (!marks || !marks.length) return null;
+      return marks.map((m) => ({ word: m.word, v: m.stressed ? 1 : 0.36, strong: !!m.stressed }));
+    } catch (_) { return null; }
+  }
+  // 畫聲波圖：①灰帶標出停頓段（我的真實錄音）②青柱＝我的聲音 ③琥珀階梯線＝示範該使勁的重音字（參考）。回傳停頓次數。
+  function drawWave(canvas, peaks, ref) {
     try {
       const ctx = canvas.getContext("2d");
       const W = canvas.width, H = canvas.height, n = peaks.length, bw = W / n;
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = "#38bdf8";
+      const pauses = detectPauses(peaks);
+      ctx.fillStyle = "rgba(148,163,184,0.22)";                       // 停頓段灰帶
+      pauses.forEach((p) => ctx.fillRect(p.start * bw, 0, (p.end - p.start) * bw, H));
+      ctx.fillStyle = "#38bdf8";                                      // 我的聲音波形
       peaks.forEach((p, i) => {
-        const h = Math.max(2, p * (H - 4));
+        const h = Math.max(2, p * (H - 6));
         ctx.fillRect(i * bw + bw * 0.15, (H - h) / 2, bw * 0.7, h);
       });
-    } catch (_) {}
+      if (ref && ref.length) {                                        // 示範重音參考線（實詞高、虛詞低）
+        const seg = W / ref.length;
+        ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 2;
+        ctx.lineJoin = "round"; ctx.beginPath();
+        ref.forEach((r, i) => {
+          const x0 = i * seg, x1 = (i + 1) * seg, y = H - 3 - r.v * (H - 8);
+          if (i === 0) ctx.moveTo(x0, y); else ctx.lineTo(x0, y);
+          ctx.lineTo(x1, y);
+        });
+        ctx.stroke();
+        ctx.fillStyle = "#fbbf24";                                    // 重音字落點小圓點
+        ref.forEach((r, i) => { if (r.strong) { const x = (i + 0.5) * seg, y = H - 3 - r.v * (H - 8); ctx.beginPath(); ctx.arc(x, y, 2.6, 0, 7); ctx.fill(); } });
+      }
+      return pauses.length;
+    } catch (_) { return 0; }
   }
 
   // 停掉錄音、轉成可回放 URL，並解碼出時長/波形；回傳 {url, dur, peaks}（無錄音則 null）
@@ -529,8 +568,10 @@ export function renderShadowing(view) {
             <button class="btn btn-ghost cmp-mine">🎧 我的錄音</button>
           </div>
           ${my.peaks ? `<div class="wave-wrap">
-            <div class="wave-label">🎙️ 你的聲音波形（<b>高</b>＝唸得重、大聲；<b>低／平</b>＝輕或停頓）</div>
-            <canvas class="wave-cv" width="320" height="54"></canvas>
+            <div class="wave-label">🎙️ 你的聲音波形 vs <b>示範重音參考線</b>（高＝該使勁的字）</div>
+            <canvas class="wave-cv" width="320" height="58"></canvas>
+            <div class="wave-legend"><span class="wl wl-mine">你的聲音</span><span class="wl wl-ref">示範重音字</span><span class="wl wl-pause">你的停頓</span></div>
+            <div class="wave-tip" id="waveTip"></div>
           </div>` : ""}
           ${my.dur ? `<div class="pace" id="pace">
             <div class="pace-hint">⏱️ 你這次唸了 <b>${my.dur.toFixed(1)} 秒</b>。點上方「🔊 老師示範」，自動幫你比快慢。</div>
@@ -542,8 +583,18 @@ export function renderShadowing(view) {
         myAudio = new Audio(myUrl);
         myAudio.play().catch(() => {});
       };
-      // 我的聲音波形：把錄音畫成聲波圖，讓初學者「看得到」自己的重音落點與停頓（借鏡 Oxford Say It）。
-      if (my.peaks) { const cv = $(".wave-cv", cmpCard); if (cv) drawWave(cv, my.peaks); }
+      // 我的聲音波形 + 示範重音參考線 + 停頓段標記：讓初學者一眼看到「我把勁使在對的字上了嗎、哪裡卡住停頓」（借鏡 Oxford Say It／ELSA 停頓偵測）。
+      if (my.peaks) {
+        const cv = $(".wave-cv", cmpCard);
+        const ref = stressEnvelope(s.en);
+        const nPause = cv ? drawWave(cv, my.peaks, ref) : 0;
+        const tip = $(".wave-tip", cmpCard);
+        if (tip) {
+          tip.innerHTML = nPause > 0
+            ? `⏸️ 中間偵測到你<b>停頓了 ${nPause} 次</b>（灰色段）——把字<b>連起來</b>唸會更順。對著<b class="wt-ref">琥珀線</b>：線高的字（實詞）使勁唸重，線低的虛詞輕輕滑過。`
+            : `👍 中間很連貫、沒明顯停頓！對著<b class="wt-ref">琥珀線</b>練：線高的字（實詞）唸得<b>重、長、清楚</b>，線低的虛詞輕輕帶過。`;
+        }
+      }
       // 速度對照：量測老師示範的真實播放時長，與我的錄音並列成長短條，直觀看出唸太快/太慢/剛好。
       let refDur = 0;
       const now = () => (window.performance && performance.now) ? performance.now() : Date.now();
