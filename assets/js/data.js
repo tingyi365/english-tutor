@@ -208,6 +208,36 @@ export const DIALOGUES = [
       { ai: "Thank you. That's a clear answer.", hint: "Thank you very much.", zh: "非常感謝。" },
     ],
   },
+  // —— 第 33 輪：補足「日常」主題對話量（daily 2→4），daily 為初學者最通用主題卻最單薄。
+  //     純資料層 append-only，不動既有索引/錯題 key。初級難度、含分支選項（沿用第23輪互動模式）——
+  {
+    title: "在商店買東西", topic: "daily", level: "初級",
+    scene: "你在一家服飾店，店員過來問你需不需要幫忙。",
+    turns: [
+      { ai: "Hi, can I help you find anything?", hint: "Yes, I'm looking for a T-shirt.", zh: "是的，我在找一件 T 恤。" },
+      // 分支：自己選想要的顏色（第23輪互動模式）。
+      { ai: "Sure. What color would you like?", choices: [
+        { label: "🔵 藍色", en: "Do you have it in blue?", zh: "有藍色的嗎？", reply: "Yes, here is a blue one." },
+        { label: "⚫ 黑色", en: "I'd like a black one, please.", zh: "我想要黑色的，謝謝。", reply: "Great, here is a black one." },
+      ] },
+      { ai: "Would you like to try it on?", hint: "Yes, where is the fitting room?", zh: "好，試衣間在哪裡？" },
+      { ai: "It's over there. Let me know if it fits.", hint: "Thank you, I will.", zh: "謝謝，我會的。" },
+    ],
+  },
+  {
+    title: "聊週末計畫", topic: "daily", level: "初級",
+    scene: "星期五下午，朋友問你週末有什麼打算。",
+    turns: [
+      { ai: "Happy Friday! Do you have any plans for the weekend?", hint: "Yes, I'm going to visit my family.", zh: "有，我要去看我的家人。" },
+      { ai: "That sounds nice. Where do they live?", hint: "They live in a small town near the sea.", zh: "他們住在靠海的小鎮。" },
+      // 分支：自己選怎麼去（第23輪互動模式）。
+      { ai: "Lovely! How will you get there?", choices: [
+        { label: "🚗 開車", en: "I'll drive there.", zh: "我會開車去。", reply: "Drive safely and have fun!" },
+        { label: "🚆 搭火車", en: "I'll take the train.", zh: "我會搭火車去。", reply: "Nice, you can relax on the way." },
+      ] },
+      { ai: "Have a great weekend!", hint: "You too. See you on Monday!", zh: "你也是，星期一見！" },
+    ],
+  },
 ];
 
 // 文法填空（單選，含解析）
