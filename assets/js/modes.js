@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress, sentenceIntonation } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, showAchievementWall, getRecommendedMode, navigate } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, showAchievementWall, getRecommendedMode, getLearnMotive, LEARN_MOTIVES, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -41,6 +41,13 @@ export function renderHome(view, navigate) {
            <div class="sf-txt"><b>再 ${freezeToNext} 天解鎖連續保護</b><span>保護能讓你漏一天也不中斷</span></div>
          </div>`
       : "");
+  // 依學習動機（第20輪 onboarding 問的「為什麼學」）精選對應主題的句子，
+  // 讓「為你推薦」不只推模式、也直接給用得到的內容（借鏡 Babbel：依目標先學最實用的句子＝容易學）。
+  const motiveKey = getLearnMotive();
+  const motive = motiveKey ? LEARN_MOTIVES[motiveKey] : null;
+  const goalPickIdx = motive
+    ? SENTENCES.map((s, i) => ({ s, i })).filter((o) => o.s.topic === motiveKey).slice(0, 3).map((o) => o.i)
+    : [];
   const modes = [
     { r: "shadowing", ico: "🎤", t: "跟讀糾音", d: "聽老師示範，開口跟讀，逐字即時糾正發音。" },
     { r: "dictation", ico: "✍️", t: "聽寫練習", d: "只聽聲音，把句子打出來，訓練聽力與拼寫。" },
@@ -94,6 +101,21 @@ export function renderHome(view, navigate) {
         <div class="review-go">→</div>
       </div>` : ""}
 
+      ${(motive && goalPickIdx.length) ? `
+      <div class="card goal-card">
+        <div class="goal-head">
+          <span class="goal-ico">${motive.ico}</span>
+          <div class="goal-head-txt"><b>為「${motive.t}」精選句</b><span>跟你的目標最相關 — 直接開口練最用得到的句子</span></div>
+        </div>
+        <div class="goal-list">
+          ${goalPickIdx.map((i) => `
+          <button type="button" class="goal-item" data-idx="${i}">
+            <span class="gi-txt"><span class="gi-en">${SENTENCES[i].en}</span><span class="gi-zh">${SENTENCES[i].zh}</span></span>
+            <span class="gi-go">🎤 開口練</span>
+          </button>`).join("")}
+        </div>
+      </div>` : ""}
+
       <div class="section-title">選一種學習方式</div>
       <div class="mode-grid" id="modeGrid"></div>
     </div>
@@ -109,6 +131,15 @@ export function renderHome(view, navigate) {
     const openWall = () => showAchievementWall();
     sb.addEventListener("click", openWall);
     sb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openWall(); } });
+  }
+  // 目標精選句：點一句 → 設定跟讀索引並直接進跟讀糾音，開口練該句（只寫 shadowIdx，不動任何錯題/索引語意）。
+  if (motive && goalPickIdx.length) {
+    view.querySelectorAll(".goal-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        localStorage.setItem("shadowIdx", btn.dataset.idx);
+        navigate("shadowing");
+      });
+    });
   }
   const grid = $("#modeGrid", view);
   // 依學習動機推薦的起始模式：在對應卡片掛「👍 為你推薦」緞帶＋排到最前，降低每次回來「從哪開始」的猶豫。

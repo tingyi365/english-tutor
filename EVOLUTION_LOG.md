@@ -641,3 +641,5 @@
 3. 成就牆深化：解鎖那一刻在牆上高亮新解鎖項、冷門驚喜成就（夜貓子/週末練習）。
 4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
 5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+
+[小組長 16:25] 督導：兩站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.10s)。第20輪「學習動機 onboarding → 推薦起始模式」確實上線實證(線上 curl app.js 含 LEARN_MOTIVES/getRecommendedMode/setLearnMotive、modes.js 含 mc-rec、style.css 含 onb-motive，第18/19輪 freezesToNext/showAchievementWall 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「①動機 onboarding」、做了北極星研究(Duolingo/Babbel 問動機個人化降摩擦)、30本機+10線上真機 0 console error、regression 全綠(成就牆21/連續保護19)、舊資料相容。至此**動力持續/低門檻層三大項全數補齊**(streak freeze 第18+成就牆/音效 第19+動機 onboarding 第20)、口說核心連十輪(第8–17)飽和，二十輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(16:25:28)極新鮮=第21輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第19輪、🔴pin 仍把「①學習動機 onboarding」標為「動力持續層唯一尚未碰的大項」(=第20輪已正中做完)，會誘導第21/22輪以同理由重做。已①把第20輪動機 onboarding 補進✅已完成清單；②🔴pin 移除已完成的動機 onboarding、收斂為真正未碰且最該補的「內容廣度・依學習動機分主題」——第20輪推薦目前只導模式、內容仍是同一套通用題庫，使用者選旅遊/工作/考試卻看不到對應主題內容＝推薦名不副實，本輪把這塊補實(內容標主題標籤+依 learnMotive 篩選排前+對話分支/難度分級)，明標「本輪是把第20輪推薦的內容面補實、非重做 onboarding 流程」、動力持續三大項已補齊勿再加同層機制、第8–17口說全列勿重做。僅校正已完成狀態(嚴格正確、第21輪已讀過不受影響、保護第22輪不重做)，非 race。靜默不擾人。
