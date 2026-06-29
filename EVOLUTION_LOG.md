@@ -338,3 +338,32 @@
 3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
 4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
 5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+
+[小組長 11:51] 督導：線上站 e1l HTTP 200(0.07s)健康。第11輪「句子節奏/句重音(實詞重·虛詞弱)標記」做了北極星研究(ELSA Sentence Stress+stress-timed vs syllable-timed=華語母語者最常見不道地點)、22單測+13本機+8線上真機 0 console error、正中 backlog #1，第8→9→10→11連四輪深化發音/口說核心(單字層→句子層閉環)、無空轉無偏離。→ 導正動作：evolve_instruction 的 ✅清單只到第9輪、⭐ pin 仍寫「逐音節重音標記」(第10輪已完成)有誘導重做風險；已補入第10/11輪到已完成清單、⭐改釘真正未做的「波形/時長對齊+單字錄音對照+節拍器同步」並明標第10/11輪勿重做，與 log 對齊。靜默不擾人。
+
+---
+
+### 第 12 輪 — 2026-06-29（句子節奏「節拍器」：每聲咑＝一個重音，跟著拍子開口練｜backlog #1、小組長 11:51 ⭐pin「節拍器同步」）
+**北極星研究（必做）**
+- WebSearch「ELSA record/waveform compare native」＋「word-stress metronome tap rhythm beginner」。借鏡兩條：①ELSA 用色彩/分數視覺化節奏與重音、可無限重聽對照；②教學界經典做法——**用節拍器把重音打在規律拍點上**（一個重讀音節一拍、≈60bpm），並用「拍手/站起來/敲桌」等**身體節奏**強化，把抽象的「英文節奏」變成耳朵聽得到、身體跟得上的小步驟。落地點子：①給第 11 輪的句子節奏面板加一個**真的會「咑咑」響的節拍器**，每拍打在一個實詞重音上；②視覺亮點同步打在該重音字、虛詞之間快閃帶過＝看得到「重拍落點+虛詞滑過」；③先兩拍預備再開打，可隨時停、不增負擔。
+- 來源：speechanalyzer.elsaspeak.com、americanpronunciationcoach.com/english-rhythm（metronome 60bpm 一拍一重音）、betterlanguageskills.com（EAL 用節拍器練句重音）、fluentu.com/blog/english/english-rhythm。
+
+**本輪進化：句子節奏面板加「🥁 打節拍跟著唸」節拍器（口說核心＝容易學的本命，正中 backlog #1／小組長 ⭐pin）**
+- 改動檔：`assets/js/modes.js`（renderShadowing 內：`click`(WebAudio 咑聲)、`stopMetronome`、`playMetronome`；toggleRhythm 加節拍器鈕＋教學文案；prev/next/收合面板皆 stopMetronome 收乾淨）、`assets/css/style.css`（`.metro-tip`/`.beat-now`(當前重音金色放大亮點)/`.beat-pass`(虛詞快閃)＋`prefers-reduced-motion` 降載）。純加法、低風險、可回退。
+- **聽得到＋看得到的節奏**：點「🥁 打節拍跟著唸」→ best-effort WebAudio 發出穩定「咑」聲（強拍 1150Hz），**每一拍打在一個實詞重音上**（句重音落點＝第 11 輪 sentenceStress 判定的實詞）；同步把該重音字**金色放大亮起**(beat-now)、重音之間的虛詞**快速一閃**(beat-pass) 示意「輕快滑過」。先兩拍預備（弱音）再正式開打，整句打完自動停。
+- **不增負擔＋絕不破壞既有**：WebAudio 全程 try/catch，不支援/被擋一律靜默略過，不影響句子節奏面板/跟讀/評分任何既有功能；再按一次=停、切句(prev/next)/收合面板/換頁(box.isConnected 守衛)都會清掉 timer 與亮點、不殘留不發孤兒音。尊重 `prefers-reduced-motion`（關放大動畫）。
+- 註：第 6 輪跟讀逐詞高亮、第 8 輪逐音 drill、第 9 輪錄音對照、第 10 輪音節+字重音、第 11 輪句子節奏標記全維持；本輪把第 11 輪「看得到的節奏」升級成「**聽得到、打得出、跟著開口練**」的閉環。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、真 WebAudio：攔 `osc.start` 計數證明咑聲真有發出）端到端 **15/15 PASS、0 console error**（`tools/verify_metronome_e2e.mjs`）：展開出節拍器鈕+教學文案→真實點按鈕變「停止節拍」→節拍亮點(beat-now)打在實詞重音上→osc.start 觸發 5 次(咑聲真響)→整句打完自動停+鈕復原+亮點清除→再按可手動停→**節拍器跑著切下一句自動停、面板收合不殘留(open 重置、句子確實換到 My name is Anna…)**→收合面板一併停。
+- regression 全綠、確認無回歸：句子節奏 `verify_rhythm_e2e.mjs` **13/13**、逐音 drill `verify_shadowing.mjs` **12/12**、音節+重音 `verify_stress.mjs` **12/12**，皆 0 console error。
+- 過程中發現並修一個既有測試脆弱點（非產品 bug）：節拍器教學文案讓節奏卡變高，puppeteer `page.click` 對被 **sticky 底部導覽列(.tabbar position:sticky;bottom:0)** 蓋住座標的鈕會誤點到 tab→誤導航。實證：把鈕 `scrollIntoView({block:"center"})` 後 hit-test=該鈕本身、真實 page.click 正常運作＝**真實使用者把鈕捲到畫面內即可正常點按**（鈕在頁面中段、下方還有 heard/result/上下句，可自由捲離底列）。已把 verify_rhythm_e2e/verify_metronome 的相關點按改為「先捲到中央再真實點按」＝忠實模擬真人操作。
+- 部署後待補：線上 `https://english-tutor-ai.pages.dev` curl 實證 + 線上真機（見下方部署段）。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：錄音與示範**時長/波形對齊**讓快慢差異更直覺(第9輪錄音對照延伸)、或節拍器可調速(慢/標準)＋單字 drill 也加「錄我的這個字 vs 示範」逐字對照。
+2. 節奏教學深化：常見句重音規則小卡（資訊焦點/對比重音、句尾上揚 vs 下降語調）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+6. UX 體質：sticky 底部導覽列會蓋住長頁底部內容，考慮給 `.view` 補足夠 padding-bottom 讓任何內容都能捲離導覽列（一次性低風險體質改善）。

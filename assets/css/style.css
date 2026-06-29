@@ -361,6 +361,15 @@ body {
 .beat-strong .beat-w { font-size: 21px; font-weight: 900; color: #ede9fe; }
 .beat-weak .beat-dot { color: var(--muted); opacity: .45; }
 .beat-weak .beat-w { font-size: 14px; font-weight: 500; color: var(--muted); opacity: .75; }
+/* 節拍器：當前重音亮點 + 虛詞快閃 */
+.metro-tip { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-top: 11px; }
+.metro-tip b { color: #fcd34d; }
+.beat { transition: transform .09s ease, filter .09s ease; }
+.beat-now { transform: scale(1.18); }
+.beat-now .beat-w { color: #fde68a; text-shadow: 0 0 14px rgba(251,191,36,.7); }
+.beat-now .beat-dot { color: #fbbf24; opacity: 1; }
+.beat-pass .beat-w { color: #c4b5fd; opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .beat, .beat-now { transition: none; transform: none; } }
 
 /* ---- 範例 vs 我的錄音對照（容易學：聽自己 vs 聽範例，最快抓到差異） ---- */
 .compare-card { border-color: rgba(56,189,248,.35); }

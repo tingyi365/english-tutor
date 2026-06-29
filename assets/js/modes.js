@@ -105,6 +105,9 @@ export function renderShadowing(view) {
   // 「範例 vs 我的錄音」對照：用 MediaRecorder 錄下學生跟讀的聲音，評分後可回放跟老師示範對比。
   // 全程 best-effort，不影響既有 STT/評分（先讓 recognizer 啟動，再開錄音；任何失敗都靜默略過、不出對照卡）。
   let recHandle = null, recordedUrl = null, myAudio = null;
+  // 節拍器（跟著重音節拍唸）：英文是 stress-timed 語言，重音落在規律的拍點上。
+  // 用穩定的「咑」聲＋亮點打在每個實詞重音上，讓初學者用耳朵+眼睛抓到節奏，跟著拍子開口練。
+  let metroTimer = null, metroCtx = null;
   const canRecord = () =>
     typeof MediaRecorder !== "undefined" && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
@@ -186,8 +189,8 @@ export function renderShadowing(view) {
     $("#listenBtn", view).onclick = () => readAlong(s.en);
     $("#slowBtn", view).onclick = () => readAlong(s.en, 0.6);
     $("#rhythmBtn", view).onclick = () => toggleRhythm(s.en);
-    $("#prevBtn", view).onclick = () => { clearRecording(); idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
-    $("#nextBtn", view).onclick = () => { clearRecording(); idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
+    $("#prevBtn", view).onclick = () => { stopMetronome(); clearRecording(); idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
+    $("#nextBtn", view).onclick = () => { stopMetronome(); clearRecording(); idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
     $("#micBtn", view).onclick = toggleMic;
   }
 
@@ -244,7 +247,7 @@ export function renderShadowing(view) {
   function toggleRhythm(text) {
     const box = $("#rhythm", view);
     if (!box) return;
-    if (box.dataset.open === "1") { box.innerHTML = ""; box.dataset.open = ""; return; }
+    if (box.dataset.open === "1") { stopMetronome(); box.innerHTML = ""; box.dataset.open = ""; return; }
     const marks = sentenceStress(text);
     const chips = marks.map((m) => {
       const cls = m.stressed ? "beat beat-strong" : "beat beat-weak";
@@ -255,11 +258,74 @@ export function renderShadowing(view) {
       <div class="rhythm-card">
         <div class="rhythm-tip">🎵 英文是<b>重音節拍</b>語言：<b class="rhythm-hi">放大的實詞</b>（名詞／動詞／形容詞）唸得<b>重、長、清楚</b>，<span class="muted">灰色虛詞（the／a／to／of…）輕輕快快帶過</span>，整句就有道地的抑揚。</div>
         <div class="rhythm-line">${chips}</div>
-        <div class="btn-row mt"><button class="btn btn-ghost" id="rhythmPlay">🔊 跟著節奏唸一次</button></div>
+        <div class="metro-tip">🥁 按下節拍器，<b>每聲「咑」就是一個重音</b>——跟著拍子把放大的字唸出來、虛詞輕輕滑過，自然唸出英文的節奏感。</div>
+        <div class="btn-row mt">
+          <button class="btn btn-ghost" id="metroBtn">🥁 打節拍跟著唸</button>
+          <button class="btn btn-ghost" id="rhythmPlay">🔊 跟著節奏唸一次</button>
+        </div>
       </div>`;
     box.dataset.open = "1";
     const play = $("#rhythmPlay", box);
     if (play) play.onclick = () => readAlong(text, 0.8);
+    const metro = $("#metroBtn", box);
+    if (metro) metro.onclick = () => playMetronome(text, metro);
+  }
+
+  // 節拍器：best-effort WebAudio「咑」聲，每個重音一拍，視覺亮點同步打在實詞上。
+  // 不支援/被擋一律靜默略過、不影響任何既有功能。
+  function click(strong) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!metroCtx) metroCtx = new AC();
+      if (metroCtx.state === "suspended") metroCtx.resume();
+      const t = metroCtx.currentTime;
+      const osc = metroCtx.createOscillator();
+      const g = metroCtx.createGain();
+      osc.frequency.value = strong ? 1150 : 760;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(strong ? 0.3 : 0.14, t + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+      osc.connect(g).connect(metroCtx.destination);
+      osc.start(t); osc.stop(t + 0.13);
+    } catch (_) { /* 靜默：節拍器是加分項，不可影響練習 */ }
+  }
+
+  function stopMetronome() {
+    if (metroTimer) { clearInterval(metroTimer); metroTimer = null; }
+    const box = $("#rhythm", view);
+    if (box) box.querySelectorAll(".beat-now, .beat-pass").forEach((n) => n.classList.remove("beat-now", "beat-pass"));
+    const btn = box && $("#metroBtn", box);
+    if (btn) btn.textContent = "🥁 打節拍跟著唸";
+  }
+
+  function playMetronome(text, btn) {
+    if (metroTimer) { stopMetronome(); return; } // 再按一次=停
+    const box = $("#rhythm", view);
+    if (!box) return;
+    const marks = sentenceStress(text);
+    const chips = [...box.querySelectorAll(".beat")];
+    let beats = marks.map((m, i) => (m.stressed ? i : -1)).filter((i) => i >= 0);
+    if (!beats.length) beats = marks.map((_, i) => i); // 保底：無實詞則每字一拍
+    const seq = [-2, -1, ...beats]; // 先兩拍預備（弱音），再正式開打
+    btn.textContent = "⏹️ 停止節拍";
+    let k = 0, prev = -1;
+    const step = () => {
+      if (!box.isConnected || k >= seq.length) { stopMetronome(); return; } // 換頁/換句自動收
+      const v = seq[k++];
+      if (v < 0) { click(false); return; } // 預備拍
+      click(true);
+      for (let j = prev + 1; j < v; j++) { // 重音之間的虛詞：快速一閃，示意「輕快滑過」
+        const c = chips[j];
+        if (c && !c.classList.contains("beat-strong")) { c.classList.add("beat-pass"); setTimeout(() => c && c.classList.remove("beat-pass"), 200); }
+      }
+      chips.forEach((c) => c.classList.remove("beat-now"));
+      const cur = chips[v];
+      if (cur) { cur.classList.add("beat-now"); setTimeout(() => cur && cur.classList.remove("beat-now"), 340); }
+      prev = v;
+    };
+    step(); // 立刻打第一拍（預備拍）
+    metroTimer = setInterval(step, 640);
   }
 
   function toggleMic() {

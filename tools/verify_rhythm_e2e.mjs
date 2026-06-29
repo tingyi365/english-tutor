@@ -107,12 +107,16 @@ try {
   ok("節奏卡含『重音節拍』教學文案", /重音節拍/.test(panel.tip), panel.tip.slice(0, 40));
   ok("節奏卡有『跟著節奏唸一次』播放鈕", panel.hasPlay);
 
-  // 點播放不丟錯
+  // 點播放不丟錯（先把鈕捲到畫面中央＝模擬真實使用者操作；避免被 sticky 底部導覽列蓋住的座標誤點）
+  await page.evaluate(() => document.querySelector("#rhythmPlay").scrollIntoView({ block: "center" }));
+  await new Promise((r) => setTimeout(r, 80));
   await page.click("#rhythmPlay");
   await new Promise((r) => setTimeout(r, 120));
   ok("點播放節奏（無錯誤）", true);
 
   // 再點一次收合
+  await page.evaluate(() => document.querySelector("#rhythmBtn").scrollIntoView({ block: "center" }));
+  await new Promise((r) => setTimeout(r, 60));
   await page.click("#rhythmBtn");
   await new Promise((r) => setTimeout(r, 60));
   const after = await page.$eval("#rhythm", (e) => e.innerHTML.trim());
