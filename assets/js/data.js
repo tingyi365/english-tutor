@@ -70,6 +70,9 @@ export const VOCAB = [
   { word: "luggage", ipa: "/ˈlʌɡɪdʒ/", pos: "n.", zh: "行李", ex: "Where can I pick up my luggage?", exZh: "我可以在哪裡領行李？", topic: "travel" },
   { word: "passage", ipa: "/ˈpæsɪdʒ/", pos: "n.", zh: "（文章）段落", ex: "Read the passage and answer the questions.", exZh: "閱讀這段文章並回答問題。", topic: "exam" },
   { word: "summarize", ipa: "/ˈsʌməraɪz/", pos: "v.", zh: "摘要；總結", ex: "Please summarize the main idea.", exZh: "請總結主要概念。", topic: "exam" },
+  // —— 第 37 輪：補 travel 單字 4→6（旅遊單字為內容矩陣最單薄格；借鏡 Babbel 旅遊路線＝實用情境＋清楚解說的初學者常用字）。append-only，SRS 以 word 字串為 key、零索引依賴 ——
+  { word: "ticket", ipa: "/ˈtɪkɪt/", pos: "n.", zh: "票；車票", ex: "Where can I buy a train ticket?", exZh: "我可以在哪裡買火車票？", topic: "travel" },
+  { word: "direction", ipa: "/dɪˈrɛkʃən/", pos: "n.", zh: "方向；路線", ex: "Can you show me the direction to the hotel?", exZh: "你能告訴我去飯店的方向嗎？", topic: "travel" },
 ];
 
 // 情境口說對話：AI 給提示句，學生開口回應，逐句推進
