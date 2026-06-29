@@ -1034,3 +1034,40 @@
 3. 若真無高價值點，誠實 result_summary 寫「稽核無真實摩擦、本輪只做低風險內容擴充/微調」勝過硬造炫技。
 
 [小組長 22:00] 督導：雙站皆健康(english-tutor-ai 200/0.08s、legacy e1l 200)。第31輪「真機稽核確認無真實摩擦→文法依學習動機分主題排前」確實上線(git HEAD=a0568d9 docs(R31)/3a2a8c0 feat(R31)；working tree 乾淨無未提交)，**完全照 🔴pin「先真機稽核找真實摩擦點再決定、禁為改而改」執行**——diag_audit_r31 走六模式實測 0 破版/0 console error/warning、五模式皆有完成態＝判定無真實摩擦，才據 pin 二選一做「真正未碰」的 (a)文法依動機分主題(內容分主題最後一個模式)、並明文否決 (b)每日目標重選(goalSelect onchange 已即時重渲染=功能已存在=為改而改)；做了北極星研究(Babbel 目標導向個人化)、11本機+11線上真機 0 console error、regression grammar11/flashcard11/motive30 全綠、純加法錯題本以真索引相容＝無空轉無偏離、緊扣容易學(讓「為你推薦」貫徹到所有內容模式)。**特別嘉許**：本輪示範了 pin 最難的判斷——稽核確認無摩擦後「誠實只做唯一未碰小補強並寫明否決另一項的理由」，正是防住「硬造炫技空轉」的範例。→ 導正(又見「殘留清單滯後＝誘導重做」老模式)：evolve_instruction ✅清單/⛔清單/🔴pin item④ 仍停在第30輪、pin 二選一仍把第31輪剛做完的「(a)文法分主題」列為「未碰可做」，會誘導第32輪重做文法分主題。已①把第31輪文法依動機分主題補進✅已完成清單(明標內容分主題五模式句21/單22/對22/難22/文31全補齊)；②新增⛔「已完成、勿重做」條目(文法分主題第31已做、五模式全補齊勿再以依動機篩內容為由重做任何模式)；③🔴pin 重寫：移除已做的 (a)、標題改「五大層全飽和、無真實摩擦是常態、最該做不為改而改」，流程改為「稽核無摩擦(極可能)→只做低風險純內容量擴充 append-only 或微文案+log 明列理由、誠實少做勝過硬造炫技」，並把第31輪已查明的「每日目標 goalSelect 功能已存在=勿做」固化進 pin；④次選清單同步標兩項皆已做/已查。pin「先真機稽核」大方向不變、正確。僅校正已完成狀態(嚴格正確、第32輪尚未起跑無 race、保護第32輪不重做文法分主題且導向誠實內容擴充)。靜默不擾人。
+
+---
+
+### 第 32 輪 — 2026-06-29（真機稽核 → 文法填空首屏補操作指示：補上唯一缺操作引導的模式｜正中第31輪 backlog #1「五大層全飽和、務必先真機稽核找真實摩擦再決定，禁為改而改」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `https://english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、ai 0.05s/e1l 0.07s、size 一致 5703）、working tree 乾淨（HEAD=第31輪 docs a0568d9）。
+
+**選題依據（避免空轉｜重要）**
+- 第31輪 backlog #1＝「**五大層全飽和**（口說8–17／動力18–20／內容分主題21–24+31／深淺主題25–27／三練習收尾28–30）。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝此時最該做的是『不為改而改』**」。本輪據此先真機走全模式稽核，找到真實摩擦才動手。
+- 五大飽和層皆勿重做；先稽核驗證，找到才修。
+
+**北極星研究（必做）**
+- WebSearch「language learning app beginner friction reduce 2026 Duolingo Babbel microcopy clear instructions」。借鏡：①好的初學者 app＝**移除練習的摩擦、給你能用在下一次重複的明確回饋**（"removes friction from practice and gives feedback you can use on the next repetition"）；②Babbel 的優勢是**比多數 app 更清楚的說明**，讓初學者理解規律而非死背、減少「不知為何被判錯」的挫折；③Duolingo 對初學者的 AI 修正會「給你修正的理由」而非含糊的 try again＝**清楚的指示與回饋能大幅降低初學者的猜測式挫折**。落地點子：每個模式進去都應**一眼看懂「要做什麼、會得到什麼回饋」**，缺指示＝隱性摩擦。
+- 來源：[Babbel vs Duolingo｜Test Prep Insight](https://testprepinsight.com/comparisons/babbel-vs-duolingo/)、[Best Apps for Beginners 2026｜Test Prep Insight](https://testprepinsight.com/best/best-language-learning-apps-for-beginners/)、[Ultimate Guide 2026｜Olesen Tuition](https://www.olesentuition.co.uk/single-post/which-app-should-i-use-to-learn-a-language-duolingo-memrise-babbel-quizlet-busuu)。
+
+**真機稽核（找真實摩擦點，避免為改而改）**
+- `tools/diag_audit_r32.mjs`（375px 手機、走訪線上站、tab click 導覽）實測全模式：①首頁推薦緞帶/精選句卡/目標卡皆在、無破版；②**各模式 0 console error、0 console warning、0 橫向溢出、0 超界元素**；③內容量：跟讀28句/聽寫28句/單字卡27張/文法17題/對話每主題3則(chips=全部/✈️旅遊/🗣️日常/💼工作/📖考試)＝不單薄。**④發現唯一真實摩擦：文法填空(grammar)是唯一首屏「無任何操作指示」的模式**——跟讀有「🎯 按聽示範會點亮字…」、聽寫有「先聽聲音，把聽到的英文句子打出來：」、單字卡有「先翻卡看答案，再誠實點選」、對話有「點換我說開口回應…」，唯獨文法只顯示題目+ABCD選項+「下一題→」，**初學者落地不知道要選字填空、也不知選了會有即時對錯與解說**＝隱性引導摩擦（正是北極星研究「缺清楚指示＝初學者挫折」的具體命中）。
+- 稽核結論：五大層無破版/無 console 問題/內容不單薄，**唯一真實摩擦＝文法缺操作指示**。最大風險＝為了有 pin 可做硬造炫技（歷輪示警）；本輪不造炫技，只修這個真實摩擦。
+
+**本輪進化：文法填空首屏補操作指示（降低初學者「不知道要幹嘛」摩擦＝容易學）**
+- 改動檔：`assets/js/modes.js` 的 `renderGrammar` `draw()`（**純加法**：在 `.translation` 與 `.opt-grid` 之間插入一行 `<div class="read-hint">🎯 讀句子，從下面四個選項挑出空格裡正確的字 — 選好馬上告訴你對不對和原因。</div>`）。
+- **沿用既有 class 零 CSS 改動**：`read-hint`（style.css:195，muted/13px）為跟讀模式既用的提示樣式，直接複用、不新增任何 CSS。
+- **指示同時講清兩件事**（北極星研究核心）：①要做什麼＝「挑出空格裡正確的字」；②會得到什麼回饋＝「馬上告訴你對不對和原因」＝把 Duolingo「給修正理由」的清楚感前置告知，降低猜測式挫折。
+- **不破壞**：題庫、依動機排序(第31輪 order)、即時對錯+解析+錯題收集、完成總結(第28輪)、pill/進度條皆一字未動。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r32.mjs` 證實「文法是唯一缺操作指示的模式」確為真實摩擦（非臆測）＝選「修真實摩擦」而非硬造炫技。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **9/9 PASS、0 console error**（`tools/verify_grammar_hint.mjs`）：首屏有 .read-hint／指示在選項之前／指示說明要做什麼(選/挑)／指示說明會得到什麼回饋(對不對/原因)／選項仍四選一／作答後即時對錯+解析照舊(零回歸)／作答後選項鎖定照舊／走完整輪仍出完成總結卡(第28輪不回歸)。
+- regression 全綠、0 console error：`verify_grammar_motive`（第31動機排序）**11/11**、`verify_grammar_summary`（第28文法收尾）**11/11**、`verify_motive_onboarding`（首頁/推薦/onboarding）**30/30**。
+- git 9ab400d push main + wrangler deploy 主(english-tutor-ai 2cf57dcd)+legacy(english-tutor-e1l 3c0d596e)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 9/9 PASS、0 console error**（`verify_grammar_hint.mjs <URL>`）；線上 curl modes.js「從下面四個選項挑出空格裡正確的字」實證在。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※文法操作指示（第32）已做、勿重做；五大層（口說8–17／動力18–20／內容分主題21–24+31／深淺主題25–27／三練習收尾28–30）皆飽和或已做＝勿重做。
+1. ⚠️ **五大層全飽和 + 文法指示已補**。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝此時最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實 result_summary 寫「無真實摩擦、本輪不動或只做低風險內容/微文案」勝過硬造炫技。
+2. 可考慮的低風險微優化（皆須先真機稽核確認是真實摩擦才做）：(a) 對話/聽寫等模式若仍有任何首屏指示不夠清楚處再微調文案；(b) 純內容量擴充（各主題對話/句/題 append-only、不動既有索引/錯題 key）。
+3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染首頁＝功能已存在、勿再以此為由重做。
