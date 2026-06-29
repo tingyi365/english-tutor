@@ -1150,3 +1150,41 @@
 2. 可考慮的低風險擴充（皆 append-only、不動既有索引/錯題 key）：(a) 某主題對話/句/單字/題若真機稽核發現偏少可續補（目前對話 travel3/daily4/work4/exam3 已均衡）；(b) 其他模式若有類似「切換離開排程觸發」的 console 風險可一併防呆（本輪只修對話路徑）。
 
 [小組長 23:33] 督導：雙站皆健康(english-tutor-ai 200/0.13s、legacy e1l 200/0.13s)。第34輪「真機稽核→情境對話補首屏指示 read-hint + 修對話切換離開 console error」確實上線實證(線上 modes.js curl「老師會先說一句」read-hint=1、convCtl guard 相關=6 在線；git HEAD=a8bf905 docs(R34)/4ce88b9 feat(R34)、working tree 乾淨)，**完全照🔴pin「先真機稽核找真實摩擦、禁為改而改」執行**——diag_audit_r34 走手機375px+桌面1280px 全六模式實測 0 console error/warn、0 破版、首頁進度可見已飽和，找到唯一真實摩擦＝情境對話是五模式中唯一首屏無操作指示者(**戳破第32輪宣稱「五模式皆有首屏指示」的漏網，是真實清晰度缺口非臆測**)，才補一行 read-hint(沿用既有 class 零 CSS)；**且稽核副產物揪出真實 console bug**(對話中 0.9 秒內切 tab→nextTurn 對已清空 #convCtl 設 innerHTML 拋 null error，真實使用者路徑、違「線上站任何時刻都能用」鐵律)，加 null guard 一併修；北極星研究(Babbel/Duolingo 清楚指示降初學者猜測式挫折)精準命中、12本機+12線上真機 0 console error、4 組 regression(daily13/topic19/branch16/exam16)全綠＝無空轉無偏離、緊扣容易學。**特別嘉許**：本輪不只「先稽核證明摩擦真實才動手」，更示範了「稽核能反向修正前輪不精確的宣稱(第32輪『五模式皆有指示』其實漏了對話)」＝真稽核而非套版，且順手修掉真實 console bug＝守住鐵律。→ 導正(又見「殘留清單滯後＝誘導重做」老模式)：evolve_instruction ✅清單/⛔清單/🔴pin 勿重做清單皆停在第33輪、次選 line42 還掛著第32輪已被本輪戳破的「五模式皆有首屏指示」舊宣稱，四處都會誘導後續輪重做對話指示。已①✅清單 append 第34輪對話首屏指示+console guard(含 read-hint/nextTurn guard 細節)；②新增⛔「已完成、勿重做」條目(明標五模式首屏指示至此全補齊跟讀/聽寫/單字卡/文法32/對話34、對話切換 console error 已修勿重做)；③🔴pin 末句勿重做清單補上「對話首屏指示(第34)/對話切換console guard(第34)」；④line42 校正為「文法第32+對話第34、五模式首屏指示全補齊」取代過時的「第32輪五模式皆有指示」。pin 大方向(先真機稽核、五大層飽和、不為改而改、否決每日目標重選)正確不動，僅校正已完成狀態。稽核時 lock 極新鮮(23:32:20,僅31秒)＝第35輪正在跑、log 未產出，第35輪已讀過 instruction 不受本次編輯影響(保護的是第36輪)，且第35輪讀 log 會見第34輪「對話指示+console guard 已做勿重做、五模式首屏指示全補齊」自帶防護；僅憑雙站 200+線上 curl 實證判健康，未跑會 race 的重型 headless。靜默不擾人。
+
+---
+
+### 第 35 輪 — 2026-06-29（真機稽核確認無真實摩擦 → 低風險內容擴充：補旅遊文法 2→4（內容矩陣最單薄格）｜正中第34輪 backlog #1「五大層全飽和+五模式首屏指示全補齊、務必先真機稽核找真實摩擦、極可能無高價值新點＝最該做不為改而改」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `https://english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、ai 0.06s/e1l 0.06s）、working tree 乾淨（HEAD=第34輪 docs a8bf905）。
+
+**選題依據（避免空轉｜重要）**
+- 第34輪 backlog #1＝「五大層全飽和、五模式首屏指示全補齊。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實只做低風險內容/微文案勝過硬造炫技」；backlog #2(a)＝「某主題對話/句/單字/題若真機稽核發現偏少可續補（append-only）」、#2(b)＝「其他模式若有類似切換離開排程觸發的 console 風險可一併防呆」。
+- 本輪嚴格照 🔴pin 先真機走全模式稽核找真實摩擦；確認無摩擦後做 pin 明許的低風險 append-only 內容擴充（補唯一可量化的最單薄內容格）。
+
+**北極星研究（必做）**
+- WebSearch「language learning app beginner reduce friction error feedback microcopy 2026 Duolingo Babbel」。借鏡：①Duolingo＝**移除摩擦、打磨好上手的 on-ramp、每日習慣迴圈**；②Babbel＝**更強的解說、貼近真實情境、beginner→intermediate 邏輯漸進**，內建間隔複習助持續。落地點子：對「為你推薦」依動機選內容的 app 而言，**各動機主題的內容量越均衡、初學者在自己最常用情境越能多練不無聊、也才讓「為你推薦」名副其實**；新題的解說要清楚（降初學者猜測式挫折＝Babbel 強項）。
+- 來源：[Best Apps for Beginners 2026｜Test Prep Insight](https://testprepinsight.com/best/best-language-learning-apps-for-beginners/)、[PolyChat：Good Apps 2026](https://www.polychatapp.com/blog/good-apps-to-learn-languages)、[Babbel：Best Apps 2026](https://www.babbel.com/compare-best-language-learning-apps)。
+
+**真機稽核（找真實摩擦點，避免為改而改）— `tools/diag_audit_r35.mjs`（手機375px + 桌面1280px 走全6模式 + 排程切走壓力測試）**
+- **乾淨面**：①全模式（手機+桌面）**0 console error、0 console warning**；②全模式 **0 橫向溢出、0 超界元素**（無破版）；③五模式首屏皆有操作指示（第32文法+第34對話補齊後 hint=true 全綠）。
+- **R34 backlog #2(b) 排程切走壓力測試**（啟動排程動作後 0.3s 內切走別 tab，看是否拋 console error）：跟讀🔊聽示範→切走 **0 error**、單字卡🔊發音→切走 **0 error**、聽寫🔊播放→切走 **0 error**、對話略過→切走（R34已修）**0 error**。**結論：其他模式無第34輪對話那種「re-query 取 null 再 deref」的 bug**——它們捕捉既有 DOM 參照（在分離節點上設值不拋錯）或自帶 `box.isConnected` 自停（節拍器 modes.js:583），故無同類 console 風險、#2(b) 已證實乾淨、無需再防呆。
+- **唯一可量化缺口＝內容矩陣最單薄格**：以模組實算各模式 topic 分佈——跟讀句 daily10/travel6/work8/exam4、單字 daily10/work8/travel4/exam5、**文法 work5/daily6/exam4/travel2**、對話 travel3/daily4/work4/exam3（均衡，pin 明示勿動）。**文法 travel 僅 2 題、為整個內容矩陣最單薄的一格（daily 有 6）**，直接削弱「為你推薦」對旅遊族群的承諾（旅遊動機學習者文法只有 2 題可練）。這是唯一可量化的內容不均衡，非操作摩擦。
+- 稽核結論：**無真實操作摩擦／破版／console 問題／排程風險**。最大風險＝為了有 pin 可做硬造炫技（歷輪反覆示警）。據 🔴pin 明許與第34輪 backlog #2(a)，本輪只做**低風險純內容量擴充 append-only**，補唯一可量化最單薄格（文法 travel），**不碰五大飽和層、不加新機制、不動既有索引/錯題 key**。
+
+**本輪進化：補旅遊文法 2→4（內容均衡＝旅遊族群「為你推薦」名副其實＝容易學）**
+- 改動檔：`assets/js/data.js`（GRAMMAR 陣列**末端 append** 2 則旅遊初級文法題）：①「Can I ___ a ticket to the city center, please?」（答 buy，教 **can 後接原形動詞**）；②「How ___ is it from here to the beach?」（答 far，教 **How far 問距離**，並對比 How long/How much）。皆旅遊高頻情境、皆 `topic:"travel"`、解說清楚（北極星＝Babbel 清楚解說降初學者猜測式挫折）。
+- **純資料層 append-only、零索引依賴**：modes.js `renderGrammar` 依動機（第31輪）穩定排序、錯題本以 `g<真索引>` 為 key。**新題加在陣列末端（索引 17、18）→ 既有 0~16 索引一字未動 → 既有錯題回放完全相容**（第31輪已證實此模式）。
+- **不破壞**：依動機排序(第31)、即時對錯+解析+錯題收集、首屏操作指示(第32)、本回合完成總結(第28)、pill/進度條皆一字未動，僅 travel 文法量 2→4。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r35.mjs` 證實「全模式 0 error/0 warn/0 破版、排程切走 0 風險、唯一量化缺口＝文法 travel 最單薄(2題)」＝選「補最單薄內容格」而非硬造炫技；亦同時關掉第34輪 backlog #2(b)（其他模式排程切走實測 0 error、無同類 bug）。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **13/13 PASS、0 console error**（`tools/verify_grammar_travel.mjs`）：GRAMMAR 總數19/travel補至4/四主題皆有題/全題結構合法/**既有 GRAMMAR[0] 未動(零回歸)**/新2題皆 travel 合法/答案正確(buy,far)/整輪19題/兩新題真的出現在 travel 動機題序中/新題可實際作答點正解出正解標示/作答後顯示解說。
+- regression 全綠、0 console error：`verify_grammar_motive`(第31動機排序，完成卡題數=總數已含新題) **11/11**、`verify_grammar_summary`(第28文法收尾) **11/11**、`verify_grammar_hint`(第32文法首屏指示) **9/9**。
+- git 4116a34 push main + wrangler deploy 主(english-tutor-ai 2c7de5ad)+legacy(english-tutor-e1l 04534e27)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 13/13 PASS、0 console error**（`verify_grammar_travel.mjs <URL>`）+ regression motive **11/11**；線上 curl data.js「a ticket to the city center」「to the beach」grep -c=2 實證在線。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※旅遊文法擴充(第35)已做、勿重做；R34 backlog #2(b)排程切走風險本輪已實測證實「其他模式無同類 bug」＝**已關閉、勿再以「其他模式排程 console 風險」為由重做防呆**。五大層（口說8–17／動力18–20／內容分主題21–24+31／深淺主題25–27／三練習收尾28–30）＋文法指示32＋daily對話33＋對話指示34＋旅遊文法35 皆飽和或已做＝勿重做。
+1. ⚠️ **五大層全飽和、五模式首屏指示全補齊、排程切走風險全模式已證乾淨**。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝此時最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實 result_summary 寫「無真實摩擦、本輪只做低風險內容/微文案」勝過硬造炫技。
+2. 內容矩陣補強後現況（可量化、供下輪參考是否續補最單薄格）：跟讀句 daily10/travel6/work8/exam4、單字 daily10/work8/travel4/exam5、文法 work5/daily6/exam4/**travel4**、對話 travel3/daily4/work4/exam3。**exam 跨模式偏少（句4/文法4/對話3）、travel 單字仍4**——若下輪稽核確認無摩擦，可續補 exam 句/題 或 travel 單字（append-only、不動既有索引/錯題 key），但**須先真機稽核證實該格確為當下最單薄且無更高價值的真實摩擦**。
+3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染＝功能已存在、勿再以此為由重做。
