@@ -1,7 +1,7 @@
 // ============ 各學習模式 ============
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
-import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress } from "./scoring.js";
+import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress, sentenceIntonation } from "./scoring.js";
 import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -317,10 +317,12 @@ export function renderShadowing(view) {
             <button class="btn btn-ghost" id="listenBtn">🔊 聽示範</button>
             <button class="btn btn-ghost" id="slowBtn">🐢 慢速</button>
             <button class="btn btn-ghost" id="rhythmBtn">🎵 句子節奏</button>
+            <button class="btn btn-ghost" id="intonBtn">🎶 句尾語調</button>
             <button class="btn btn-mic" id="micBtn" ${speechSupport.stt ? "" : "disabled"}>🎙️ 開口跟讀</button>
           </div>
           <div class="read-hint">🎯 按「聽示範」時，老師唸到哪個字就會<b>點亮哪個字</b> — 跟著亮起來的字一起唸，最容易上口。</div>
           <div id="rhythm"></div>
+          <div id="inton"></div>
           <div class="heard mt" id="heard"><span class="muted">點「開口跟讀」後，這裡會顯示聽到的內容…</span></div>
         </div>
 
@@ -337,6 +339,7 @@ export function renderShadowing(view) {
     $("#listenBtn", view).onclick = () => readAlong(s.en);
     $("#slowBtn", view).onclick = () => readAlong(s.en, 0.6);
     $("#rhythmBtn", view).onclick = () => toggleRhythm(s.en);
+    $("#intonBtn", view).onclick = () => toggleIntonation(s.en);
     $("#prevBtn", view).onclick = () => { stopMetronome(); clearRecording(); idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
     $("#nextBtn", view).onclick = () => { stopMetronome(); clearRecording(); idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
     $("#micBtn", view).onclick = toggleMic;
@@ -432,6 +435,52 @@ export function renderShadowing(view) {
         if (metroTimer) { stopMetronome(); playMetronome(text, $("#metroBtn", box)); } // 邊打邊調速：無縫重啟
       };
     });
+  }
+
+  // 句尾語調（升降調 intonation）導覽：把句子的「高低起伏(melody)」變成看得見的旋律線＋一句話講清楚
+  // 「為什麼這裡該上揚 ↗／下降 ↘」，再用「🔊 聽語調示範」讓 TTS 自然示範（問句自然上揚、直述句下降）。
+  // 這是初學者最常忽略卻很影響「聽起來自不自然」的一塊；看懂+跟著模仿＝最容易學會語調。
+  function intonCurveSVG(dir) {
+    const rise = dir === "rise";
+    const path = rise
+      ? "M3,27 C22,25 36,23 44,20 C52,17 57,12 60,5"
+      : "M3,7 C22,9 36,11 44,14 C52,17 57,22 60,29";
+    const head = rise ? "55,9 60,2 65,11" : "55,25 60,32 65,23";
+    return `<svg class="into-curve" viewBox="0 0 68 34" preserveAspectRatio="none" aria-hidden="true">
+      <path class="into-line" d="${path}"/>
+      <polygon class="into-pt" points="${head}"/>
+    </svg>`;
+  }
+  function toggleIntonation(text) {
+    const box = $("#inton", view);
+    if (!box) return;
+    if (box.dataset.open === "1") { box.innerHTML = ""; box.dataset.open = ""; return; }
+    const clauses = sentenceIntonation(text);
+    if (!clauses || !clauses.length) return;
+    const rows = clauses.map((c) => {
+      const arrow = c.dir === "rise" ? "↗" : "↘";
+      const dirLbl = c.dir === "rise" ? "上揚" : "下降";
+      return `
+        <div class="into-clause into-${c.dir}">
+          ${intonCurveSVG(c.dir)}
+          <div class="into-body">
+            <div class="into-text">${esc(c.text)} <span class="into-arrow">${arrow}</span></div>
+            <div class="into-reason"><b class="into-${c.dir}-c">句尾${dirLbl} ${arrow}</b> — ${c.reason}</div>
+          </div>
+        </div>`;
+    }).join("");
+    box.innerHTML = `
+      <div class="inton-card">
+        <div class="inton-tip">🎶 語調＝句子的<b>高低起伏</b>。光把字唸對還不夠，<b>句尾往上揚 ↗ 還是往下降 ↘</b>會改變整句的口氣 — 看懂下面的旋律線，再按「🔊 聽語調示範」跟著模仿。</div>
+        ${rows}
+        <div class="btn-row mt">
+          <button class="btn btn-ghost" id="intonPlay">🔊 聽語調示範</button>
+        </div>
+        <div class="inton-foot">💡 聽示範時<b>專心聽句尾的高低</b>：問人 Yes/No 多半<b>往上揚 ↗</b>（像在徵詢），把話講完或問具體資訊（Wh-）多半<b>往下降 ↘</b>（語氣肯定）。跟著模仿，語調最容易上手。</div>
+      </div>`;
+    box.dataset.open = "1";
+    const play = $("#intonPlay", box);
+    if (play) play.onclick = () => readAlong(text);
   }
 
   // 節拍器：best-effort WebAudio「咑」聲，每個重音一拍，視覺亮點同步打在實詞上。

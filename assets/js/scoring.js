@@ -457,6 +457,45 @@ export function sentenceStress(text) {
   }));
 }
 
+// 句尾語調（升降調 intonation）：把一句話切成子句，判斷每個子句句尾該「往上揚 ↗」還是「往下降 ↘」。
+// 教學共識（ESL）：Yes/No 問句句尾上揚（在徵詢）；Wh- 問句、直述句、命令/感嘆句句尾下降（語氣肯定）。
+// 純規則、best-effort：給初學者一個看得懂、好模仿的「melody」起點，不宣稱偵測真實音高。
+const WH_WORDS = new Set(["what", "where", "when", "who", "whom", "whose", "why", "which", "how"]);
+export function sentenceIntonation(text) {
+  const src = String(text || "").trim();
+  if (!src) return [];
+  // 依句末標點切子句，保留標點；逗號不切（一個語調群常含逗號，如 "Excuse me, can you help me?"）
+  const parts = src.match(/[^.!?]+[.!?]*/g) || [src];
+  const out = [];
+  parts.forEach((raw) => {
+    const t = raw.trim();
+    if (!t || !/[a-z]/i.test(t)) return;                         // 跳過純標點/空白片段
+    const words = t.replace(/[.!?,;:]+$/g, "").split(/\s+/).filter(Boolean);
+    if (!words.length) return;
+    const first = words[0].toLowerCase().replace(/[^a-z'’]/g, "");
+    const isQ = /\?\s*$/.test(t);
+    const isExcl = /!\s*$/.test(t);
+    let dir, type, reason;
+    if (isQ) {
+      if (WH_WORDS.has(first)) {
+        dir = "fall"; type = "wh";
+        reason = `Wh- 問句（用 ${words[0]} 問具體資訊）—— 對方要給的是內容、不是「是/否」，語氣肯定，句尾下降。`;
+      } else {
+        dir = "rise"; type = "yesno";
+        reason = `Yes/No 問句 —— 你在徵詢對方「是不是、要不要」，把句尾抬上去，聽起來才像在問、有禮貌。`;
+      }
+    } else if (isExcl) {
+      dir = "fall"; type = "exclaim";
+      reason = `感嘆／命令句 —— 語氣肯定有力，句尾收下來。`;
+    } else {
+      dir = "fall"; type = "statement";
+      reason = `直述句 —— 把一件事講完、語氣肯定，句尾自然降下來。`;
+    }
+    out.push({ text: t, words, dir, type, reason });
+  });
+  return out;
+}
+
 // 從評分結果挑出需要重點練的字（唸錯/近音/漏唸），附音素提示，供「逐音 drill」用。
 // 去重、最多 4 個，避免一次給太多造成壓力（小批次＝容易學）。
 export function wordDrills(result) {

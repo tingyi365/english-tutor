@@ -422,6 +422,29 @@ body {
 .pace-ok { background: rgba(34,197,94,.12); color: #86efac; }
 .pace-slow, .pace-fast { background: rgba(250,204,21,.12); color: #fcd34d; }
 
+/* ---- 句尾語調（升降調 intonation）：把句子的高低起伏(melody)變成看得見的旋律線 + 一句話講清楚為何上揚/下降（容易學） ---- */
+.inton-card { margin-top: 10px; padding: 12px 13px; border-radius: 13px; background: rgba(124,58,237,.08); border: 1px solid rgba(124,58,237,.22); }
+.inton-tip { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 6px; }
+.inton-tip b { color: var(--text); }
+.into-clause { display: flex; align-items: center; gap: 11px; padding: 9px 2px; border-top: 1px solid var(--line); }
+.into-clause + .into-clause { border-top: 1px solid var(--line); }
+.into-curve { width: 56px; height: 30px; flex: none; }
+.into-line { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.into-pt { stroke: none; }
+.into-rise .into-line { stroke: #34d399; }
+.into-rise .into-pt { fill: #34d399; }
+.into-fall .into-line { stroke: #60a5fa; }
+.into-fall .into-pt { fill: #60a5fa; }
+.into-body { min-width: 0; }
+.into-text { font-size: 15px; color: var(--text); line-height: 1.4; }
+.into-arrow { font-weight: 900; }
+.into-rise .into-arrow, .into-rise-c { color: #34d399; }
+.into-fall .into-arrow, .into-fall-c { color: #60a5fa; }
+.into-reason { font-size: 12px; color: var(--muted); line-height: 1.55; margin-top: 3px; }
+.into-reason b { font-weight: 800; }
+.inton-foot { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 11px; padding: 8px 10px; background: rgba(124,58,237,.1); border-radius: 8px; }
+.inton-foot b { color: var(--text); }
+
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }
 
 /* ---- PWA 安裝邀請橫幅（容易學：邀請加到主畫面，回來只要一鍵） ---- */
