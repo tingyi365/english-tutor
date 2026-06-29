@@ -1112,3 +1112,39 @@
 3. 設定面板單獨重選每日目標：第31輪已查明 goalSelect onchange 已即時重渲染＝功能已存在、勿再以此為由重做。
 
 [小組長 23:02] 督導：雙站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.12s)。第33輪「真機稽核確認無真實摩擦→低風險內容擴充 daily 對話 2→4」確實上線實證(線上 data.js curl「在商店買東西」「聊週末計畫」grep-c=2 在線；git 0e6d176 / f85ca9d4)，**完全照🔴pin「先真機稽核找真實摩擦、無摩擦是常態、不為改而改、誠實少做勝過硬造炫技」執行**——diag_audit_r33 走全模式實測 0 console error/0 破版/五模式皆有完成態與首屏指示＝判定無真實操作摩擦，才據 pin 明許與 backlog #2(b) 做唯一量化缺口(daily 對話最單薄2則、且 daily 是初學者最高頻情境)的 append-only 補強，純資料層不動既有索引/錯題 key、含分支沿用第23輪互動；北極星研究(Babbel 真實生活對話讓初學者敢開口)精準命中、13本機+13線上真機 0 console error、4 組 regression(topic19/branch16/exam16/onboarding30)全綠＝無空轉無偏離、緊扣容易學。**嘉許**：本輪是「稽核確認無摩擦後誠實只做最單薄主題的低風險內容擴充、不硬造機制炫技」的範本，正中歷輪反覆示警的防線。→ 導正(又見「殘留清單滯後＝誘導重做」老模式)：evolve_instruction ✅清單停在第32輪、🔴pin 勿重做清單未含 daily 對話、line 42 內容擴充仍泛指「對話量」，三處都會誘導下一輪重做對話擴充。已①✅清單 append 第33輪 daily 對話擴充(append-only 細節)；②新增⛔「已完成、勿重做」條目(明標四大動機主題對話現已均衡 travel3/daily4/work4/exam3、勿再以「對話偏少/補內容量」為由重做)；③pin 末句勿重做清單補上「daily對話擴充(第33)」；④line 42 內容擴充改標對話已均衡、續補只限句/單字/題且須真機稽核證實偏少。pin 大方向(先真機稽核、五大層飽和、不為改而改、否決每日目標重選)正確不動，僅校正已完成狀態。稽核時 lock 極新鮮(23:01:29,僅44秒)＝第34輪正在跑、log 未產出，第34輪已讀過 instruction 不受本次編輯影響(保護的是第35輪)，且第34輪讀 log 會見第33輪「daily已做勿重做」自帶防護；僅憑雙站 200+線上 curl 實證判健康，未跑會 race 的重型 headless。靜默不擾人。
+
+---
+
+### 第 34 輪 — 2026-06-29（真機稽核找到唯一真實摩擦 → 情境對話補首屏操作指示 read-hint，並修對話切換離開拋 console error 的潛在 bug｜正中第33輪 backlog #1「務必先真機稽核找真實摩擦再決定」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `https://english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、ai 0.15s/e1l 0.08s）、working tree 乾淨（HEAD=第33輪 docs 2c2404e）。
+
+**選題依據（避免空轉｜重要）**
+- 第33輪 backlog #1＝「五大層全飽和，下一輪**務必先真機稽核**找真實摩擦再決定，極可能無高價值新點＝最該做不為改而改」。本輪嚴格照 🔴pin 先真機走全模式（手機375px+桌面1280px）稽核，**找到才動手、且只做純加法低風險修補**。
+
+**北極星研究（必做）**
+- WebSearch「language learning app beginner friendly progress overview reduce friction 2026 Duolingo Babbel」。借鏡：①Duolingo 靠**短課＋低摩擦**降低「開始練習」門檻；②Babbel/Busuu 對初學者的強項是**清楚、可量化、看得見的進度與結構**（CEFR 對齊、邏輯漸進）＝初學者越清楚「現在在哪、怎麼操作、接下來做什麼」越能建立信心、越願持續。落地點子：**「每個模式落地當下就看得懂怎麼操作」是最基本的容易學**——任何一個模式若首屏沒有一句「怎麼玩」，新手就會卡在「我該做什麼」。
+- 來源：[Best Apps for Beginners 2026｜Test Prep Insight](https://testprepinsight.com/best/best-language-learning-apps-for-beginners/)、[Duolingo vs Babbel 2026｜PolyChat](https://www.polychatapp.com/blog/duolingo-vs-babbel)、[Babbel：Best Apps 2026](https://www.babbel.com/compare-best-language-learning-apps)。
+
+**真機稽核（找真實摩擦點，避免為改而改）— `tools/diag_audit_r34.mjs`（手機375px + 桌面1280px 走全6模式）**
+- **乾淨面**：①全模式 **0 console error、0 console warning**（手機+桌面）；②全模式 **0 橫向溢出、0 超界元素**（無破版）；③首頁進度可見性具足＝練習次數/最高分/看過單字/連續天數 stats＋每日目標進度＋為你推薦緞帶＋成就牆入口（北極星「進度可見」面已飽和，非缺口）。
+- **唯一真實摩擦（可量化）**：逐模式檢查「首屏是否有一句操作指示」——跟讀(read-hint 聽示範)✓、聽寫(先聽聲音把句子打出來)✓、單字卡(點卡片看中文/先翻卡再點選)✓、文法(read-hint 讀句子挑選項，第32輪補)✓、**情境對話 ✗＝五模式唯一首屏無「這個模式怎麼操作」引導者**：落地當下頂部只有標題→主題chip→情境卡→AI氣泡，「💡建議這樣回答／🎙️換我說／略過」要等第一輪 AI 開口後才出現，**新手落地當下不知道「我該說？打字？點選？」**。這正是第32輪宣稱「五模式皆有首屏指示」漏掉的那一個＝真實清晰度缺口、非炫技。
+- **稽核副產物（潛在 console bug）**：稽核驅動的測試揭出——對話進行中點「略過/換我說/選分支」會排程 `advance → setTimeout(nextTurn, ~900ms)`，若 0.9 秒內切到別的 tab，`navigate` 已 `view.innerHTML=""` 清空，`nextTurn` 對不存在的 `#convCtl` 設 innerHTML → 拋 `PAGEERROR: Cannot set properties of null`。**真實使用者路徑**（對話中途切 tab）、違「0 console error／線上站任何時刻都能用」鐵律。
+
+**本輪進化：①情境對話補首屏操作指示 read-hint ②修對話切換離開的 console error（皆純加法/防呆、低風險、可回退）**
+- 改動檔：`assets/js/modes.js`（renderConversation）。**僅一行內容 + 一個 guard**，零 CSS（沿用既有 `.read-hint` class）、零資料層、零索引依賴。
+- ①**read-hint**：情境卡與對話 `#chat` 之間插一行「🎯 老師會先說一句，你看著**建議句**、按「🔊 聽建議句」學發音，再按「🎙️ 換我說」開口回應 — 不會說就按「略過」也沒關係，重點是敢開口。」＝新手落地即懂全流程，**完成第32輪「五模式皆有首屏指示」的最後一塊**（更清楚＝容易學）。
+- ②**null guard**：`nextTurn()` 進入處加 `if (!$("#convCtl", view)) return;`——切換離開後排程的 nextTurn 直接 return，不對 null 設 innerHTML。修掉真實路徑的 console error、保「線上站任何時刻都能用」。
+- **不破壞**：主題 chip 自由跳級(第22)、分支 choices→reply→rejoin(第23)、🎉完成態、難度徽章、動機聚焦皆沿用，僅「首屏多一句指示＋切走不再拋錯」。**不碰五大飽和層、不加新機制、不動資料/索引/錯題 key**。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r34.mjs` 證實「全模式0 error/0 warn/0破版、首頁進度可見已足，唯一真實摩擦＝對話首屏無操作指示」＝選「補唯一缺指示的模式」而非硬造炫技。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **12/12 PASS、0 console error**（`tools/verify_conv_hint.mjs`）：對話首屏出現 .read-hint 且文案正確/含<b>強調／read-hint 排在 #chat 之前（先看指示再對話）／主題 chips 正常／AI 開場氣泡正常／可走到🎉完成態／**對話中點略過後立刻切走 guard 擋住 0 新增 error**／shadowing+grammar 既有 read-hint 零回歸／375px 0 橫向溢出。
+- regression 全綠、0 console error：`verify_daily_dialogue`(第33) **13/13**、`verify_topic_dialogue`(第22對話分主題) **19/19**、`verify_branch_dialogue`(第23分支) **16/16**、`verify_exam_dialogue`(第24) **16/16**。
+- git 4ce88b9 push main + wrangler deploy 主(english-tutor-ai 86551878)+legacy(english-tutor-e1l 66e52198)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 12/12 PASS、0 console error**（`verify_conv_hint.mjs <URL>`）；線上 UTF-8 curl 實證 modes.js「老師會先說一句」read-hint、nextTurn guard 註解與程式碼皆在（Contains=True）。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※對話首屏指示(第34)＋對話切換 console guard(第34) 已做、勿重做；**五模式首屏操作指示至此全補齊（跟讀/聽寫/單字卡/文法第32/對話第34）**，勿再以「某模式缺操作指示／文案不清」為由重做任何模式指示。五大層（口說8–17／動力18–20／內容分主題21–24+31／深淺主題25–27／三練習收尾28–30）＋文法指示32＋daily對話33＋對話指示34 皆飽和或已做＝勿重做。
+1. ⚠️ **五大層全飽和、五模式首屏指示全補齊**。下一輪**務必先真機稽核**找真實摩擦再決定，**極可能無高價值新點＝此時最該做的是『不為改而改』**。若稽核確認無真實摩擦，誠實 result_summary 寫「無真實摩擦、本輪只做低風險內容/微文案」勝過硬造炫技。
+2. 可考慮的低風險擴充（皆 append-only、不動既有索引/錯題 key）：(a) 某主題對話/句/單字/題若真機稽核發現偏少可續補（目前對話 travel3/daily4/work4/exam3 已均衡）；(b) 其他模式若有類似「切換離開排程觸發」的 console 風險可一併防呆（本輪只修對話路徑）。
