@@ -338,6 +338,14 @@ body {
 .drill-btns { display: flex; gap: 8px; }
 .drill-btns .btn { flex: 1; padding: 9px 12px; font-size: 14px; }
 
+/* ---- 範例 vs 我的錄音對照（容易學：聽自己 vs 聽範例，最快抓到差異） ---- */
+.compare-card { border-color: rgba(56,189,248,.35); }
+.compare-head { font-size: 14px; line-height: 1.55; color: var(--text); margin-bottom: 12px; }
+.compare-head b { color: #7dd3fc; }
+.compare-row { display: flex; gap: 10px; }
+.compare-row .btn { flex: 1; padding: 12px; font-size: 15px; font-weight: 700; }
+.compare-row .cmp-mine { border-color: rgba(56,189,248,.5); }
+
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }
 
 /* ---- PWA 安裝邀請橫幅（容易學：邀請加到主畫面，回來只要一鍵） ---- */

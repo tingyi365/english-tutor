@@ -251,3 +251,5 @@
 3. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
 4. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 5. PWA 進階：離線友善提示、新版可用時提醒重整。
+
+[小組長 10:2x] 督導：兩站皆健康(english-tutor-ai + legacy e1l 皆 HTTP 200，headless 真機 5 mode-card 渲染、**0 JS error**)；第8輪「發音回饋核心升級」確實上線實證(scoring.js phoneticHint / modes.js drill 線上 curl 在，15/15 單測+12/12 本機真機+線上 11/11 皆 0 console error)，做了北極星研究(ELSA 音素級回饋)、正中上一輪🔴硬性指定(產品本名口說核心、連7輪未深化的最大摩擦點)、無空轉無偏離。**🔴第8輪硬性指定區塊已被 worker 完成後自行移除**——歷輪反覆示警的「殘留🔴誘導下一輪重做」空轉風險本輪未發生，自清機制有效。觀察：稽核時 lock(10:20)新鮮、**第9輪 worker 正在跑、log 尚未產出**，當前無🔴 pin；round8 backlog #1=發音核心再深化(範例 vs 我的錄音對照 MediaRecorder)方向正確、緊扣口說本命。→ 導正動作：本輪不撞跑中 worker、不改 instruction(對當前輪無效且會 race)；靜默不擾人，待第9輪產出後判斷是否漂離口說核心(若漂回 gamification/純內容/PWA 進階則 pin round10 導正回錄音對照或口說深化)。

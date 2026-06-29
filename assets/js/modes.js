@@ -102,6 +102,49 @@ export function renderHome(view, navigate) {
 export function renderShadowing(view) {
   let idx = parseInt(localStorage.getItem("shadowIdx") || "0", 10) % SENTENCES.length;
   let recognizer = null, listening = false;
+  // 「範例 vs 我的錄音」對照：用 MediaRecorder 錄下學生跟讀的聲音，評分後可回放跟老師示範對比。
+  // 全程 best-effort，不影響既有 STT/評分（先讓 recognizer 啟動，再開錄音；任何失敗都靜默略過、不出對照卡）。
+  let recHandle = null, recordedUrl = null, myAudio = null;
+  const canRecord = () =>
+    typeof MediaRecorder !== "undefined" && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+  function startRecording() {
+    if (!canRecord()) return Promise.resolve(null);
+    return navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const chunks = [];
+      let rec;
+      try { rec = new MediaRecorder(stream); }
+      catch (_) { stream.getTracks().forEach((t) => t.stop()); return null; }
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+      const stopped = new Promise((resolve) => {
+        rec.onstop = () => {
+          stream.getTracks().forEach((t) => t.stop());
+          const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+          resolve(blob.size ? blob : null);
+        };
+      });
+      try { rec.start(); } catch (_) { stream.getTracks().forEach((t) => t.stop()); return null; }
+      return { stop() { try { rec.stop(); } catch (_) {} return stopped; } };
+    }).catch(() => null);
+  }
+
+  // 停掉錄音、把錄到的音檔轉成可回放的 URL；回傳該 URL（無錄音則 null）
+  function finishRecording() {
+    if (!recHandle) return Promise.resolve(null);
+    const h = recHandle; recHandle = null;
+    return h.stop().then((blob) => {
+      if (!blob) return null;
+      if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+      recordedUrl = URL.createObjectURL(blob);
+      return recordedUrl;
+    }).catch(() => null);
+  }
+
+  function clearRecording() {
+    if (recHandle) { try { recHandle.stop(); } catch (_) {} recHandle = null; }
+    if (myAudio) { try { myAudio.pause(); } catch (_) {} myAudio = null; }
+    if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = null; }
+  }
 
   function draw() {
     const s = SENTENCES[idx];
@@ -140,8 +183,8 @@ export function renderShadowing(view) {
 
     $("#listenBtn", view).onclick = () => readAlong(s.en);
     $("#slowBtn", view).onclick = () => readAlong(s.en, 0.6);
-    $("#prevBtn", view).onclick = () => { idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
-    $("#nextBtn", view).onclick = () => { idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
+    $("#prevBtn", view).onclick = () => { clearRecording(); idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
+    $("#nextBtn", view).onclick = () => { clearRecording(); idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
     $("#micBtn", view).onclick = toggleMic;
   }
 
@@ -205,6 +248,7 @@ export function renderShadowing(view) {
       onInterim: (t) => { heard.innerHTML = `<span class="muted">…</span> ${esc(t)}`; },
       onError: (err) => {
         listening = false; micBtn.textContent = "🎙️ 開口跟讀";
+        finishRecording(); // 釋放麥克風，不顯示對照卡
         const msg = err === "not-allowed" ? "麥克風被拒絕，請在網址列允許麥克風權限。"
           : err === "no-speech" ? "沒聽到聲音，請靠近麥克風再試一次。"
           : "辨識發生問題，請重試。";
@@ -212,15 +256,20 @@ export function renderShadowing(view) {
       },
       onEnd: (finalText, conf) => {
         listening = false; micBtn.textContent = "🎙️ 開口跟讀";
-        if (!finalText) { heard.innerHTML = `<span style="color:#fcd34d">沒聽清楚，再試一次 🙂</span>`; return; }
-        heard.innerHTML = `你說：<b>${esc(finalText)}</b>`;
-        evaluate(finalText, conf);
+        finishRecording().then((myUrl) => {
+          if (!finalText) { heard.innerHTML = `<span style="color:#fcd34d">沒聽清楚，再試一次 🙂</span>`; return; }
+          heard.innerHTML = `你說：<b>${esc(finalText)}</b>`;
+          evaluate(finalText, conf, myUrl);
+        });
       },
     });
     recognizer.start();
+    // best-effort 錄音：在 recognizer 啟動後才開，確保即使錄音失敗也不影響既有評分
+    if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = null; }
+    startRecording().then((h) => { recHandle = h; }).catch(() => {});
   }
 
-  function evaluate(heardText, conf) {
+  function evaluate(heardText, conf, myUrl) {
     const s = SENTENCES[idx];
     const result = alignAndScore(s.en, heardText, getStrictness());
     renderSentence(s.en, result.tStatus);
@@ -251,6 +300,28 @@ export function renderShadowing(view) {
     fb.forEach((f) => fbBox.append(el(
       `<div class="fb-item ${f.kind === "good" ? "fb-good" : "fb-warn"}"><span class="ico">${f.kind === "good" ? "✅" : "💡"}</span><span>${esc(f.text)}</span></div>`
     )));
+
+    // 範例 vs 我的錄音對照（借鏡 ELSA：回放自己的聲音、緊接老師示範對比，靠「聽出差異」最快自我修正＝容易學）。
+    // 只有真的錄到音才出卡；錄音不支援/失敗時靜默不顯示，不增負擔、不影響評分。
+    if (myUrl) {
+      const cmpCard = el(`
+        <div class="card mt compare-card">
+          <div class="compare-head">🎧 對照一下 — 先聽<b>老師示範</b>，再聽<b>你剛剛的錄音</b>，聽出哪裡不一樣，進步最快</div>
+          <div class="compare-row">
+            <button class="btn btn-ghost cmp-model">🔊 老師示範</button>
+            <button class="btn btn-ghost cmp-mine">🎧 我的錄音</button>
+          </div>
+        </div>`);
+      const playMine = () => {
+        stopSpeaking();
+        if (myAudio) { try { myAudio.pause(); } catch (_) {} }
+        myAudio = new Audio(myUrl);
+        myAudio.play().catch(() => {});
+      };
+      $(".cmp-model", cmpCard).onclick = () => { if (myAudio) { try { myAudio.pause(); } catch (_) {} } readAlong(s.en); };
+      $(".cmp-mine", cmpCard).onclick = playMine;
+      resBox.append(cmpCard);
+    }
 
     // 逐音 drill：把唸錯/近音/漏唸的字逐一列出，給「更細的音」提示＋可重聽單字示範(正常/慢速)，
     // 讓回饋從「診斷」變「能立刻照做的修正」（借鏡 ELSA：鎖定錯的音、無限重聽正確示範）。
