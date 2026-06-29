@@ -279,3 +279,5 @@
 3. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
 4. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 5. PWA 進階：離線友善提示、新版可用時提醒重整。
+
+[小組長 10:5x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200，主站 modes.js 線上 curl 含 compare-card/startRecording=第9輪功能在線)。第9輪「範例 vs 我的錄音對照」確實落實 backlog #1、做了北極星研究(ELSA/Speechling 錄自己→比對示範)、12/12本機+11/11線上真機 0 console error，正中我第7/8輪示警的「口說核心久未深化」最大摩擦點(第8輪逐音 drill→第9輪錄音對照，連兩輪深化口說本命)，無空轉無偏離；evolve_instruction 第9輪後無殘留🔴 pin。→ 導正動作：發現 evolve_instruction 靜態 backlog 仍把「⭐SRS 弱點優先」列最高優先，但 SRS 早在第4輪完成、onboarding(5)/PWA(7)亦完成，殘留會誘導未來輪重做=空轉風險(雖 round5–9 證 worker 實讀 log 新 backlog 未中招)；已將該區塊更新為「已完成清單(第2–9輪逐項標明勿重做)+⭐改釘發音/口說核心再深化為優先(逐音節重音/波形對齊/單字錄音對照)」，與 log 新 backlog 對齊、緊扣產品本命。靜默不擾人。

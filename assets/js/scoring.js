@@ -223,6 +223,195 @@ function phoneticHint(w) {
   return "放慢、跟著慢速示範一個音節一個音節對著唸，先求準再求快。";
 }
 
+// ============ 音節拆分 + 重音標記（借鏡 ELSA Word Stress：讓初學者「看得到重音在哪」）============
+// 重音是華語母語者最易忽略、卻最影響聽感的點。把字拆成音節、標出該重讀的那一節，
+// 配合既有的「🔊 正常 / 🐢 慢速」示範音，把抽象的「唸對重音」變成看得見、跟得上的小步驟。
+
+// 精選字典：app 內 SENTENCES + VOCAB 實際出現的多音節字，音節切分對學習者友善、
+// 重音(stress=以 0 起算的音節索引)逐字對 data.js 的 IPA 主重音校正過，確保顯示正確。
+const STRESS_DICT = {
+  // —— VOCAB ——
+  appreciate: { syl: ["ap", "pre", "ci", "ate"], stress: 1 },
+  improve: { syl: ["im", "prove"], stress: 1 },
+  confident: { syl: ["con", "fi", "dent"], stress: 0 },
+  schedule: { syl: ["sched", "ule"], stress: 0 },
+  available: { syl: ["a", "vail", "a", "ble"], stress: 1 },
+  decision: { syl: ["de", "ci", "sion"], stress: 1 },
+  recommend: { syl: ["rec", "om", "mend"], stress: 2 },
+  opportunity: { syl: ["op", "por", "tu", "ni", "ty"], stress: 2 },
+  convenient: { syl: ["con", "ve", "ni", "ent"], stress: 1 },
+  experience: { syl: ["ex", "pe", "ri", "ence"], stress: 1 },
+  necessary: { syl: ["nec", "es", "sar", "y"], stress: 0 },
+  particular: { syl: ["par", "tic", "u", "lar"], stress: 1 },
+  manage: { syl: ["man", "age"], stress: 0 },
+  managed: { syl: ["man", "aged"], stress: 0 },
+  obvious: { syl: ["ob", "vi", "ous"], stress: 0 },
+  encourage: { syl: ["en", "cour", "age"], stress: 1 },
+  encourages: { syl: ["en", "cour", "ag", "es"], stress: 1 },
+  purpose: { syl: ["pur", "pose"], stress: 0 },
+  reduce: { syl: ["re", "duce"], stress: 1 },
+  familiar: { syl: ["fa", "mil", "iar"], stress: 1 },
+  achieve: { syl: ["a", "chieve"], stress: 1 },
+  complain: { syl: ["com", "plain"], stress: 1 },
+  polite: { syl: ["po", "lite"], stress: 1 },
+  suggest: { syl: ["sug", "gest"], stress: 1 },
+  // —— SENTENCES 高頻多音節字 ——
+  morning: { syl: ["morn", "ing"], stress: 0 },
+  today: { syl: ["to", "day"], stress: 1 },
+  coffee: { syl: ["cof", "fee"], stress: 0 },
+  nearest: { syl: ["near", "est"], stress: 0 },
+  station: { syl: ["sta", "tion"], stress: 0 },
+  very: { syl: ["ver", "y"], stress: 0 },
+  little: { syl: ["lit", "tle"], stress: 0 },
+  slowly: { syl: ["slow", "ly"], stress: 0 },
+  forward: { syl: ["for", "ward"], stress: 0 },
+  seeing: { syl: ["see", "ing"], stress: 0 },
+  weather: { syl: ["weath", "er"], stress: 0 },
+  supposed: { syl: ["sup", "posed"], stress: 1 },
+  better: { syl: ["bet", "ter"], stress: 0 },
+  tomorrow: { syl: ["to", "mor", "row"], stress: 1 },
+  anything: { syl: ["an", "y", "thing"], stress: 0 },
+  difficulties: { syl: ["dif", "fi", "cul", "ties"], stress: 0 },
+  remarkable: { syl: ["re", "mark", "a", "ble"], stress: 1 },
+  ability: { syl: ["a", "bil", "i", "ty"], stress: 1 },
+  explain: { syl: ["ex", "plain"], stress: 1 },
+  complex: { syl: ["com", "plex"], stress: 0 },
+  ideas: { syl: ["i", "de", "as"], stress: 1 },
+  idea: { syl: ["i", "de", "a"], stress: 1 },
+  clearly: { syl: ["clear", "ly"], stress: 0 },
+  excuse: { syl: ["ex", "cuse"], stress: 1 },
+  repeat: { syl: ["re", "peat"], stress: 1 },
+  understand: { syl: ["un", "der", "stand"], stress: 2 },
+  opening: { syl: ["o", "pen", "ing"], stress: 0 },
+  whether: { syl: ["wheth", "er"], stress: 0 },
+  decided: { syl: ["de", "cid", "ed"], stress: 1 },
+  another: { syl: ["an", "oth", "er"], stress: 1 },
+  city: { syl: ["cit", "y"], stress: 0 },
+  earlier: { syl: ["ear", "li", "er"], stress: 0 },
+  differently: { syl: ["dif", "fer", "ent", "ly"], stress: 0 },
+  different: { syl: ["dif", "fer", "ent"], stress: 0 },
+  committee: { syl: ["com", "mit", "tee"], stress: 1 },
+  considering: { syl: ["con", "sid", "er", "ing"], stress: 1 },
+  several: { syl: ["sev", "er", "al"], stress: 0 },
+  alternative: { syl: ["al", "ter", "na", "tive"], stress: 1 },
+  proposals: { syl: ["pro", "pos", "als"], stress: 1 },
+  argument: { syl: ["ar", "gu", "ment"], stress: 0 },
+  compelling: { syl: ["com", "pel", "ling"], stress: 1 },
+  solid: { syl: ["sol", "id"], stress: 0 },
+  evidence: { syl: ["ev", "i", "dence"], stress: 0 },
+  learning: { syl: ["learn", "ing"], stress: 0 },
+  english: { syl: ["eng", "lish"], stress: 0 },
+  window: { syl: ["win", "dow"], stress: 0 },
+  report: { syl: ["re", "port"], stress: 1 },
+  friday: { syl: ["fri", "day"], stress: 0 },
+  restaurant: { syl: ["res", "tau", "rant"], stress: 0 },
+  // —— 其他高頻多音節字 ——
+  about: { syl: ["a", "bout"], stress: 1 },
+  because: { syl: ["be", "cause"], stress: 1 },
+  people: { syl: ["peo", "ple"], stress: 0 },
+  really: { syl: ["real", "ly"], stress: 0 },
+  water: { syl: ["wa", "ter"], stress: 0 },
+  money: { syl: ["mon", "ey"], stress: 0 },
+  problem: { syl: ["prob", "lem"], stress: 0 },
+  question: { syl: ["ques", "tion"], stress: 0 },
+  answer: { syl: ["an", "swer"], stress: 0 },
+  beautiful: { syl: ["beau", "ti", "ful"], stress: 0 },
+  family: { syl: ["fam", "i", "ly"], stress: 0 },
+  important: { syl: ["im", "por", "tant"], stress: 1 },
+  example: { syl: ["ex", "am", "ple"], stress: 1 },
+  follow: { syl: ["fol", "low"], stress: 0 },
+  happen: { syl: ["hap", "pen"], stress: 0 },
+  evening: { syl: ["eve", "ning"], stress: 0 },
+  hello: { syl: ["hel", "lo"], stress: 1 },
+  again: { syl: ["a", "gain"], stress: 1 },
+  number: { syl: ["num", "ber"], stress: 0 },
+  practice: { syl: ["prac", "tice"], stress: 0 },
+  quickly: { syl: ["quick", "ly"], stress: 0 },
+};
+
+const VOWELS = "aeiouy";
+
+// 啟發式拆音節（精選字典查無時的後備）：以母音群為核心切分。
+// 不追求語音學完美，但能給出合理的音節數與重音位置作「參考」，且有真人示範音可對照。
+export function syllabify(word) {
+  const w = (word || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (w.length <= 3) return w ? [w] : [];
+  const isV = (c) => VOWELS.includes(c);
+  // 找母音群（nucleus）；word-initial 的 y 視為子音
+  const nuclei = [];
+  let i = 0;
+  while (i < w.length) {
+    if (isV(w[i]) && !(w[i] === "y" && i === 0)) {
+      let j = i;
+      while (j < w.length && isV(w[j])) j++;
+      nuclei.push([i, j - 1]);
+      i = j;
+    } else i++;
+  }
+  // 字尾 silent e（如 -ve, -te, -se；但 -le 自成一節）→ 與前一核合併，避免多算一節
+  if (nuclei.length >= 2 && w.endsWith("e")) {
+    const last = nuclei[nuclei.length - 1];
+    const isLe = w.length >= 2 && w[w.length - 2] === "l";
+    if (last[0] === last[1] && last[0] === w.length - 1 && !isLe) nuclei.pop();
+  }
+  if (nuclei.length <= 1) return [w];
+  // 依相鄰核之間的子音數決定切點（V-CV / VC-CV，常見雙字母不拆開）
+  const cuts = [0];
+  const DIGRAPH = ["th", "sh", "ch", "ph", "wh", "gh", "ck", "ng", "qu", "bl", "br", "cl", "cr", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "sl", "sm", "sn", "sp", "st", "sw", "tr", "tw"];
+  for (let k = 0; k < nuclei.length - 1; k++) {
+    const endV = nuclei[k][1];
+    const startNextV = nuclei[k + 1][0];
+    const consCount = startNextV - endV - 1;
+    let cut;
+    if (consCount <= 0) cut = endV + 1;
+    else if (consCount === 1) cut = startNextV; // 單子音歸下一節（開音節）
+    else {
+      const c1 = endV + 1;
+      cut = c1 + 1; // 預設第一個子音留前一節
+      if (DIGRAPH.includes(w.slice(c1, c1 + 2))) cut = c1; // 雙字母整組歸下一節
+    }
+    cuts.push(cut);
+  }
+  const out = [];
+  for (let k = 0; k < cuts.length; k++) {
+    const start = cuts[k];
+    const end = k + 1 < cuts.length ? cuts[k + 1] : w.length;
+    if (end > start) out.push(w.slice(start, end));
+  }
+  return out.length ? out : [w];
+}
+
+// 啟發式重音位置：以字尾規則為主（這些規則相對可靠），其餘用「雙音節重前、多音節重倒數第三」近似。
+function guessStress(word, syl) {
+  const x = (word || "").toLowerCase();
+  const n = syl.length;
+  if (n <= 1) return 0;
+  // -tion/-sion/-cion/-ic/-ical/-ity/-ial/-ious：主重音落在字尾音節的前一節
+  if (/(tion|sion|cion|ical|ity|ety|ial|ious|graphy|ology|omy|ic)$/.test(x)) {
+    return Math.max(0, n - 2);
+  }
+  // -ee/-eer/-ese/-ade/-oon 等強字尾：重音在最後一節
+  if (/(ee|eer|ese|ade|oon|aire|esque)$/.test(x)) return n - 1;
+  // 雙音節：多數名詞/形容詞重前 → 預設重第一節（最常見、對初學者最安全）
+  if (n === 2) return 0;
+  // 多音節預設倒數第三（antepenultimate，英語常態）
+  return Math.max(0, n - 3);
+}
+
+// 對外：取得某字的「音節 + 重音」資訊；單音節 / 過短 → 回 null（不顯示，免增負擔）。
+export function syllableStress(word) {
+  const w = normalizeWord(word || "");
+  if (!w) return null;
+  const hit = STRESS_DICT[w];
+  if (hit) {
+    const stress = Math.min(Math.max(hit.stress, 0), hit.syl.length - 1);
+    return { syllables: hit.syl.slice(), stress, source: "dict" };
+  }
+  const syl = syllabify(w);
+  if (syl.length < 2) return null; // 單音節不需重音指引
+  return { syllables: syl, stress: guessStress(w, syl), source: "guess" };
+}
+
 // 從評分結果挑出需要重點練的字（唸錯/近音/漏唸），附音素提示，供「逐音 drill」用。
 // 去重、最多 4 個，避免一次給太多造成壓力（小批次＝容易學）。
 export function wordDrills(result) {
@@ -233,7 +422,7 @@ export function wordDrills(result) {
     if (s.status === "bad" || s.status === "near" || s.status === "miss") {
       const w = targetWords[idx];
       if (!w || out.some((o) => o.word === w)) return;
-      out.push({ word: w, status: s.status, heard: s.heard || null, tip: pronunHint(w) });
+      out.push({ word: w, status: s.status, heard: s.heard || null, tip: pronunHint(w), syl: syllableStress(w) });
     }
   });
   return out.slice(0, 4);

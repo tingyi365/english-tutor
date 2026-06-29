@@ -335,6 +335,19 @@ export function renderShadowing(view) {
         </div>`);
       const list = $(".drill-list", drillCard);
       drills.forEach((d) => {
+        // 音節 + 重音標記（看得到重音在哪 → 跟著慢速示範把那一節唸得更長、更大聲）
+        let stressHtml = "";
+        if (d.syl && d.syl.syllables.length >= 2) {
+          const chips = d.syl.syllables
+            .map((sy, k) => `<span class="syl-chip${k === d.syl.stress ? " syl-stress" : ""}">${esc(sy)}</span>`)
+            .join('<span class="syl-dot">·</span>');
+          const ord = ["第一", "第二", "第三", "第四", "第五"][d.syl.stress] || `第 ${d.syl.stress + 1}`;
+          stressHtml = `
+            <div class="drill-syl">
+              <div class="syl-row">${chips}</div>
+              <div class="syl-tip">重音在<b>${ord}音節「${esc(d.syl.syllables[d.syl.stress])}」</b>：這一節唸得更<b>大聲、更長、音調略高</b>。</div>
+            </div>`;
+        }
         const item = el(`
           <div class="drill-item">
             <div class="drill-row">
@@ -343,6 +356,7 @@ export function renderShadowing(view) {
               ${d.heard ? `<span class="drill-heard">聽起來像 "${esc(d.heard)}"</span>` : ""}
             </div>
             <div class="drill-tip">${esc(d.tip)}</div>
+            ${stressHtml}
             <div class="drill-btns">
               <button class="btn btn-ghost drill-say">🔊 正常</button>
               <button class="btn btn-ghost drill-slow">🐢 慢速</button>
