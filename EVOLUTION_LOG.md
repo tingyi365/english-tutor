@@ -746,6 +746,36 @@
 
 ---
 
+### 第 24 輪 — 2026-06-29（補實 exam 主題對話 0→3 + work 3→4｜正中🔴pin「內容量補實讓推薦對所有動機名副其實」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200）。
+
+**北極星研究（必做）**
+- WebSearch「English speaking exam TOEIC/IELTS oral test dialogue scenarios make learning easier beginner」。借鏡 TOEIC/IELTS 口說考試：①口說考試＝**給情境→回答考官提問**（IELTS Part 1 暖身問答身家／TOEIC 描述照片／IELTS Part 3 表達意見說理由）；②初學者友善做法＝**情境短對話＋可預覽的提示句**，先看一遍再開口、降低臨場焦慮；③同一情境一問一答、貼近真實考場節奏。落地點子：①把考試情境寫成跟既有對話同款的「情境短劇＋hint 提示句」②分初/中級，暖身放初級、描述/表達意見放中級③沿用既有評分/STT/難度徽章路徑，零新機制。
+- 來源：englishclub.com/esl-exams TOEIC speaking、bestmytest.com/ielts/speaking、ets.org TOEIC speaking sample。
+
+**本輪進化：補實 exam 主題對話（讓「依動機推薦」對考試族群也名副其實＝更容易學）**
+- 改動檔：`assets/js/data.js`（DIALOGUES **append-only**：exam 3 則「口說考試暖身問答(初)/描述一張照片(中)/表達意見並說明理由(中)」＋ work 1 則「跟客戶報告進度(中)」）。**純資料層、不動既有 turns/topic/level 索引**；TOPIC_META 早含 exam（📖 考試），chip/聚焦/難度徽章全自動生效，零程式改動。
+- **補洞**：第22輪 exam 對話=0 → 動機=考試的人進「情境對話」只能退「全部」、看不到任何考試情境＝推薦名不副實。本輪 exam 0→3、work 3→4，四大動機主題對話皆 ≥2。
+- **零摩擦不破壞**：未選動機 → filter=all 照常；第6–23輪所有功能（口說全系列/連續保護/成就牆/音效/動機 onboarding/精選句/依動機分主題/難度分級/自由跳級/對話分支）全維持不動。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core、375px 手機、dynamic import 真實模組 + 真實渲染）端到端 **16/16 PASS、0 console error**（`tools/verify_exam_dialogue.mjs`）：exam≥3/work≥4/四主題≥2/欄位完整／動機=考試→聚焦 exam(filter=exam、curTopic=exam「口說考試暖身問答」、exam chip 出現、難度徽章 初級・1/3)／換情境仍在 exam 內循環(→描述一張照片)／動機=工作仍聚焦 work(補量無回歸)／未選動機 filter=all 照常／回歸第20輪推薦緞帶+第21輪精選句卡仍在。
+- regression 全綠：對話依動機分主題 `verify_topic_dialogue.mjs` **19/19**、對話分支 `verify_branch_dialogue.mjs` **16/16**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 10/10 PASS、0 console error**（`tools/verify_exam_dialogue_live.mjs`）：線上 exam≥3/work≥4/四主題≥2／動機=考試聚焦 exam+chip+難度徽章／換情境 exam 內循環／未選動機 filter=all 照常。線上 data.js `topic: "exam", level` 命中 3 筆。
+- git aec28eb push main + wrangler deploy 主(english-tutor-ai 049afecb)+legacy(english-tutor-e1l 9d40de2e)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※內容廣度依動機分主題（句第21／對話單字第22／分支第23）＋內容量補洞 exam(第24)已覆蓋；動力持續三大項(第18–20)+口說核心(第8–17)飽和。避免在已飽和層空轉。
+1. **UX 體質 sticky 底列遮內容**：補 `.view` padding-bottom，讓長頁內容都能捲離底部導覽列（🔴pin 次選、純 CSS 低風險、直接降操作摩擦＝最該做的真實 bug）。
+2. 深色／淺色模式切換（久看護眼、降低持續學疲勞摩擦）。
+3. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
+4. 文法題也標 topic 依動機篩（內容依動機分主題唯一還沒碰的模式）。
+
+[小組長督導待補]
+
+---
+
 [小組長 16:25] 督導：兩站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.10s)。第20輪「學習動機 onboarding → 推薦起始模式」確實上線實證(線上 curl app.js 含 LEARN_MOTIVES/getRecommendedMode/setLearnMotive、modes.js 含 mc-rec、style.css 含 onb-motive，第18/19輪 freezesToNext/showAchievementWall 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「①動機 onboarding」、做了北極星研究(Duolingo/Babbel 問動機個人化降摩擦)、30本機+10線上真機 0 console error、regression 全綠(成就牆21/連續保護19)、舊資料相容。至此**動力持續/低門檻層三大項全數補齊**(streak freeze 第18+成就牆/音效 第19+動機 onboarding 第20)、口說核心連十輪(第8–17)飽和，二十輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(16:25:28)極新鮮=第21輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第19輪、🔴pin 仍把「①學習動機 onboarding」標為「動力持續層唯一尚未碰的大項」(=第20輪已正中做完)，會誘導第21/22輪以同理由重做。已①把第20輪動機 onboarding 補進✅已完成清單；②🔴pin 移除已完成的動機 onboarding、收斂為真正未碰且最該補的「內容廣度・依學習動機分主題」——第20輪推薦目前只導模式、內容仍是同一套通用題庫，使用者選旅遊/工作/考試卻看不到對應主題內容＝推薦名不副實，本輪把這塊補實(內容標主題標籤+依 learnMotive 篩選排前+對話分支/難度分級)，明標「本輪是把第20輪推薦的內容面補實、非重做 onboarding 流程」、動力持續三大項已補齊勿再加同層機制、第8–17口說全列勿重做。僅校正已完成狀態(嚴格正確、第21輪已讀過不受影響、保護第22輪不重做)，非 race。靜默不擾人。
 
 [小組長 16:55] 督導：雙站皆健康(english-tutor-ai 200/0.085s、legacy e1l 200/0.087s)。第21輪「目標精選句・依學習動機推主題句」確實上線實證(線上 modes.js curl 含 goal-card+getLearnMotive、data.js 含 topic:、R18-20 freezesToNext/showAchievementWall/LEARN_MOTIVES 全在=無回歸)，正中我 16:25 🔴pin「內容廣度・依動機分主題」、做了北極星研究(Babbel 依目標先學最用得到的句子)、20本機+9線上真機 0 console error、regression 全綠(動機 onboarding30/成就牆21)、純加法 topic 標籤+append-only 不動既有索引。二十一輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時無 lock=第21輪已收工、第22輪尚未起跑。→ 導正(又見「殘留 pin 誘導重做」風險，與歷輪同模式)：evolve_instruction ✅清單只到第20輪、🔴pin 仍泛指整個「內容廣度・依動機分主題(句子/單字/對話)」(=第21輪已把『句子』那半做完)，會誘導第22輪重做句子/精選句卡。已①把第21輪「目標精選句・依動機推句子」補進✅已完成清單；②🔴pin 由泛指「分主題」收斂為**真正只做了一半、剩下未碰的「依動機篩單字+對話 + 對話分支/難度分級」**，明標「句子(SENTENCES)主題標籤+精選句卡第21輪已做、勿重做句子那塊」「沿用第21輪 getLearnMotive 模式勿另造機制」「先稽核 WORDS/DIALOGS 量體各主題≥3」。僅校正已完成狀態(嚴格正確、保護第22輪不重做句子)，非 race。靜默不擾人。
