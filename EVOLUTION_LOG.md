@@ -468,4 +468,36 @@
 
 [小組長 13:52] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 4263 一致)。第15輪「節拍器調速(🐢慢速/🥁標準，跟不上先放慢)」確實上線(git fd8d836 部署 d034f3fb/c6df1c6b)、正中 backlog #1，做了北極星研究(節奏教學共識：初學者先慢、accuracy over speed、progressive speed-up)、10本機(真 WebAudio 量拍距 標準642/慢速948ms)+6線上真機 0 console error、regression 全綠(metronome15/rhythm13/shadowing12)，第8→9→10→11→12→13→14→15**連八輪深化發音/口說核心**(音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音→節拍器調速)、無空轉無偏離，本命扎實。稽核時 lock(13:52:22)極新鮮=第16輪正在跑、log 未產出。→ 導正：又見「殘留 pin 誘導重做＝空轉」風險——evolve_instruction ✅清單只到第14輪、⭐pin 仍把「節拍器調速(慢/標準)」標為「尚未做」(=第15輪已正中做完)。已把第15輪補進已完成清單、⭐pin 改釘真正未做的口說缺口「波形疊示範參考線/標停頓段(第13輪延伸)」並明標第9–15輪勿重做、補次選清單防口說缺口耗盡時空轉，與 log 對齊、緊扣口說本命。僅校正已完成狀態(嚴格正確、第16輪已讀過不受影響、保護第17輪不重做)，非 race。靜默不擾人。
 
+---
+
+### 第 16 輪 — 2026-06-29（發音核心再深化：波形疊「示範重音參考線」+ 標出停頓段｜backlog #1，正中小組長 13:52 ⭐pin）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提到「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+
+**北極星研究（必做）**
+- WebSearch「ELSA Speak waveform overlay native reference compare pronunciation pause detection beginner feedback」。借鏡 ELSA：①回饋以**色彩/視覺化定位錯誤**對初學者最友善；②**量測停頓/猶豫/語速**判斷流暢度（fluency）——停頓多＝不連貫；③錄完可**與母語者示範並列對照**靠「看出差異」最快自我修正。落地 3 點子：①把學生波形上的**內部停頓段**標出來（看得到自己哪裡卡住），引導「把字連起來唸」；②疊一條**示範重音參考線**（哪些字該使勁＝實詞，借第 11 輪 sentenceStress 的「實詞重·虛詞弱」），讓學生對照「我把勁使在對的字上了嗎」；③一句話判語給可立即照做的修正。
+- 來源：blog.elsaspeak.com（advantage of ELSA feedback）、talkpal.ai（ELSA Speech Analyzer 停頓/語速/重音）、skywork.ai（phoneme-level color-coded feedback）。
+
+**本輪進化：波形對照卡升級「示範重音參考線 + 停頓段標記」（口說核心＝容易學的本命，正中 backlog #1／⭐pin）**
+- 改動檔：`assets/js/modes.js`（`drawWave` 升級＋新增 `detectPauses`/`stressEnvelope`；對照卡波形區加圖例＋動態 `wave-tip`）、`assets/css/style.css`（`.wave-legend`/`.wl-*`/`.wave-tip`/`.wt-ref`、canvas 高 54→58）。純加法、低風險、可回退。
+- **疊示範重音參考線**：在「我的聲音」青柱波形上，疊一條**琥珀色階梯線**——把第 11 輪 `sentenceStress` 判定的句重音（實詞高 1.0／虛詞低 0.36）依字序由左到右畫成參考線、實詞落點加小圓點。學生一眼對照「我把勁使在對的字（線高的實詞）上了嗎？虛詞有沒有輕輕滑過？」誠實標為**示範參考線（理想重音落點）**，非宣稱抓取 TTS 真實音檔（Web Speech API 無法取音）。
+- **標出停頓段**：`detectPauses` 從我的**真實錄音包絡**抓連續低能量段（排除頭尾還沒開口/收尾的靜音），用**灰帶**標在波形上＝看得到「我唸到一半在哪裡停頓/猶豫」（時間正確、源自真實錄音）。
+- **動態教學文案**：`wave-tip` 依偵測結果給話——有停頓→「中間停頓了 N 次（灰色段）——把字連起來唸會更順」；無停頓→「很連貫！」；兩種都引導「對著琥珀線：線高的實詞使勁、線低的虛詞輕帶」。圖例三色（你的聲音／示範重音字／你的停頓）。
+- **絕不破壞既有＋不增負擔**：全程 best-effort——沒錄到音/解碼失敗 → 不出波形卡，STT/評分/drill/速度對照一切照舊；`sentenceStress` try/catch 失敗就只畫波形不畫參考線。換句/換頁沿用既有 clearRecording 釋放、波形/圖例/tip 一併清不殘留。
+- 註：第 6 輪逐詞高亮、第 8 輪逐音 drill、第 9 輪句錄音對照、第 10 輪音節+字重音、第 11 輪句重音、第 12 輪節拍器、第 13 輪波形/速度、第 14 輪單字錄音、第 15 輪節拍器調速全維持；本輪把第 13 輪「看得到波形」升級成「**看得出我把勁使在對的字上了嗎、哪裡停頓**」的對照閉環。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、fake 音訊裝置→真實 getUserMedia→MediaRecorder→真實 decodeAudioData、fake STT 走真實 evaluate→drawWave、375px 手機）端到端 **15/15 PASS、0 console error**（`tools/verify_wave_ref.mjs`）：波形 canvas 真畫出**青柱(我的聲音)1076 px + 琥珀參考線 877 px**→圖例三項齊→wave-tip 顯示連貫/停頓教學文案+引導琥珀線→`sentenceStress` 真給目標句實詞 4·虛詞 2(參考線資料源正確)→速度對照/drill 無回歸→換句波形/圖例/tip 全清不殘留。
+- regression 全綠、確認無回歸：波形/速度 `verify_wave.mjs` **16/16**、句錄音對照 `verify_compare.mjs` **12/12**、單字錄音 `verify_word_record.mjs` **15/15**、節拍器 `verify_metronome_e2e.mjs` **15/15**、逐音 drill `verify_shadowing.mjs` **12/12**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 7/7 PASS、0 console error**（`tools/verify_wave_ref_live.mjs`）：線上波形青柱 1076+琥珀參考線 877 px、圖例三項齊、wave-tip 教學文案、drill 無回歸。線上 curl 實證 modes.js(detectPauses/stressEnvelope/wave-legend/wave-tip/示範重音參考線)、style.css(wave-legend/wave-tip/wl-ref/wt-ref) 皆在。
+- git a3a5c4c push main + wrangler deploy 主(english-tutor-ai 432ab925)+legacy(english-tutor-e1l a48364ab)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 節奏教學深化：常見句重音規則小卡（資訊焦點/對比重音、句尾上揚 vs 下降語調）——口說核心、波形/重音系列已相當完整，可往「語調 intonation」這塊未碰的新缺口走。
+2. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+3. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+4. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+- ※口說核心（音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音→節拍器調速→波形參考線/停頓）已**連九輪**深化、單字層+句子層+波形對照閉環大致補齊；下一輪可考慮往**語調(intonation 升降調)**這塊唯一尚未碰的口說缺口，或回頭補非口說的低門檻體驗（成就牆/動機 onboarding），避免在已飽和的子題上空轉。
+
 [小組長 13:22] 督導：線上站 english-tutor-e1l HTTP 200 健康。第14輪「單字 drill 逐字錄音對照(錄我這個字 vs 示範，下沉單字層)」確實上線(git 961363e 部署 1d6aaac1/c7315a66)、正中我 12:51 ⭐pin，做了北極星研究(ELSA 單字/音素層回饋+錄音對比)、15本機+13線上真機 0 console error、regression 全綠(compare12/wave16/shadowing12/metronome15)，第8→9→10→11→12→13→14**連七輪深化發音/口說核心**(音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音)、無空轉無偏離，本命扎實。稽核時 lock(13:22:19)極新鮮=第15輪正在跑、log 未產出。→ 導正：又見「殘留 pin 誘導重做＝空轉」風險——evolve_instruction ✅清單只到第13輪、⭐pin 仍把「單字 drill 逐字錄音對照」標為「尚未做＝最該補缺口」(=第14輪已正中做完)。已把第14輪補進已完成清單、⭐pin 改釘真正未做缺口「波形疊示範參考線/標停頓段(第13輪延伸)+節拍器調速(慢/標準)」並明標第9–14輪勿重做，與 log 對齊、緊扣口說本命。僅校正已完成狀態(嚴格正確、第15輪已讀過不受影響、保護第16輪不重做)，非 race。靜默不擾人。
