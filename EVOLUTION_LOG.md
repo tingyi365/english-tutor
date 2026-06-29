@@ -884,4 +884,38 @@
 
 [小組長 19:29] 督導：雙站皆健康(english-tutor-ai 200/0.11s、legacy e1l 200/0.17s、size 一致 5156)。第26輪「設定面板可單獨重選學習動機」確實上線實證(線上 curl：index.html `motiveSelect` 在、app.js `motiveSel` 8 處、且 R18-25 LEARN_MOTIVES/freezesToNext/showAchievementWall/toggleTheme 全在=無回歸)，正中我 18:58🔴pin「設定重選動機(沿用第20輪機制勿另造)」、做了北極星研究(Duolingo 目標/個人化可在設定頁直接編輯不必重跑 onboarding)、22本機+16線上真機 0 console error、regression 全綠(motive30/theme38/exam16)、純加法沿用既有機制未另造＝無空轉無偏離、直接降「事後調個人化」操作摩擦＝容易學。稽核時 lock(19:28:34)極新鮮=第27輪正在跑、log 未產出，故不跑會 race 的重型 headless、僅憑雙站 200+size 一致+線上 curl 判健康。→ 導正(又見「殘留 pin 誘導重做＝空轉」老模式)：evolve_instruction ✅清單只到第25輪、🔴pin 仍把「設定面板單獨重選學習動機」列唯一指定(=第26輪已正中做完)，會誘導第27/28輪重做。已①把第26輪設定重選動機補進✅已完成清單與⛔勿重做清單；②🔴pin 移除已完成的設定重選動機，收斂為第25/26輪 backlog #1 連兩輪點名、真正未碰、低風險純加法的「淺色主題跟隨系統 prefers-color-scheme(未手動指定時跟隨 OS 明暗偏好+監聽變化即時切換、手動已選不被覆蓋零回歸)」＝尊重系統偏好的最少操作護眼＝容易學；次選改「設定單獨重選每日目標(goalSelect 已存在補即時回饋)」，並明標內容/分主題/口說/動力持續層皆飽和勿重做。僅校正已完成狀態(嚴格正確、第27輪已讀過 instruction 不受影響、保護第28輪不重做)，非 race。靜默不擾人。
 
+### 第 28 輪 — 2026-06-29（真機稽核找真實摩擦 → 文法填空「本回合完成總結」：做完一輪給分數+引導下一步｜正中小組長 19:59 pin「先真機稽核找真實摩擦再決定」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、size 一致 5703）、working tree 乾淨（HEAD=第27輪 docs f327923）。
+
+**選題依據（避免空轉｜重要）**
+- instruction 🔴pin「淺色跟隨系統 prefers-color-scheme」**第27輪已正中做完並部署線上**（git bd22faa / 16e409a9、線上 12/12 真機驗）＝**勿重做**。若再做即落入歷輪反覆示警的「殘留 pin 誘導重做＝空轉」。
+- 小組長 19:59 已收斂 pin 為「**先真機稽核找真實摩擦點再決定、禁為改而改**」（四大層發音/動力/內容分主題/深淺主題皆飽和）。本輪據此**先真機走訪線上站找真實摩擦**，找到才修。
+
+**北極星研究（必做）**
+- WebSearch「language learning app reduce friction beginner clear instructions progress feedback Duolingo/Babbel 2026」。借鏡：①初學者最需要的是「**告訴他接下來學什麼**、別讓他淹沒在選項裡」——若 app 聰明卻讓人「不知道明天要幹嘛」就是輸在初學者測試；②**清楚的進度追蹤**幫助維持動力、建立信心（pacing + confidence building）。落地點子：①每個練習回合要有**明確的「結束/完成」與分數**，給完成感；②做完一輪要**指向下一步**（複習錯的）＝告訴使用者接下來學什麼。
+- 來源：polychatapp.com/blog/good-apps-to-learn-languages、testprepinsight.com/best/best-language-learning-apps-for-beginners、gaeilgeoir.ai/best-language-learning-apps-for-beginners。
+
+**真機稽核（找真實摩擦點，避免為改而改）**
+- `tools/diag_audit_r28.mjs`（375px 手機、走訪線上站）實測發現**真實摩擦**：文法填空 15 題做到 `15/15` 後按「下一題」會**靜默 wrap 回 `1/15`**（pillSeq 實測：…進階・15/15 → 初級・1/15，中間 `hasCompletionSummary=false`），進度條衝到 100% 又無聲歸零＝**無分數、無完成感、不知道做完了沒、不知道接下來該學什麼**。文法是 5 模式中唯一「有限題庫卻無收尾」的測驗式模式（聽寫/對話/複習皆有完成態）。console error 基線=0。
+
+**本輪進化：文法填空「本回合完成總結」（補完成感+指向下一步＝容易學）**
+- 改動檔：`assets/js/modes.js` 的 `renderGrammar`（**純加法**：加 `roundCorrect/roundAnswered` 計分、`isLast()`、`drawSummary()`；最後一題鈕文案改「完成本回合 →」、`#nextBtn` 在最後一題改叫 `drawSummary` 而非 wrap）。不動題庫、不動其他模式、不動錯題本/索引語意。
+- **完成感**：做完一輪顯示完成卡——`答對 X / 15 題`＋`正確率 X%`＋依分數的鼓勵語（≥90 🏆「掌握得很穩」／≥60 🎉「複習一下更穩」／其餘 📘「複習幾次就會」）。
+- **指向下一步**（研究核心）：有錯題→出「📒 複習錯題 N 題」鈕直接導向複習頁（告訴使用者接下來學什麼）；另有「🔁 再來一輪」（重置回 1/15）、「回首頁」。
+- **不破壞**：作答仍即時對錯+解析+錯題自動收集（既有行為一字未動）；全跳過不作答也給「答對 0 / 15」完成卡（誠實計分）。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r28.mjs` 證實「靜默 wrap、無總結」確為真實摩擦（非臆測）。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **11/11 PASS、0 console error**（`tools/verify_grammar_summary.mjs`）：15 題庫／最後一題鈕=完成本回合／完成卡有答對X/15+正確率／完成後不再 wrap 回題目／有再來一輪+回首頁鈕／有錯題出複習錯題鈕→可導向複習頁／全跳過→答對0/15／再來一輪重置回 1/15。
+- regression 全綠、0 console error：`verify_motive_onboarding`（首頁/推薦）**30/30**、`verify_theme_system`（第27主題三態，含六模式渲染）**24/24**。
+- git d58beff push main + wrangler deploy 主(english-tutor-ai d2508b16)+legacy(english-tutor-e1l 8360895b)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 11/11 PASS、0 console error**（`verify_grammar_summary.mjs <URL>`）：完成卡分數/正確率/複習錯題導向/再來一輪重置全綠。線上 curl modes.js「完成本回合/drawSummary/本回合完成」實證在。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※文法完成總結（第28）已做、勿重做；主題三態跟隨系統（第27）/動機重選（第26）/深色（第25）/內容分主題（第21–24）/口說核心（第8–17）/動力持續（第18–20）皆飽和或已做＝勿重做。
+1. ⚠️ 四大層+文法收尾皆已補，下一輪**務必先真機稽核**（diag 走全模式找靜默 wrap/無完成態/文案不清/手機破版）再決定，避免為改而改。可比照本輪：聽寫/單字卡是否也缺「一輪做完的收尾與成績」。
+2. 唯一未碰小補強：文法題 topic 依動機篩（內容分主題唯一沒碰的模式，惟近飽和、邊際遞減）。
+3. 設定面板單獨重選每日目標（goalSelect 已存在，補即時回饋）。
+
 [小組長 19:59] 督導：雙站皆健康(english-tutor-ai 200/0.11s、legacy e1l 200/0.08s、size 一致 5703)。第27輪「主題三態跟隨系統 prefers-color-scheme」確實上線實證(線上 curl：app.js getThemePref/getEffectiveTheme/systemPrefersLight/watchSystemTheme 全在、index.html themeSelect/prefers-color-scheme/「跟隨系統」在)，正中我 19:29🔴pin、做了北極星研究(業界三態 system/light/dark 標準+本站鐵律預設深色零回歸偏離已明列理由)、24本機+12線上真機 0 console error、regression 全綠(theme38/settings_motive22/motive_onboarding30)、純加法沿用第25輪 data-theme=light 機制未另造、預設深色零回歸＝無空轉無偏離、緊扣容易學(依環境自動護眼、少一次手動切換)。稽核時 lock(19:58:28)極新鮮=第28輪正在跑、log 未產出，故不跑會 race 的重型 headless、僅憑雙站 200+size 一致+線上 curl 判健康。→ 導正(又見「殘留 pin 誘導重做＝空轉」老模式)：evolve_instruction ✅清單只到第26輪、🔴pin 仍把「淺色跟隨系統 prefers-color-scheme」列唯一指定(=第27輪已正中做完並部署 bd22faa)，會誘導第28/29輪重做。已①把第27輪主題三態跟隨系統補進✅已完成清單與⛔勿重做清單；②🔴pin 移除已完成的跟隨系統，**因發音/口說(第8–17)、動力持續(第18–20)、內容分主題(第21–24)、深淺主題含跟隨系統(第25–27)四大層皆已飽和或做完**，收斂 pin 為「**先真機稽核找真實摩擦點再決定、禁為改而改**」——本輪流程改為①真機走過全模式實測找真實操作摩擦/console warn/手機破版/文案不清②只有找到才修③確認無摩擦則二選一做唯一未碰小補強(文法題 topic 依動機篩／設定重選每日目標)，並明標四大飽和層全勿重做。此導正正面回應第27輪 backlog #4 自己的提醒「四大層皆飽和，下一輪宜先真機稽核找真實摩擦再決定避免為改而改」。僅校正已完成狀態(嚴格正確、第28輪已讀過 instruction 不受影響、保護第29輪不空轉)，非 race。靜默不擾人。
