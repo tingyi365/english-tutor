@@ -102,3 +102,32 @@
 3. PWA：manifest + service worker，可安裝離線。
 4. 達標慶祝動畫/里程碑徽章(3/7/30 天)。
 5. 內容再擴充：商務/旅遊主題分類、對話分支選項。
+
+[小組長 07:51] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200，app.js 線上實證含 bumpDaily/getStreak/錯題本 review 全到、檔案完整非錯誤頁)；第1-3輪逐輪真朝「容易學」前進(內容→每日目標+streak(使用者親指#1)→錯題本+一鍵複習)，每輪都做北極星研究、無空轉無偏離、每日目標已完成；導正檔頂端硬性指定(第4輪 SRS 弱點優先複習)仍對應未跑輪次、未過時、方向正確 → 不需改 backlog，靜默不擾人。
+
+---
+
+### 第 4 輪 — 2026-06-29（SRS Leitner 間隔重複：弱點優先 + 精熟畢業｜小組長硬性指定）
+**北極星研究（必做）**
+- WebSearch「Anki / Leitner spaced repetition box system weak-cards-first mastery」。借鏡 Leitner(1972)：①卡片分 3–5 盒，**答對升一盒、答錯降回前面盒**；②**難卡複習更頻繁、熟卡更少**（弱點優先是效率核心）；③Anki 承襲 SM-2「專注你覺得難的卡」。落地 3 點子：①錯題本導入 3 盒 Leitner，連對到頂盒才畢業（=答對 N 次精熟門檻）②複習佇列依盒號升序＝最不熟先練 ③單字卡加「認識/不熟」，弱字優先排前。
+- 來源：en.wikipedia.org/wiki/Leitner_system、e-student.org/leitner-system、growexx.com Anki algorithm。
+
+**本輪進化：錯題本 + 單字卡 導入 Leitner 間隔重複（精熟＋弱點優先＝更有效率地容易學）**
+- 改動檔：`app.js`(Leitner 盒邏輯：promoteMistake/demoteMistake/MAX_BOX、vocabSrs+rateVocab/getVocabBox、reset 清 vocabSrs)、`modes.js`(renderReview 改盒升序弱點優先+精熟畢業+熟練度●○、renderFlashcard 加認識/不熟+弱字優先排序)、`style.css`(mastery/rate 樣式)。純加法、低風險、可回退、舊資料相容(無 box 視為第1盒)。
+- 錯題本精熟門檻：答錯歸第 1 盒、答對升一盒，**連續答對到頂盒(MAX_BOX=3)才畢業**（取代原「答對一次就畢業」）；複習頁顯示「熟練度 ●○○」與「再連對 N 次畢業」。
+- 弱點優先：複習佇列依盒號升序排（最不熟的第 1 盒排最前先練），lastKey 防同題連兩次。
+- 單字卡：背面新增「👍 認識了 / 🤔 還不熟」回饋（Leitner），沒評過(🆕新字)/不熟的弱字**優先排到前面**先複習；卡面顯示熟練度標籤＋●○點。
+
+**驗證證據**
+- 本機 Leitner 規則單元測試 **14/14 PASS**（升盒/畢業/降盒/弱點排序/同題不重複/舊資料相容/單字盒）。
+- 線上 `https://english-tutor-ai.pages.dev` HTTP 200；app.js(promoteMistake/rateVocab/MAX_BOX)、modes.js(masteryDots/弱點排序/rateKnown)、style.css(btn-known) 皆線上實證 True。
+- Chrome headless **端到端真機**(375px 手機) **15/15 PASS、0 console error**：文法答錯→錯題本 g0 box=1→首頁複習卡→複習頁熟練度●○○→連續答對 box1→2→3→第3次畢業移出(精熟)→空狀態鼓勵；複習答錯 box2→1(降盒)；單字卡認識→box1、不熟→box1、已熟(box3)字不排第一(弱字優先，第一張=confident)。
+- legacy alias `english-tutor-e1l` 同步部署、仍 200。
+
+**下一輪 backlog 想法**
+1. 跟讀逐詞高亮（speak onWord boundary 已備）。
+2. PWA：manifest + service worker，可安裝離線。
+3. 達標慶祝動畫/里程碑徽章(3/7/30 天)。
+4. 首次進站 onboarding 引導（降門檻）。
+5. 內容再擴充：商務/旅遊主題分類、對話分支選項。
+6. SRS 進階：依盒設「下次複習日」時間間隔（目前是同 session 內弱點優先排序，未做跨日排程）。
