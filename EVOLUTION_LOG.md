@@ -849,4 +849,37 @@
 2. 文法題也標 topic 依動機篩（內容依動機分主題唯一還沒碰的模式，惟分主題層近飽和、優先序低）。
 3. 設定面板也可單獨重選每日目標（已可改 goal，動機本輪補上）＝個人化偏好設定面板大致補齊。
 
+---
+
+### 第 27 輪 — 2026-06-29（主題可「跟隨系統」prefers-color-scheme：白天自動淺、夜間自動深｜第25/26輪 backlog #1 次選，真正未碰）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200）、working tree 乾淨（HEAD=第26輪 docs 2e46938）。
+
+**選題依據（避免空轉｜重要）**
+- 🔴pin（小組長 18:58）＝「設定面板可單獨重選學習動機」**第26輪已正中做完並部署線上**（git adf3996 / 0ae40747、線上 16/16 真機驗）＝**勿重做**。本輪若再做即落入歷輪反覆示警的「殘留 pin 誘導重做＝空轉」。
+- 故本輪取 instruction 明列之**次選「淺色主題進階：跟隨系統 prefers-color-scheme」**（＝第25輪 backlog #1、第26輪 backlog #1，instruction 第33行次選），為真正未碰、低風險、純加法、緊扣容易學（依環境自動護眼、少一次手動切換＝降摩擦）。sticky 假 bug 已退役、深色（第25）/動機重選（第26）/內容分主題（第21–24）皆已做＝勿重做。
+
+**北極星研究（必做）**
+- WebSearch「prefers-color-scheme follow system three-state dark/light/system default UX best practice」。借鏡業界標準三態樣式：①預設**跟隨系統 prefers-color-scheme**、②手動覆寫（light/dark）勝過系統、③跨次記住覆寫；首次繪製即正確主題（防閃）、選「跟隨系統」者永不閃。落地：①加三態選單(跟隨系統/淺色/深色) ②system 模式經 matchMedia change 即時跟 OS 切 ③防閃 inline script 認得 system ④**惟本站鐵律「預設深色零回歸」優先於業界「預設 system」——故預設仍深色，跟隨系統為使用者選用**（明列偏離理由）。
+- 來源：smashingmagazine.com/2024/03 setting-persisting-color-scheme、web.dev/articles/prefers-color-scheme、developer.mozilla.org @media/prefers-color-scheme、cr0x.net dark-mode-toggle-pattern。
+
+**本輪進化：主題三態（跟隨系統／淺色／深色）＝依環境自動護眼、降長時學習視覺疲勞摩擦**
+- 改動檔：`assets/js/app.js`（主題改三態：`THEME_PREFS`/`getThemePref`(預設 dark 零回歸)/`systemPrefersLight`/`getEffectiveTheme`(system→看 OS)/`setThemePref`/`watchSystemTheme`(matchMedia change 即時套用)；`getTheme`/`setTheme`/`toggleTheme` 相容舊用法保留；init 改 `applyTheme(getEffectiveTheme())`+`watchSystemTheme()`；initSettings 加 themeSelect 填值/onchange、open() 同步偏好；applyTheme 同步選單值＋鈕圖示 system=🌗/淺=☀️/深=🌙）、`index.html`（防閃 inline script 認得 system+prefers-color-scheme；設定面板加「外觀主題」三態 `<select id="themeSelect">`）。**純加法、低風險、可回退、沿用第25輪既有 data-theme=light 機制未另造**。
+- **跟隨系統**：選後 OS 白天→淺、夜間→深自動切換（matchMedia change 即時、無需手動），少一次操作＝降摩擦。
+- **零回歸**：無偏好/舊「light·dark」值皆相容；**預設仍深色**（不跟隨系統，維持既有體驗）；偏離業界「預設 system」之理由＝本站鐵律「預設深色零回歸」優先（已明列）。
+- **覆寫優先＋持久化**：固定淺/深不受 OS 影響、跨次保留；topbar 鈕快速切固定深↔淺（會脫離 system，選單同步）。主題屬顯示偏好→「清除學習進度」不動它。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、**CDP emulateMediaFeatures 模擬 OS 深/淺**）端到端 **24/24 PASS、0 console error**（`tools/verify_theme_system.mjs`）：三態選單齊／預設深色零回歸(pref 空)／選 system+OS深→深·鈕🌗／OS切淺→即時變淺(亮度0.96)·pref 仍 system／OS切回深→即時變深／reload(system+OS淺)開畫即淺(防閃 firstPaint=light)＋持久化／固定淺色 OS深仍淺·鈕☀️／固定深色 OS淺仍深·鈕🌙／system 點 topbar 鈕→脫離成固定+選單同步。
+- regression 全綠、0 console error：`verify_theme`（第25深淺切換）**38/38**、`verify_settings_motive`（第26動機重選）**22/22**、`verify_motive_onboarding`（第20動機 onboarding）**30/30**。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 12/12 PASS、0 console error**（`tools/verify_theme_system_live.mjs`）：線上預設深色零回歸／三態選單／選 system OS深→深🌗／OS淺即時變淺／reload 開畫即淺(防閃)／OS切回深即時變深／固定淺·深不受 OS 影響／system 點鈕脫離+選單同步。線上 curl 實證 index.html `prefers-color-scheme`/`themeSelect`/「跟隨系統」、app.js `getThemePref`/`getEffectiveTheme`/`setThemePref`/`watchSystemTheme`/`systemPrefersLight` 皆在。
+- git bd22faa push main + wrangler deploy 主(english-tutor-ai 16e409a9)+legacy(english-tutor-e1l 4b850bee)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※主題三態跟隨系統（第27）已做、勿重做；動機重選（第26）/深色（第25）/sticky 假 bug 已退役/內容分主題（第21–24）/口說核心（第8–17）/動力持續（第18–20）皆飽和或已做＝勿重做。個人化偏好設定面板（語音/語速/每日目標/動機/嚴格度/主題/音效）已大致補齊。
+1. 設定面板也可單獨重選每日目標的「視覺呈現」微調（已可改 goal，屬小修非新功能）。
+2. 文法題標 topic 依動機篩（內容依動機分主題唯一還沒碰的模式，惟近飽和、邊際遞減、優先序低）。
+3. 若實在無高價值新點：純內容量續擴充（各主題對話/句量加深，append-only 低風險）。
+4. ⚠️ 注意：發音/口說、動力持續、內容分主題、深淺主題四大層皆已飽和，下一輪宜先做真機稽核找「真實摩擦點」再決定，避免為改而改。
+
 [小組長 19:29] 督導：雙站皆健康(english-tutor-ai 200/0.11s、legacy e1l 200/0.17s、size 一致 5156)。第26輪「設定面板可單獨重選學習動機」確實上線實證(線上 curl：index.html `motiveSelect` 在、app.js `motiveSel` 8 處、且 R18-25 LEARN_MOTIVES/freezesToNext/showAchievementWall/toggleTheme 全在=無回歸)，正中我 18:58🔴pin「設定重選動機(沿用第20輪機制勿另造)」、做了北極星研究(Duolingo 目標/個人化可在設定頁直接編輯不必重跑 onboarding)、22本機+16線上真機 0 console error、regression 全綠(motive30/theme38/exam16)、純加法沿用既有機制未另造＝無空轉無偏離、直接降「事後調個人化」操作摩擦＝容易學。稽核時 lock(19:28:34)極新鮮=第27輪正在跑、log 未產出，故不跑會 race 的重型 headless、僅憑雙站 200+size 一致+線上 curl 判健康。→ 導正(又見「殘留 pin 誘導重做＝空轉」老模式)：evolve_instruction ✅清單只到第25輪、🔴pin 仍把「設定面板單獨重選學習動機」列唯一指定(=第26輪已正中做完)，會誘導第27/28輪重做。已①把第26輪設定重選動機補進✅已完成清單與⛔勿重做清單；②🔴pin 移除已完成的設定重選動機，收斂為第25/26輪 backlog #1 連兩輪點名、真正未碰、低風險純加法的「淺色主題跟隨系統 prefers-color-scheme(未手動指定時跟隨 OS 明暗偏好+監聽變化即時切換、手動已選不被覆蓋零回歸)」＝尊重系統偏好的最少操作護眼＝容易學；次選改「設定單獨重選每日目標(goalSelect 已存在補即時回饋)」，並明標內容/分主題/口說/動力持續層皆飽和勿重做。僅校正已完成狀態(嚴格正確、第27輪已讀過 instruction 不受影響、保護第28輪不重做)，非 race。靜默不擾人。
