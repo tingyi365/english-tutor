@@ -675,6 +675,10 @@
 
 ---
 
+[小組長 17:26] 督導：雙站皆健康(english-tutor-ai 200/0.077s、legacy e1l 200)。第22輪「對話依動機分主題+難度分級+自由跳級、單字依動機優先」確實上線實證(線上 data.js topic: 標籤 63 處、modes.js conv-chip/getLearnMotive、R18-21 freezesToNext/showAchievementWall/LEARN_MOTIVES/goal-card 全在=無回歸)，正中我 16:55 🔴pin「依動機篩單字+對話＋難度分級」、做了北極星研究(Babbel 依主題/難度組織+可自由跳級不鎖門)、19本機+10線上真機 0 console error、regression 全綠(精選句20/動機onboarding30/逐音drill12)、純加法 append-only 不動既有索引。至此**內容廣度・依動機四面全補齊**(句子第21+單字/對話/難度第22)。二十二輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(17:26:23)極新鮮=第23輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第21輪、🔴pin 仍指向「單字+對話依動機篩+難度分級」(=第22輪已正中做完)，會誘導第23/24輪重做。已①把第22輪補進✅已完成清單；②🔴pin 移除已做的「單字+對話+難度分級」，**轉向真正未碰且最貼容易學的兩缺口**：(a)內容量補實——第22輪 exam 主題對話＝0/work 僅3，推薦對考試/工作族群仍空洞，append 補各主題對話量(exam 0→≥3)；(b)或修真實摩擦 bug：UX 體質 sticky 底列遮內容(補 `.view` padding-bottom)。並明標對話分支屬炫技非降門檻、列次選；第8–22 全列勿重做。僅校正已完成狀態(嚴格正確、第23輪已讀過不受影響、保護第24輪不重做)，非 race。靜默不擾人。
+
+---
+
 ### 第 22 輪 — 2026-06-29（對話依動機分主題 + 難度分級 + 自由跳級；單字依動機優先｜正中小組長 16:55 🔴pin「依動機篩單字+對話＋難度分級」，把第21輪只做句子的範圍補實）
 **第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
 - 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200）、working tree 乾淨。
@@ -702,6 +706,39 @@
 1. 內容**量**再擴充：各主題對話/句量加深（目前 work 對話 3 則、exam 對話 0）、文法題也標主題依動機篩。
 2. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
 3. 對話分支選項（同一情境多種回應分歧），讓對話更像真實互動（本輪做了主題/難度，分支留待）。
+4. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+5. 深色／淺色模式切換（降門檻體驗）。
+
+[小組長督導待補]
+
+---
+
+### 第 23 輪 — 2026-06-29（對話分支選項：自己選想怎麼回應 → 對方依選擇回應｜補實第22輪明文 deferred 的「對話分支」，正中🔴pin「對話分支/難度分級」剩下未做的一半）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200）、working tree 乾淨（HEAD=第22輪）。
+- **挑「分支」這唯一未做的一半、不重做已飽和層**：🔴pin = 內容廣度・依動機篩單字+對話 **＋ 對話分支/難度分級**。第21輪做了句子精選句、第22輪做了對話/單字依動機分主題＋**難度分級＋自由跳級**，但**對話分支選項第22輪明文 deferred**（第22輪 backlog #3：「本輪做了主題/難度，分支留待」）＝pin 剩下唯一未碰的一半。本輪補實。動力持續三大項(第18–20)、口說核心(第8–17)、依動機分主題(第21句/第22對話單字)皆已飽和，全部不重做。
+
+**北極星研究（必做）**
+- WebSearch「Babbel/Duolingo branching dialogue choose-your-response interactive conversation beginner UX」。借鏡 Babbel：①核心是**真實情境短對話 + 引導式會話腳本，使用者可「選擇主題/選擇怎麼回應」**，比 Duolingo 純 gamification 更早讓初學者開口；②**有引導、有 scaffolding 的對話**最適合初學者建立開口信心；③介面極簡、聚焦內容、少干擾。落地點子：①某些對話輪給 2-3 種回應說法（接受/婉拒、正式/口語），讓使用者**自己決定怎麼回應**＝更像真實互動、更敢開口；②對方依你的選擇給不同回應(reply)，再續對話；③沒分支的輪維持原樣（向後相容，不增門檻）。
+- 來源：fluentu.com/blog/reviews/duolingo-vs-babbel、polychatapp.com/blog/duolingo-vs-babbel、ilampadmanabhan.medium.com（Babbel 引導式對話腳本、beginner 早開口）。
+
+**本輪進化：對話分支選項（讓情境對話更像真實互動＝更敢開口、更容易學）**
+- 改動檔：`assets/js/data.js`（3 則對話的某一輪加 `choices`：「認識新朋友」(daily)最後一輪 3 選「為什麼學英文」、「跟同事約開會」(work)turn1 2 選「接受/改時間」、「咖啡廳點餐」(travel)2 選「加點心/不用」；每個 choice 含 `label`(中文標籤)/`en`(練習句)/`zh`(翻譯)/`reply`(對方回應)。**純加法欄位、不動既有 turns 索引/不動 topic/level**）、`assets/js/modes.js`（renderConversation 加 `renderChoices`：有 choices 的輪先列回應選項→挑一種轉成可練習回應句、`advance(reply,delay)` 統一推進+把對方回應 bubble 推出再續；renderControls/speakTurn 加可選 `reply` 參數。**無 choices 的輪走原路徑＝向後相容**）、`assets/css/style.css`（`.conv-choices/.conv-choice/.cc-label/.cc-en/.cc-zh` 選項卡樣式）。低風險、可回退、舊資料相容（無 choices 視為一般輪）。
+- **自己選怎麼回應**：分支輪顯示「💬 你想怎麼回應？選一種說法練習」+ 2-3 張選項卡（中文標籤+英文句+翻譯）；挑一種 → 轉成既有「🔊聽建議句／🎙️換我說／略過」練習介面練那句（沿用既有評分/STT 路徑，不另造）。
+- **對方依選擇回應**：說完/略過後，對方依你的選擇給對應 `reply`（如選「為了工作」→「That's a great goal. English really helps your career.」），再續到下一輪或進完成卡＝有來有往、更像真實對話。
+- **絕不破壞既有**：沒 choices 的輪完全照舊；分支是純加法選用欄位；第6–22輪所有功能（口說全系列/連續保護/成就牆/音效/動機 onboarding/精選句/依動機分主題/難度分級/自由跳級）全維持不動。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、**dynamic import 既載入 app.js/modes.js/data.js 真實模組** + 真實渲染、走 skip 路徑驗 advance+reply 免麥克風）端到端 **16/16 PASS、0 console error**（`tools/verify_branch_dialogue.mjs`）：≥3則對話含分支且每選項欄位完整／daily 推進到分支輪出 3 選項+中文標籤／選工作分支→轉練習句+選項消失→reply「great goal...career」出現→最後輪進完成卡／work turn1 2選→選「可以」→reply「book a meeting room」+**續接下一輪「send you a meeting invite」(rejoin 不中斷)**未提前完成／未選動機對話照常無回歸。
+- regression 全綠、確認無回歸：對話依動機分主題 `verify_topic_dialogue.mjs` **19/19**、0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 10/10 PASS、0 console error**（`tools/verify_branch_dialogue_live.mjs`）：線上分支渲染/選擇/reply/rejoin/完成卡/未選動機回歸全正常。線上 data.js `choices:` 3 處實證、兩站 HTTP 200。
+- git e43dbc4 push main + wrangler deploy 主(english-tutor-ai 7143e7ee)+legacy(english-tutor-e1l 6bb811d3)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※內容廣度（句/對話/單字依動機分主題 第21–22）＋對話分支（第23）＋難度分級＋自由跳級已覆蓋；動力持續三大項(第18–20)+口說核心(第8–17)飽和。避免在已飽和層空轉。
+1. 內容**量**再擴充並補洞：**exam 主題對話目前 0 則**（動機=考試的人對話只能退「全部」＝推薦這塊還是名不副實，最該補）；各主題對話/句量加深；文法題也標 topic 依動機篩。
+2. 分支深化：分支可帶各自的後續多輪（目前是單輪分支後 rejoin 主線）；更多對話加分支。
+3. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
 4. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
 5. 深色／淺色模式切換（降門檻體驗）。
 
