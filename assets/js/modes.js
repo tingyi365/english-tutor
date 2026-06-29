@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, navigate } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -25,6 +25,8 @@ export function renderHome(view, navigate) {
   const reached = daily.count >= goal;
   const remain = Math.max(0, goal - daily.count);
   const mistakeCount = getMistakeCount();
+  const badges = getStreakBadges();
+  const nextMilestone = STREAK_MILESTONES.find((n) => n > streak.count);
   const modes = [
     { r: "shadowing", ico: "🎤", t: "跟讀糾音", d: "聽老師示範，開口跟讀，逐字即時糾正發音。" },
     { r: "dictation", ico: "✍️", t: "聽寫練習", d: "只聽聲音，把句子打出來，訓練聽力與拼寫。" },
@@ -59,6 +61,11 @@ export function renderHome(view, navigate) {
         <div class="daily-hint">${reached
           ? `做得好！明天再回來就能把連續天數變成 ${streak.count + 1} 天 💪`
           : `今天再完成 <b>${remain}</b> 個練習就達標 — 任何一種學習方式都算數，現在就開始吧！`}${streak.best > 1 ? `　·　最佳紀錄 ${streak.best} 天` : ""}</div>
+        ${(badges.length || nextMilestone) ? `
+        <div class="streak-badges">
+          ${badges.map((b) => `<span class="sbadge" title="連續 ${b.n} 天里程碑">${b.ico}<i>${b.n}</i></span>`).join("")}
+          ${nextMilestone ? `<span class="sbadge sbadge-next" title="下一個里程碑">🎯<i>${nextMilestone}天</i></span>` : ""}
+        </div>` : ""}
       </div>
 
       ${mistakeCount > 0 ? `
@@ -117,6 +124,7 @@ export function renderShadowing(view) {
             <button class="btn btn-ghost" id="slowBtn">🐢 慢速</button>
             <button class="btn btn-mic" id="micBtn" ${speechSupport.stt ? "" : "disabled"}>🎙️ 開口跟讀</button>
           </div>
+          <div class="read-hint">🎯 按「聽示範」時，老師唸到哪個字就會<b>點亮哪個字</b> — 跟著亮起來的字一起唸，最容易上口。</div>
           <div class="heard mt" id="heard"><span class="muted">點「開口跟讀」後，這裡會顯示聽到的內容…</span></div>
         </div>
 
@@ -130,8 +138,8 @@ export function renderShadowing(view) {
     `));
     renderSentence(SENTENCES[idx].en, null);
 
-    $("#listenBtn", view).onclick = () => speak(s.en);
-    $("#slowBtn", view).onclick = () => speak(s.en, { rate: 0.6 });
+    $("#listenBtn", view).onclick = () => readAlong(s.en);
+    $("#slowBtn", view).onclick = () => readAlong(s.en, 0.6);
     $("#prevBtn", view).onclick = () => { idx = (idx - 1 + SENTENCES.length) % SENTENCES.length; persist(); draw(); };
     $("#nextBtn", view).onclick = () => { idx = (idx + 1) % SENTENCES.length; persist(); draw(); };
     $("#micBtn", view).onclick = toggleMic;
@@ -156,6 +164,33 @@ export function renderShadowing(view) {
       }
       box.append(span);
     });
+  }
+
+  // 逐詞高亮「跟讀」(karaoke read-along)：聽示範時，老師唸到哪個字就把哪個字點亮，
+  // 讓初學者把「聲音」對到「文字」，降低聽不懂、跟不上的摩擦（更容易學）。
+  // charIndex 來自 SpeechSynthesis 的 onboundary，對應原字串位置 → 換算成第幾個詞。
+  function wordOffsets(text) {
+    const offs = [];
+    const re = /\S+/g; let mm;
+    while ((mm = re.exec(text))) offs.push({ start: mm.index, end: mm.index + mm[0].length });
+    return offs;
+  }
+  function readAlong(text, rate) {
+    const box = $("#sentence", view);
+    if (!box) { speak(text, { rate }); return; }
+    const spans = [...box.querySelectorAll(".w")];
+    const offs = wordOffsets(text);
+    let cur = -1;
+    const clear = () => { if (cur >= 0 && spans[cur]) spans[cur].classList.remove("w-now"); cur = -1; };
+    const onWord = (charIndex) => {
+      if (charIndex == null) return;
+      let wi = offs.findIndex((o) => charIndex >= o.start && charIndex < o.end);
+      if (wi < 0) { for (let i = offs.length - 1; i >= 0; i--) { if (charIndex >= offs[i].start) { wi = i; break; } } }
+      if (wi < 0 || wi === cur) return;
+      if (cur >= 0 && spans[cur]) spans[cur].classList.remove("w-now");
+      cur = wi; if (spans[wi]) spans[wi].classList.add("w-now");
+    };
+    speak(text, { rate, onWord }).then(clear);
   }
 
   function toggleMic() {
@@ -217,7 +252,7 @@ export function renderShadowing(view) {
       `<div class="fb-item ${f.kind === "good" ? "fb-good" : "fb-warn"}"><span class="ico">${f.kind === "good" ? "✅" : "💡"}</span><span>${esc(f.text)}</span></div>`
     )));
     $("#againBtn", resBox).onclick = toggleMic;
-    $("#cmpBtn", resBox).onclick = () => speak(s.en);
+    $("#cmpBtn", resBox).onclick = () => readAlong(s.en);
     resBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 

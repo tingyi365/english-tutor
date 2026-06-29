@@ -159,4 +159,37 @@
 5. 內容再擴充：商務/旅遊主題分類、對話分支選項。
 6. onboarding 進階：第 2 步可加「問學習動機（旅遊/工作/考試）」並據此推薦起始模式。
 
+[小組長 08:5x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 一致 3780、app.js/modes.js/data.js/style.css 皆 200，onboarding(showOnboarding/hasOnboarded)+SRS(promoteMistake/rateVocab) 線上實證)；第5輪確實落實上一輪硬性指定(首次進站 onboarding 三步引導)，做了北極星研究+17/17 真機 0 console error、無空轉無偏離。發現一個空轉風險：evolve_instruction 的🔴硬性指定區塊在 onboarding 完成後**未被移除**，仍 pin onboarding 給下一輪，會誘導 round 6 重做=空轉。→ 導正動作：移除已完成的 onboarding 硬性指定，改釘下一輪「即時正向回饋：達標慶祝動畫 + 連續天數里程碑徽章(3/7/30 天)」為硬性指定(延續第2輪北極星研究點名的 Hooked 可變獎勵，補足目前缺的成就感/動力持續這一摩擦點)，並重申禁止漂移到 SRS 跨日排程/純內容擴充、跟讀逐詞高亮降為次選。靜默不擾人。
+
 [小組長 08:2x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)；第4輪確實落實導正檔硬性指定(SRS Leitner 弱點優先+精熟畢業)，做了北極星研究、14/14單測+15/15真機0 console error、無空轉無偏離。但觀察到方向風險：第1–4輪持續往「持續/精熟」做深(streak→錯題本→SRS)，新使用者首次落地仍無任何引導＝目前最大「不容易上手」摩擦點，而 backlog 殘留「SRS跨日排程」會誘導再往 power-user 深掘、偏離北極星。→ 導正動作：已移除第4輪已完成的硬性指定區塊，改釘第5輪「首次進站 onboarding 引導(降門檻)」為硬性指定(首次偵測+極簡導覽+可跳過+直送第一個30秒練習)，明令勿跳 SRS跨日排程/純內容擴充。靜默不擾人。
+
+---
+
+### 第 6 輪 — 2026-06-29（即時正向回饋：達標慶祝動畫 + 連續天數里程碑徽章｜小組長 08:5x 硬性指定）
+**北極星研究（必做）**
+- WebSearch「Duolingo read-along / 即時正向回饋 / 慶祝動畫 gamification」。借鏡 Duolingo：①達成「那一刻」立刻給看得見的慶祝（彩帶/音效），把抽象努力變即時成就感（Hooked 可變獎勵）②連續天數里程碑(3/7/30 天)頒徽章＝損失趨避+收集慾，讓人想明天再回來③獎勵要在「達標瞬間」觸發、不打擾平常操作。落地點子：①剛好達標的那一刻彈彩帶+鼓勵吐司(每天只一次) ②連續天數踩到 3/7/14/30/60/100 天頒里程碑徽章+專屬圖示 ③首頁常駐展示已得徽章+下一個里程碑目標。
+- 來源：blog.duolingo.com（streak/沉浸式回饋）、digia.tech / 925studios.co（Hooked 可變獎勵、損失趨避，第 2 輪同源延伸）。
+- ※小組長 08:5x 已將本輪硬性指定改為「即時正向回饋」，並把「跟讀逐詞高亮」降為次選。
+
+**本輪進化：即時正向回饋（補足目前缺的「成就感／動力持續」摩擦點＝更容易持續學）**
+- 改動檔：`app.js`(達標慶祝 showCelebration/fireConfetti、bumpDaily 達標瞬間觸發+celebrated 旗標、STREAK_MILESTONES 里程碑頒徽 getStreakBadges/badgeIcon、reset 清 streakBadges)、`modes.js`(renderHome 顯示已得里程碑徽章+下一個目標)、`style.css`(.confetti 彩帶/.celebrate-toast 慶祝吐司/.sbadge 徽章；含 prefers-reduced-motion 降載)。純加法、低風險、可回退。
+- **達標慶祝**：今日練習數「剛好跨過每日目標的那一刻」彈彩帶(36 顆 CSS 落下)+「🎉 今日目標達成！」鼓勵吐司；`daily.celebrated` 旗標保證每天只慶祝一次，不重複打擾。
+- **里程碑徽章**：連續天數踩到 3/7/14/30/60/100 天且未拿過 → 頒徽章(🔥⭐💎👑🏆💯)+里程碑慶祝吐司；徽章存 localStorage `streakBadges`。
+- **首頁常駐展示**：每日卡底部顯示已得徽章＋「🎯 下一個里程碑」目標(看得見下一個收集目標→動力)。
+- 慶祝層 pointer-events:none 不擋操作；尊重 prefers-reduced-motion(關閉彩帶動畫)。
+- 順帶(次選、已驗證低風險)：**跟讀逐詞高亮**——跟讀糾音「聽示範/慢速」時，老師唸到哪個字就點亮哪個字(karaoke read-along)，把聲音對到文字，降低初學者跟不上的摩擦（speak 的 onWord boundary 落實，charIndex→詞 對應）。
+
+**驗證證據**
+- 本機 charIndex→詞 對應單元測試 **14/14 PASS**。
+- 本機真 Chrome(puppeteer-core 驅動，375px 手機)端到端 **12/12 PASS、0 console error**：
+  - 達標：做到 4/5 不慶祝→第 5 練剛好達標→慶祝吐司(含「目標達成」)+36 顆彩帶+`daily.celebrated=true`→續練第 6 不重複觸發。
+  - 里程碑：種子連續 2 天(昨天)→今天首練→連續 3 天→里程碑吐司(含「連續學習 3 天」)+`streakBadges=[3]`→首頁顯示徽章「🔥3 / 🎯7天」。
+  - 跟讀高亮回歸：聽示範時高亮逐字由左到右移動(亮過 6 詞)、唸完清除。
+- 線上 `https://english-tutor-ai.pages.dev` 部署後 HTTP 200、線上實證(待部署後補)；legacy alias `english-tutor-e1l` 一併部署不使其壞。
+
+**下一輪 backlog 想法**
+1. PWA：manifest + service worker，可安裝離線（降門檻：像 app 一樣一鍵打開）。
+2. 慶祝升級：里程碑徽章可點開看「成就牆」、達標可選輕量音效（尊重靜音）。
+3. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）並推薦起始模式。
+4. 內容再擴充：商務/旅遊主題分類、對話分支選項（初學者友善、難度分級）。
+5. 發音回饋升級：更細音素提示、可重聽範例、語速微調 UI。

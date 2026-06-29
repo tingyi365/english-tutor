@@ -68,19 +68,36 @@ export function getStreak() {
 }
 function bumpDaily(reps) {
   const today = todayKey();
+  const goal = getDailyGoal();
   // 今日進度
   let d = JSON.parse(localStorage.getItem("daily") || "{}");
-  if (d.date !== today) d = { date: today, count: 0 };
+  if (d.date !== today) d = { date: today, count: 0, celebrated: false };
+  const before = d.count;
   d.count += reps;
+  // 「剛好達標的那一刻」才慶祝，且每天只一次（celebrated 旗標）
+  const justReached = before < goal && d.count >= goal && !d.celebrated;
+  if (justReached) d.celebrated = true;
   localStorage.setItem("daily", JSON.stringify(d));
   // 連續天數：當天首次學習就接續（只要每天出現就不斷連，門檻最低、最容易維持）
   let s = JSON.parse(localStorage.getItem("streak") || "{}");
   s.count = s.count || 0; s.best = s.best || 0;
+  let newMilestone = 0;
   if (s.lastDay !== today) {
     s.count = isYesterday(s.lastDay, today) ? s.count + 1 : 1;
     s.lastDay = today;
     if (s.count > s.best) s.best = s.count;
+    // 連續天數踩到里程碑(3/7/14/30/60/100)且還沒拿過 → 頒徽章
+    if (STREAK_MILESTONES.includes(s.count)) {
+      const earned = getEarnedBadges();
+      if (!earned.includes(s.count)) { earned.push(s.count); localStorage.setItem("streakBadges", JSON.stringify(earned)); newMilestone = s.count; }
+    }
     localStorage.setItem("streak", JSON.stringify(s));
+  }
+  // 即時正向回饋：里程碑較稀有，優先慶祝；否則達標慶祝
+  if (newMilestone) {
+    showCelebration(`${badgeIcon(newMilestone)} 連續學習 ${newMilestone} 天！`, `解鎖里程碑徽章 — 你的堅持正在變成實力 💪`);
+  } else if (justReached) {
+    showCelebration("🎉 今日目標達成！", `完成 ${goal} 個練習・明天回來把連續變 ${s.count + 1} 天 🔥`);
   }
 }
 
@@ -139,6 +156,48 @@ export function rateVocab(word, known) {
   const cur = srs[word]?.box || 0;
   srs[word] = { box: known ? Math.min(MAX_BOX, cur + 1) : 1, ts: Date.now() };
   localStorage.setItem("vocabSrs", JSON.stringify(srs));
+}
+
+// ---------- 即時正向回饋：達標慶祝 + 連續天數里程碑徽章 ----------
+// 容易學＝要有動力持續。借鏡 Duolingo 的 Hooked 迴圈「可變獎勵」：在「達成的那一刻」
+// 立刻給看得見的慶祝（彩帶+鼓勵），把抽象努力變成即時成就感，讓人想明天再回來。
+export const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100];
+export function badgeIcon(n) {
+  return n >= 100 ? "💯" : n >= 60 ? "🏆" : n >= 30 ? "👑" : n >= 14 ? "💎" : n >= 7 ? "⭐" : "🔥";
+}
+function getEarnedBadges() {
+  try { return JSON.parse(localStorage.getItem("streakBadges") || "[]"); } catch { return []; }
+}
+// 給首頁顯示：已達成的里程碑（升序、含圖示）
+export function getStreakBadges() {
+  return getEarnedBadges().slice().sort((a, b) => a - b).map((n) => ({ n, ico: badgeIcon(n) }));
+}
+
+// 彩帶動畫（純 CSS 落下，pointer-events:none 不擋操作；2.6s 後自清）
+function fireConfetti() {
+  const layer = document.createElement("div");
+  layer.className = "confetti";
+  const colors = ["#6366f1", "#8b5cf6", "#22c55e", "#f59e0b", "#f43f5e", "#38bdf8"];
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement("i");
+    p.style.left = Math.random() * 100 + "%";
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = (Math.random() * 0.3).toFixed(2) + "s";
+    p.style.transform = `rotate(${Math.floor(Math.random() * 360)}deg)`;
+    layer.appendChild(p);
+  }
+  document.body.appendChild(layer);
+  setTimeout(() => layer.remove(), 2600);
+}
+// 達標/里程碑的慶祝吐司（淡入→停留→淡出移除）
+function showCelebration(title, sub) {
+  fireConfetti();
+  const t = document.createElement("div");
+  t.className = "celebrate-toast";
+  t.innerHTML = `<div class="ct-title">${title}</div><div class="ct-sub">${sub}</div>`;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add("show"));
+  setTimeout(() => { t.classList.remove("show"); setTimeout(() => t.remove(), 420); }, 2800);
 }
 
 // ---------- 首次進站引導 onboarding（容易學：降低第一次的陌生與不知所措） ----------
@@ -289,6 +348,7 @@ function initSettings() {
     localStorage.removeItem("streak");
     localStorage.removeItem("mistakes");
     localStorage.removeItem("vocabSrs");
+    localStorage.removeItem("streakBadges");
     close();
     if (current === "home") navigate("home");
     alert("學習進度已清除。");
