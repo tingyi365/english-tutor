@@ -1169,9 +1169,16 @@ export function renderGrammar(view) {
   let i = 0, answered = false;
   // 本回合計分：給「做完一輪」的完成感與分數總結，並引導下一步（複習錯題）＝降低「不知道學到哪/接下來幹嘛」的摩擦（容易學）。
   let roundCorrect = 0, roundAnswered = 0;
-  const isLast = () => i >= GRAMMAR.length - 1;
+  // 依學習動機把對應主題（旅遊/工作/考試/日常）的題目排前（第31輪：讓「為你推薦」連文法練習也貼動機）。
+  // Array.sort 穩定 → 同組維持原順序；未設動機或該動機無對應題則維持原序＝零回歸。
+  // order[i] 為真正的 GRAMMAR 索引；錯題本一律以此真索引存（key/qIndex），與複習回放相容。
+  const motiveKey = getLearnMotive();
+  const order = GRAMMAR.map((_, idx) => idx);
+  if (motiveKey) order.sort((a, b) =>
+    (GRAMMAR[a].topic === motiveKey ? 0 : 1) - (GRAMMAR[b].topic === motiveKey ? 0 : 1));
+  const isLast = () => i >= order.length - 1;
   function draw() {
-    const q = GRAMMAR[i];
+    const q = GRAMMAR[order[i]];
     answered = false;
     const parts = q.prompt.split("___");
     view.innerHTML = "";
@@ -1179,9 +1186,9 @@ export function renderGrammar(view) {
       <div>
         <div class="lesson-head">
           <div class="ttl">📝 文法填空</div>
-          <span class="pill pill-lv">${q.lv}・${i + 1}/${GRAMMAR.length}</span>
+          <span class="pill pill-lv">${q.lv}・${i + 1}/${order.length}</span>
         </div>
-        <div class="progress"><i style="width:${((i + 1) / GRAMMAR.length) * 100}%"></i></div>
+        <div class="progress"><i style="width:${((i + 1) / order.length) * 100}%"></i></div>
         <div class="card">
           <div class="gap-sentence">${esc(parts[0])}<span class="gap-blank" id="blank">____</span>${esc(parts[1] || "")}</div>
           <div class="translation mb">${esc(q.zh)}</div>
@@ -1204,7 +1211,8 @@ export function renderGrammar(view) {
   function choose(oi, btn) {
     if (answered) return;
     answered = true;
-    const q = GRAMMAR[i];
+    const gi = order[i];          // 真正的 GRAMMAR 索引（錯題本回放靠此）
+    const q = GRAMMAR[gi];
     const all = [...view.querySelectorAll(".opt")];
     all.forEach((b, bi) => {
       b.disabled = true;
@@ -1217,12 +1225,12 @@ export function renderGrammar(view) {
     $("#blank", view).textContent = q.options[q.answer];
     speak(q.prompt.replace("___", q.options[q.answer]));
     addStat({ practiced: 1, best: ok ? 100 : 0 });
-    if (!ok) addMistake({ key: `g${i}`, type: "grammar", qIndex: i });
+    if (!ok) addMistake({ key: `g${gi}`, type: "grammar", qIndex: gi });
     $("#gramResult", view).innerHTML = `<div class="explain mt"><b>${ok ? "✅ 答對了！" : "❌ 再想想"}</b>　${esc(q.explain)}${ok ? "" : `<div class="muted mt" style="font-size:13px">📒 已加入錯題本，稍後可在首頁「複習錯題」再練。</div>`}</div>`;
   }
   // 一輪做完的總結：分數 + 鼓勵 + 下一步（有錯題就引導去複習＝告訴使用者「接下來學什麼」）。
   function drawSummary() {
-    const total = GRAMMAR.length;
+    const total = order.length;
     const pct = roundAnswered ? Math.round((roundCorrect / roundAnswered) * 100) : 0;
     const mistakeCount = getMistakeCount();
     const praise = roundAnswered === 0

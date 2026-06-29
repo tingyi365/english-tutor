@@ -211,95 +211,111 @@ export const DIALOGUES = [
 ];
 
 // 文法填空（單選，含解析）
+// topic：學習動機主題（travel/work/exam/daily），用於依使用者動機把對應主題的題目排前
+//（弱點/難度仍按原序，動機只做次要排序）；讓「為你推薦」連文法練習也貼動機＝容易學。
 export const GRAMMAR = [
   {
     lv: "初級", prompt: "She ___ to work by bus every day.",
     options: ["go", "goes", "going", "gone"], answer: 1,
     zh: "她每天搭公車上班。",
-    explain: "主詞 She 為第三人稱單數，現在簡單式動詞要加 -es → goes。",
+    explain: "主詞 She 為第三人稱單數，現在簡單式動詞要加 -es → goes。", topic: "work",
   },
   {
     lv: "初級", prompt: "There ___ some milk in the fridge.",
     options: ["are", "is", "have", "has"], answer: 1,
     zh: "冰箱裡有一些牛奶。",
-    explain: "milk 為不可數名詞，搭配單數 be 動詞 → There is。",
+    explain: "milk 為不可數名詞，搭配單數 be 動詞 → There is。", topic: "daily",
   },
   {
     lv: "中級", prompt: "I have lived here ___ 2019.",
     options: ["for", "since", "from", "during"], answer: 1,
     zh: "我從 2019 年就住在這裡。",
-    explain: "完成式中表「自某時間點起」用 since；表「一段時間長度」才用 for。",
+    explain: "完成式中表「自某時間點起」用 since；表「一段時間長度」才用 for。", topic: "daily",
   },
   {
     lv: "中級", prompt: "If it ___ tomorrow, we will stay home.",
     options: ["rains", "will rain", "rained", "is raining"], answer: 0,
     zh: "如果明天下雨，我們就待在家。",
-    explain: "第一類條件句：if 子句用現在簡單式 rains，主句用 will。",
+    explain: "第一類條件句：if 子句用現在簡單式 rains，主句用 will。", topic: "daily",
   },
   {
     lv: "中級", prompt: "This book is ___ interesting than that one.",
     options: ["much", "more", "most", "very"], answer: 1,
     zh: "這本書比那本有趣。",
-    explain: "兩者比較用比較級；interesting 為長形容詞，前面加 more。",
+    explain: "兩者比較用比較級；interesting 為長形容詞，前面加 more。", topic: "exam",
   },
   {
     lv: "進階", prompt: "I wish I ___ more time to finish it.",
     options: ["have", "had", "will have", "having"], answer: 1,
     zh: "真希望我有更多時間完成它。",
-    explain: "wish 表與現在事實相反的願望，子句用過去式 had（假設語氣）。",
+    explain: "wish 表與現在事實相反的願望，子句用過去式 had（假設語氣）。", topic: "work",
   },
   {
     lv: "進階", prompt: "The report ___ by the team last week.",
     options: ["completed", "was completed", "has completed", "completes"], answer: 1,
     zh: "那份報告上週由團隊完成。",
-    explain: "報告是被完成，需用被動語態；時間在上週為過去式 → was completed。",
+    explain: "報告是被完成，需用被動語態；時間在上週為過去式 → was completed。", topic: "work",
   },
   {
     lv: "進階", prompt: "She speaks English ___ than her brother.",
     options: ["fluent", "fluently", "more fluently", "most fluently"], answer: 2,
     zh: "她英文說得比她哥哥流利。",
-    explain: "修飾動詞 speaks 用副詞，且為兩者比較 → more fluently。",
+    explain: "修飾動詞 speaks 用副詞，且為兩者比較 → more fluently。", topic: "exam",
   },
   {
     lv: "初級", prompt: "I ___ a student. I study at a university.",
     options: ["am", "is", "are", "be"], answer: 0,
     zh: "我是學生，我在大學念書。",
-    explain: "主詞 I 搭配的 be 動詞用 am。",
+    explain: "主詞 I 搭配的 be 動詞用 am。", topic: "exam",
   },
   {
     lv: "初級", prompt: "There are many ___ on the table.",
     options: ["book", "books", "a book", "bookes"], answer: 1,
     zh: "桌上有很多書。",
-    explain: "many 後接可數名詞的複數形 → books。",
+    explain: "many 後接可數名詞的複數形 → books。", topic: "daily",
   },
   {
     lv: "中級", prompt: "He has been working here ___ five years.",
     options: ["since", "for", "from", "in"], answer: 1,
     zh: "他已經在這裡工作五年了。",
-    explain: "for 接「一段時間長度」（five years）；since 才接時間點。",
+    explain: "for 接「一段時間長度」（five years）；since 才接時間點。", topic: "work",
   },
   {
     lv: "中級", prompt: "You ___ finish your homework before playing.",
     options: ["should", "would", "could", "might"], answer: 0,
     zh: "你應該先寫完作業再玩。",
-    explain: "表示「應該、義務」用 should。",
+    explain: "表示「應該、義務」用 should。", topic: "exam",
   },
   {
     lv: "中級", prompt: "If I were you, I ___ accept the offer.",
     options: ["will", "would", "can", "am"], answer: 1,
     zh: "如果我是你，我會接受這個提議。",
-    explain: "與現在事實相反的假設（were），主句用 would + 原形動詞。",
+    explain: "與現在事實相反的假設（were），主句用 would + 原形動詞。", topic: "work",
   },
   {
     lv: "進階", prompt: "By the time we arrived, the movie ___ already started.",
     options: ["has", "had", "was", "have"], answer: 1,
     zh: "我們到的時候，電影已經開始了。",
-    explain: "過去某時間點之前就完成的動作，用過去完成式 had + p.p.。",
+    explain: "過去某時間點之前就完成的動作，用過去完成式 had + p.p.。", topic: "daily",
   },
   {
     lv: "進階", prompt: "I'd rather you ___ tell anyone about this.",
     options: ["don't", "didn't", "won't", "not"], answer: 1,
     zh: "我寧願你別跟任何人說這件事。",
-    explain: "would rather + 子句表現在/未來願望時，子句用過去式（didn't）表假設語氣。",
+    explain: "would rather + 子句表現在/未來願望時，子句用過去式（didn't）表假設語氣。", topic: "daily",
+  },
+  // 旅遊主題文法（第31輪新增）：讓動機=旅遊的使用者在文法也有對應主題題目排前，
+  // 與句子/單字/對話的旅遊內容一致，使「為你推薦」連文法也名副其實。
+  {
+    lv: "初級", prompt: "Excuse me, ___ is the nearest station?",
+    options: ["what", "where", "when", "who"], answer: 1,
+    zh: "不好意思，最近的車站在哪裡？",
+    explain: "問「地點」用疑問詞 where。", topic: "travel",
+  },
+  {
+    lv: "中級", prompt: "I'd like ___ a room for two nights.",
+    options: ["book", "to book", "booking", "booked"], answer: 1,
+    zh: "我想預訂一間房，住兩晚。",
+    explain: "would like 後接 to + 原形動詞（不定詞）→ to book。", topic: "travel",
   },
 ];

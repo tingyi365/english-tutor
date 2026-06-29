@@ -40,7 +40,7 @@ try {
   await tap(page, '.tab[data-route="grammar"]');
   await page.waitForSelector(".pill-lv", { timeout: 6000 });
   const total = await page.evaluate(() => parseInt(document.querySelector(".pill-lv").textContent.split("/")[1]));
-  ok(total === 15, "題庫 15 題, got " + total);
+  ok(total >= 15, "題庫 >=15 題（第31輪加旅遊題後為 17）, got " + total);
 
   // 第一輪：每題都作答（選第一個選項，保證有對有錯→產生錯題）
   for (let k = 0; k < total; k++) {
@@ -56,7 +56,7 @@ try {
   const sum = await page.evaluate(() => {
     const t = document.body.innerText;
     return {
-      hasScore: /答對 \d+ \/ 15 題/.test(t),
+      hasScore: /答對 \d+ \/ \d+ 題/.test(t),
       hasRate: /正確率 \d+%/.test(t),
       hasReview: !!document.querySelector("#gReview"),
       hasAgain: !!document.querySelector("#gAgain"),
@@ -65,7 +65,7 @@ try {
       notWrapped: !document.querySelector(".gap-blank"),
     };
   });
-  ok(sum.hasScore, "完成卡有『答對 X / 15 題』");
+  ok(sum.hasScore, "完成卡有『答對 X / N 題』");
   ok(sum.hasRate, "完成卡有『正確率 X%』");
   ok(sum.notWrapped, "完成後不再靜默 wrap 回題目（無 gap-blank）");
   ok(sum.hasAgain && sum.hasHome, "有『再來一輪』『回首頁』鈕");
@@ -84,12 +84,12 @@ try {
   await page.waitForSelector("#nextBtn", { timeout: 6000 });
   for (let k = 0; k < total; k++) { await page.evaluate(() => document.querySelector("#nextBtn")?.click()); await sleep(40); }
   await sleep(100);
-  const skipCard = await page.evaluate(() => ({ has: /答對 0 \/ 15 題/.test(document.body.innerText), again: !!document.querySelector("#gAgain") }));
-  ok(skipCard.has && skipCard.again, "全跳過→完成卡『答對 0 / 15』+再來一輪");
+  const skipCard = await page.evaluate(() => ({ has: /答對 0 \/ \d+ 題/.test(document.body.innerText), again: !!document.querySelector("#gAgain") }));
+  ok(skipCard.has && skipCard.again, "全跳過→完成卡『答對 0 / N』+再來一輪");
   await tap(page, "#gAgain");
   await sleep(200);
-  const restarted = await page.evaluate(() => (document.querySelector(".pill-lv")?.textContent || "").includes("1/15"));
-  ok(restarted, "『再來一輪』重置回 1/15");
+  const restarted = await page.evaluate((n) => (document.querySelector(".pill-lv")?.textContent || "").includes("1/" + n), total);
+  ok(restarted, "『再來一輪』重置回 1/N");
 
   ok(errs.length === 0, "0 console error, got " + errs.length + " " + JSON.stringify(errs.slice(0, 3)));
   console.log(`\n[${ARG === "local" ? "LOCAL" : "LIVE"}] PASS ${pass} / FAIL ${fail}`);
