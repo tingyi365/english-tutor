@@ -940,6 +940,7 @@ export function renderConversation(view) {
           <b>${TOPIC_META[d.topic] ? TOPIC_META[d.topic].ico + " " : ""}${esc(d.title)}</b>
           <p class="translation">${esc(d.scene)}</p>
         </div>
+        <div class="read-hint">🎯 老師會先說一句，你看著<b>建議句</b>、按「🔊 聽建議句」學發音，再按「🎙️ 換我說」開口回應 — 不會說就按「略過」也沒關係，重點是敢開口。</div>
         <div class="chat mt" id="chat"></div>
         <div id="convCtl"></div>
         <div class="btn-row mt">
@@ -967,6 +968,9 @@ export function renderConversation(view) {
   }
 
   function nextTurn() {
+    // 防呆：若使用者在「下一句」排程(advance 的 setTimeout)觸發前已切換到別的模式，
+    // view 已被 navigate 清空、#convCtl 不存在 → 直接 return，不對 null 設 innerHTML（避免 console error）。
+    if (!$("#convCtl", view)) return;
     const d = DIALOGUES[list[fpos]];
     if (turn >= d.turns.length) {
       $("#convCtl", view).innerHTML = `<div class="card center mt">🎉 對話完成！你完成了「${esc(d.title)}」。<div class="btn-row mt"><button class="btn btn-primary btn-block" id="againConv">再練一次</button></div></div>`;
