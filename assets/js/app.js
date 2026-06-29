@@ -48,6 +48,19 @@ export function getDailyGoalLevel() { return localStorage.getItem("dailyGoalLeve
 export function setDailyGoalLevel(k) { if (DAILY_GOALS[k]) localStorage.setItem("dailyGoalLevel", k); }
 export function getDailyGoal() { return DAILY_GOALS[getDailyGoalLevel()] || 10; }
 
+// ---------- 學習動機（容易學：依「為什麼學」推薦最適合的起始模式，降低「從哪開始」的猶豫） ----------
+// 借鏡 Duolingo onboarding：用一個低摩擦問題問動機（旅遊/工作/考試/日常），再據此個人化推薦起始模式，
+// 讓新手立刻知道「先練哪一種」最對自己——少一個選擇障礙＝更容易上手。
+export const LEARN_MOTIVES = {
+  travel: { ico: "✈️", t: "旅遊出國", rec: "conversation", recIco: "💬", recT: "情境對話", why: "點餐、問路、訂房最常用 — 直接練真實情境對話" },
+  work:   { ico: "💼", t: "工作職場", rec: "shadowing",    recIco: "🎤", recT: "跟讀糾音", why: "職場要把話說清楚 — 跟讀糾音把發音練到專業" },
+  exam:   { ico: "📖", t: "準備考試", rec: "grammar",      recIco: "📝", recT: "文法填空", why: "考試重文法與理解 — 先用文法填空打底" },
+  daily:  { ico: "🗣️", t: "日常開口", rec: "shadowing",    recIco: "🎤", recT: "跟讀糾音", why: "日常開口最重要 — 跟讀糾音逐字糾正發音" },
+};
+export function getLearnMotive() { return localStorage.getItem("learnMotive") || ""; }
+export function setLearnMotive(k) { if (LEARN_MOTIVES[k]) localStorage.setItem("learnMotive", k); }
+export function getRecommendedMode() { const m = LEARN_MOTIVES[getLearnMotive()]; return m ? m.rec : ""; }
+
 function todayKey(d = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -325,6 +338,7 @@ export function showOnboarding() {
   if (document.getElementById("onboarding")) return;
   let step = 0;
   let pickedGoal = getDailyGoalLevel(); // 預設沿用現有；新使用者預設 normal
+  let pickedMotive = getLearnMotive();  // 學習動機（可不選）
   const steps = [
     {
       html: `<div class="onb-ico">👋</div>
@@ -340,14 +354,15 @@ export function showOnboarding() {
       goal: true,
     },
     {
-      html: `<div class="onb-ico">🚀</div>
-             <h2>挑一種方式，現在就開始</h2>
-             <div class="onb-modes">
-               <div>🎤 <b>跟讀糾音</b> — 開口跟讀，即時糾正發音（核心）</div>
-               <div>✍️ <b>聽寫</b> — 只聽聲音把句子打出來</div>
-               <div>💬 <b>情境對話</b>　🃏 <b>單字卡</b>　📝 <b>文法填空</b></div>
-             </div>
-             <p class="onb-sub">每天完成一點點就會進步，連續天數別中斷喔 🔥</p>`,
+      html: `<div class="onb-ico">🤔</div>
+             <h2>你為什麼想學英文？</h2>
+             <p class="onb-sub">告訴我你的目標，我幫你挑最適合的方式先開始 — 之後 5 種都能練。</p>
+             <div class="onb-motives" id="onbMotives"></div>`,
+      motive: true,
+    },
+    {
+      html: ``, // 依動機動態產生（draw 內建）
+      recommend: true,
     },
   ];
 
@@ -376,11 +391,31 @@ export function showOnboarding() {
     { k: "serious", t: "認真", d: "每天 20 個練習", tag: "" },
   ];
 
+  function recommendHtml() {
+    const m = LEARN_MOTIVES[pickedMotive];
+    if (!m) {
+      // 沒選動機 → 退回通用清單，照樣能開始（不強迫，零摩擦）
+      return `<div class="onb-ico">🚀</div>
+              <h2>挑一種方式，現在就開始</h2>
+              <div class="onb-modes">
+                <div>🎤 <b>跟讀糾音</b> — 開口跟讀，即時糾正發音（核心）</div>
+                <div>✍️ <b>聽寫</b> — 只聽聲音把句子打出來</div>
+                <div>💬 <b>情境對話</b>　🃏 <b>單字卡</b>　📝 <b>文法填空</b></div>
+              </div>
+              <p class="onb-sub">每天完成一點點就會進步，連續天數別中斷喔 🔥</p>`;
+    }
+    return `<div class="onb-ico">${m.recIco}</div>
+            <h2>為你推薦：${m.recT}</h2>
+            <p class="onb-sub">因為你想<b>${m.t}</b> — ${m.why}。</p>
+            <button type="button" class="btn btn-primary onb-recgo" id="onbRecGo">👉 直接開始「${m.recT}」</button>
+            <p class="onb-sub onb-recfoot">不急的話按「開始學習」回首頁，5 種方式都能慢慢練 🔥</p>`;
+  }
   function draw() {
-    body.innerHTML = steps[step].html;
+    const isLast = step === steps.length - 1;
+    body.innerHTML = steps[step].recommend ? recommendHtml() : steps[step].html;
     dots.innerHTML = steps.map((_, i) => `<i class="${i === step ? "on" : ""}"></i>`).join("");
-    nextBtn.textContent = step === steps.length - 1 ? "開始學習 →" : "下一步";
-    skipBtn.style.visibility = step === steps.length - 1 ? "hidden" : "visible";
+    nextBtn.textContent = isLast ? "開始學習 →" : "下一步";
+    skipBtn.style.visibility = isLast ? "hidden" : "visible";
     if (steps[step].goal) {
       const wrap = body.querySelector("#onbGoals");
       wrap.innerHTML = GOAL_OPTS.map((g) =>
@@ -395,15 +430,36 @@ export function showOnboarding() {
         });
       });
     }
+    if (steps[step].motive) {
+      const wrap = body.querySelector("#onbMotives");
+      wrap.innerHTML = Object.entries(LEARN_MOTIVES).map(([k, m]) =>
+        `<button type="button" class="onb-motive ${k === pickedMotive ? "on" : ""}" data-k="${k}">
+           <span class="om-ico">${m.ico}</span><b>${m.t}</b>
+         </button>`
+      ).join("");
+      wrap.querySelectorAll(".onb-motive").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          pickedMotive = pickedMotive === btn.dataset.k ? "" : btn.dataset.k; // 再點一次可取消
+          wrap.querySelectorAll(".onb-motive").forEach((b) => b.classList.toggle("on", b.dataset.k === pickedMotive));
+        });
+      });
+    }
+    if (steps[step].recommend) {
+      const go = body.querySelector("#onbRecGo");
+      const m = LEARN_MOTIVES[pickedMotive];
+      if (go && m) go.addEventListener("click", () => finish(m.rec));
+    }
   }
-  function finish() {
+  function finish(route) {
     setDailyGoalLevel(pickedGoal);
+    if (pickedMotive) setLearnMotive(pickedMotive);
     localStorage.setItem("onboarded", "1");
     overlay.remove();
-    if (current === "home") navigate("home");
+    if (route) navigate(route);
+    else if (current === "home") navigate("home");
   }
   nextBtn.addEventListener("click", () => { if (step < steps.length - 1) { step++; draw(); } else finish(); });
-  skipBtn.addEventListener("click", finish);
+  skipBtn.addEventListener("click", () => finish());
   draw();
 }
 
@@ -527,6 +583,7 @@ function initSettings() {
     localStorage.removeItem("mistakes");
     localStorage.removeItem("vocabSrs");
     localStorage.removeItem("streakBadges");
+    localStorage.removeItem("learnMotive");
     close();
     if (current === "home") navigate("home");
     alert("學習進度已清除。");

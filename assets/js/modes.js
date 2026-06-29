@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress, sentenceIntonation } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, showAchievementWall, navigate } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, showAchievementWall, getRecommendedMode, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -111,8 +111,12 @@ export function renderHome(view, navigate) {
     sb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openWall(); } });
   }
   const grid = $("#modeGrid", view);
-  modes.forEach((m) => {
-    const c = el(`<div class="mode-card"><div class="mc-ico">${m.ico}</div><h3>${m.t}</h3><p>${m.d}</p></div>`);
+  // 依學習動機推薦的起始模式：在對應卡片掛「👍 為你推薦」緞帶＋排到最前，降低每次回來「從哪開始」的猶豫。
+  const recMode = getRecommendedMode();
+  const ordered = recMode ? [...modes].sort((a, b) => (a.r === recMode ? -1 : b.r === recMode ? 1 : 0)) : modes;
+  ordered.forEach((m) => {
+    const isRec = m.r === recMode;
+    const c = el(`<div class="mode-card${isRec ? " mc-rec" : ""}">${isRec ? `<span class="mc-rec-tag">👍 為你推薦</span>` : ""}<div class="mc-ico">${m.ico}</div><h3>${m.t}</h3><p>${m.d}</p></div>`);
     c.addEventListener("click", () => navigate(m.r));
     grid.append(c);
   });
