@@ -348,4 +348,18 @@ export const GRAMMAR = [
     zh: "我想預訂一間房，住兩晚。",
     explain: "would like 後接 to + 原形動詞（不定詞）→ to book。", topic: "travel",
   },
+  // 第35輪 append-only：真機稽核確認無真實摩擦後，補旅遊文法（內容矩陣最單薄格＝travel 文法僅2題，
+  // 補至4題讓「為你推薦」對旅遊族群也名副其實）。皆旅遊高頻情境、解說清楚（降初學者猜測式挫折）。
+  {
+    lv: "初級", prompt: "Can I ___ a ticket to the city center, please?",
+    options: ["buy", "buys", "buying", "bought"], answer: 0,
+    zh: "我可以買一張到市中心的票嗎？",
+    explain: "助動詞 can 後面一律接原形動詞 → buy。", topic: "travel",
+  },
+  {
+    lv: "初級", prompt: "How ___ is it from here to the beach?",
+    options: ["far", "long", "much", "many"], answer: 0,
+    zh: "從這裡到海灘有多遠？",
+    explain: "問「距離多遠」用 How far；How long 問「多久」、How much 問「多少錢」。", topic: "travel",
+  },
 ];
