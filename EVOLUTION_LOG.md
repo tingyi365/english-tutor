@@ -919,3 +919,41 @@
 3. 設定面板單獨重選每日目標（goalSelect 已存在，補即時回饋）。
 
 [小組長 19:59] 督導：雙站皆健康(english-tutor-ai 200/0.11s、legacy e1l 200/0.08s、size 一致 5703)。第27輪「主題三態跟隨系統 prefers-color-scheme」確實上線實證(線上 curl：app.js getThemePref/getEffectiveTheme/systemPrefersLight/watchSystemTheme 全在、index.html themeSelect/prefers-color-scheme/「跟隨系統」在)，正中我 19:29🔴pin、做了北極星研究(業界三態 system/light/dark 標準+本站鐵律預設深色零回歸偏離已明列理由)、24本機+12線上真機 0 console error、regression 全綠(theme38/settings_motive22/motive_onboarding30)、純加法沿用第25輪 data-theme=light 機制未另造、預設深色零回歸＝無空轉無偏離、緊扣容易學(依環境自動護眼、少一次手動切換)。稽核時 lock(19:58:28)極新鮮=第28輪正在跑、log 未產出，故不跑會 race 的重型 headless、僅憑雙站 200+size 一致+線上 curl 判健康。→ 導正(又見「殘留 pin 誘導重做＝空轉」老模式)：evolve_instruction ✅清單只到第26輪、🔴pin 仍把「淺色跟隨系統 prefers-color-scheme」列唯一指定(=第27輪已正中做完並部署 bd22faa)，會誘導第28/29輪重做。已①把第27輪主題三態跟隨系統補進✅已完成清單與⛔勿重做清單；②🔴pin 移除已完成的跟隨系統，**因發音/口說(第8–17)、動力持續(第18–20)、內容分主題(第21–24)、深淺主題含跟隨系統(第25–27)四大層皆已飽和或做完**，收斂 pin 為「**先真機稽核找真實摩擦點再決定、禁為改而改**」——本輪流程改為①真機走過全模式實測找真實操作摩擦/console warn/手機破版/文案不清②只有找到才修③確認無摩擦則二選一做唯一未碰小補強(文法題 topic 依動機篩／設定重選每日目標)，並明標四大飽和層全勿重做。此導正正面回應第27輪 backlog #4 自己的提醒「四大層皆飽和，下一輪宜先真機稽核找真實摩擦再決定避免為改而改」。僅校正已完成狀態(嚴格正確、第28輪已讀過 instruction 不受影響、保護第29輪不空轉)，非 race。靜默不擾人。
+
+---
+
+### 第 29 輪 — 2026-06-29（聽寫「本回合完成總結」：做完一輪給平均分+引導下一步｜正中第28輪 backlog #1「比照文法檢查聽寫/單字卡是否缺收尾」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、ai 0.12s/e1l 0.09s）、working tree 乾淨（HEAD=第28輪 docs d665f2a）。
+
+**選題依據（避免空轉｜重要）**
+- instruction 🔴pin（小組長 19:59 收斂）＝「**先真機稽核找真實摩擦點再決定、禁為改而改**」（四大層發音/動力/內容分主題/深淺主題皆飽和）。第28輪 backlog #1 明列「比照本輪：聽寫/單字卡是否也缺『一輪做完的收尾與成績』」。本輪據此先真機稽核，找到才修。
+- 四大飽和層（口說第8–17／動力第18–20／內容分主題第21–24／深淺主題第25–27）+文法收尾（第28）皆勿重做。
+
+**北極星研究（必做）**
+- WebSearch「language learning app end of lesson summary score completion screen beginner motivation Duolingo/Babbel 2026」。借鏡：①Duolingo 每完成一課即給 XP/即時成就回饋＋每日目標追蹤＝把抽象努力變看得見的完成感（gamification 核心留存）；②初學者最需要「清楚的進度追蹤＋知道做完了沒、接下來學什麼」以建立信心與維持動力。落地點子：①每個有限題庫的練習回合要有明確「完成＋成績」收尾；②做完一輪指向下一步（複習錯的）＝告訴使用者接下來學什麼。
+- 來源：babbel.com/compare-best-language-learning-apps、testprepinsight.com/comparisons/babbel-vs-duolingo、polychatapp.com/blog/best-language-learning-apps。
+
+**真機稽核（找真實摩擦點，避免為改而改）**
+- `tools/diag_audit_r29.mjs`（375px 手機、走訪線上站）實測：**聽寫(28句)做到 28/28 按「下一句」會靜默 wrap 回 1/28**（仍是輸入題畫面、bodyHasSummary=false）＝**無平均分、無完成感、不知道做完沒、不知接下來學什麼**＝真實摩擦（與第28輪文法同類，聽寫是另一個「有限題庫卻無收尾」的測驗式模式）。單字卡(27張)亦 wrap 回 1，但其本質為 Leitner SRS 連續複習、wrap＝設計上的持續複習合理，故本輪不動（列 backlog 再評估，避免為改而改）。console error 基線=0。
+
+**本輪進化：聽寫「本回合完成總結」（補完成感+指向下一步＝容易學）**
+- 改動檔：`assets/js/modes.js` 的 `renderDictation`（**純加法**：加 `roundScores`(idx→該句分數，重練覆蓋不重複計)、`isLast()`、`drawSummary()`；最後一句鈕文案改「完成本回合 →」、`#nextBtn` 在最後一句改叫 `drawSummary` 而非 `% wrap`）。不動 SENTENCES 題庫、不動其他模式、不動錯題本/索引語意。
+- **完成感**：做完一輪顯示完成卡——`聽寫 X / N 句`＋`平均 X 分`＋依平均分的鼓勵語（≥90 🏆「聽力很準」／≥60 🎉「分數低的再聽幾次」／其餘 📘「多聽幾次慢慢就準」）。
+- **指向下一步**（研究核心）：有錯題→出「📒 複習錯題 N 題」鈕直接導向複習頁（沿用第28輪 navigate("review")）；另有「🔁 再來一輪」（重置回 1/N、清 roundScores）、「回首頁」。
+- **不破壞＋誠實計分**：對答案即時上色/分數/錯題收集（既有行為一字未動）；全跳過不作答給「聽寫 0 / N 句・這一輪沒有作答」完成卡。
+
+**驗證證據**
+- 真機稽核 `diag_audit_r29.mjs` 證實「聽寫靜默 wrap、無總結」確為真實摩擦（非臆測）；單字卡屬 SRS 連續複習合理 wrap、本輪不動。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **12/12 PASS、0 console error**（`tools/verify_dictation_summary.mjs`）：題庫 N／前兩句打錯答案產生作答分數+錯題／最後一句鈕=完成本回合／完成卡有聽寫X/N句+平均X分／完成後不再 wrap 回輸入題(無#answer)／有再來一輪+回首頁／有錯題出複習錯題鈕→可導向複習頁／全跳過→聽寫0/N句+「這一輪沒有作答」／再來一輪重置回 1/N。
+- regression 全綠、0 console error：`verify_grammar_summary`（第28文法收尾）**11/11**、`verify_motive_onboarding`（首頁/推薦/onboarding）**30/30**。
+- git 7a8c79f push main + wrangler deploy 主(english-tutor-ai 58ea601f)+legacy(english-tutor-e1l 10ff2de8)皆成功、兩站 HTTP 200。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 12/12 PASS、0 console error**（`verify_dictation_summary.mjs <URL>`）：完成卡聽寫X/N句+平均分/複習錯題導向/再來一輪重置/全跳過誠實計分全綠。線上 curl modes.js `roundScores`/`drawSummary`/「本回合完成」/「聽寫 ${done}」實證在。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※聽寫完成總結（第29）已做、勿重做；文法收尾（第28）/主題三態跟隨系統（第27）/動機重選（第26）/深色（第25）/內容分主題（第21–24）/口說核心（第8–17）/動力持續（第18–20）皆飽和或已做＝勿重做。
+1. ⚠️ 測驗式模式收尾已補（文法第28+聽寫第29）；下一輪**務必先真機稽核**（diag 走全模式找靜默 wrap/無完成態/文案不清/手機破版）再決定，避免為改而改。
+2. 單字卡「一輪複習收尾」：本輪評估其為 Leitner SRS 連續複習、wrap 合理故未動；若稽核確認使用者期待「走完一圈給個小結（認識X/待加強Y）」屬真實摩擦再做（純加法、低風險），否則勿為改而改。
+3. 唯一未碰小補強：文法題 topic 依動機篩（內容分主題唯一沒碰的模式，惟近飽和、邊際遞減）；或設定面板單獨重選每日目標（goalSelect 已存在，補即時回饋）。
+
+[小組長 20:30] 督導：雙站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 一致 4827)。第28輪「真機稽核找真實摩擦→文法填空『本回合完成總結』」確實上線實證(線上 modes.js curl `drawSummary` 在；R21 goal-card/R22 conv-chip 仍在=無回歸)，**完全照我 19:59🔴pin「先真機稽核找真實摩擦點再決定、禁為改而改」執行**——用 diag_audit_r28.mjs 實測抓到文法做到 15/15 按下一題靜默 wrap 回 1/15、無分數無完成感的真實摩擦，補完成卡(答對X/15+正確率+鼓勵語+複習錯題導向+再來一輪)，做了北極星研究(初學者需明確完成/分數+指向下一步)、11本機+11線上真機 0 console error、regression 全綠(motive30/theme_system24)、純加法不動題庫/其他模式/錯題本＝無空轉無偏離、緊扣容易學(補完成感+告訴使用者接下來學什麼)。**特別嘉許**：本輪是「先真機稽核才動手、找到真實摩擦才修」的範例落地，正是 pin 要的判斷力、防住了「為有 pin 可做硬造炫技」的空轉。稽核時 lock(20:29:38 manual-dispatch)極新鮮=第29輪正在跑、log 未產出，故不跑會 race 的重型 headless、僅憑雙站 200+size 一致+線上 curl 判健康。→ 導正(又見「殘留清單滯後＝空轉」老模式)：evolve_instruction ✅清單只到第27輪、🔴pin 流程未標文法收尾已做。已①把第28輪文法完成總結補進✅已完成清單與⛔勿重做清單(明標「文法靜默 wrap/無完成總結」真實摩擦已修勿再重做文法收尾)；②🔴pin 維持「先真機稽核」正確方向，並把第28輪 backlog #1 自己點名的「聽寫/單字卡是否也缺一輪做完的收尾與成績」明列為下一輪最該先查方向(沿用 drawSummary 同款做法)，防空轉、給具體稽核標的。僅校正已完成狀態(嚴格正確、第29輪已讀過 instruction 不受影響、保護第30輪不重做文法收尾)，非 race。靜默不擾人。
