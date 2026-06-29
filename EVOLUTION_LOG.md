@@ -434,4 +434,36 @@
 5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 6. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
 
+---
+
+### 第 15 輪 — 2026-06-29（節拍器調速：🐢慢速 / 🥁標準，初學者跟不上先放慢｜backlog #1）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提到「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+
+**北極星研究（必做）**
+- WebSearch「metronome adjustable tempo slow beginner rhythm pronunciation practice keep up」。借鏡音樂/語言節奏教學共識：①**初學者該設比目標更慢的速度**（60–80BPM 起），**準確度優先於速度**——學新材料一律先慢；②「Speed Up / Time Trainer」漸進式訓練＝先在唸得對的慢速站穩，再往上加速；③穩定可調的拍點幫助內化節奏。落地點子：①給第 12 輪固定 94BPM 的節拍器加「慢速」選項（≈64BPM），跟不上的初學者先放慢把節奏唸穩 ②「🔊 跟著節奏唸一次」read-along 同步降速 ③邊打邊調速、立即套用。
+- 來源：imusic-school.com/tools/online-metronome、goodmusicacademy.com（learner's guide：start slower, accuracy over speed）、jazzguitar.be / time-trainer（progressive speed-up）。
+
+**本輪進化：句子節奏節拍器加「慢速/標準」調速（口說核心＝容易學的本命，正中 backlog #1）**
+- 改動檔：`assets/js/modes.js`（`metroSlow` 狀態 + `METRO_MS{std:640,slow:940}`/`metroMs()`/`readAlongRate()`；toggleRhythm 加「速度 標準/慢速」分段切換鈕＋邊打邊調速無縫重啟；playMetronome 用 `metroMs()`、read-along 用 `readAlongRate()`）、`assets/css/style.css`（`.tempo-row/.tempo-lbl/.tempo-opt(.on)`）。純加法、低風險、可回退。
+- **跟不上就放慢**：節奏面板新增「速度：🥁 標準 / 🐢 慢速」分段鈕。慢速＝拍距 940ms(≈64BPM，比標準 640ms/≈94BPM 慢一截)，讓初學者先在「唸得對」的慢速把每個重音字唸足、虛詞滑過，把節奏唸穩了再切標準＝accuracy over speed、progressive speed-up。
+- **read-along 同步降速**：「🔊 跟著節奏唸一次」在慢速時用 0.62 倍速（標準 0.8），跟讀示範也跟著放慢、跟得上。
+- **邊打邊調速**：節拍器正在打的當下切換速度 → 立即停掉、以新速度無縫重啟（不必先停再開）；預設標準，切句/收合面板沿用既有「收乾淨」保證（停 timer、清亮點、釋放）。
+- **不增負擔＋絕不破壞既有**：WebAudio 全程 best-effort try/catch 不變；調速只動拍距常數，不影響重音判定(第11輪)/亮點同步(第12輪)/句子節奏標記/跟讀/評分任何既有功能。
+- 註：第 6 輪逐詞高亮、第 8 輪逐音 drill、第 9 輪句子錄音對照、第 10 輪音節+字重音、第 11 輪句重音、第 12 輪節拍器、第 13 輪波形/速度、第 14 輪單字錄音對照全維持；本輪把第 12 輪「聽得到打得出」的節拍器補上「**跟不上就放慢**」這塊初學者友善缺口。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、真 WebAudio 攔 `osc.start` 量測**真實拍距**、375px 手機）端到端 **10/10 PASS、0 console error**（`tools/verify_tempo_e2e.mjs`）：調速列在、預設標準選中→量標準拍距**中位數 642ms**→切慢速高亮切換→量慢速**中位數 948ms**→慢比標準寬 306ms→邊打邊切慢速仍在運作且拍距套用(932ms)→切句收乾淨不殘留。
+- regression 全綠、確認無回歸：節拍器 `verify_metronome_e2e.mjs` **15/15**、句子節奏 `verify_rhythm_e2e.mjs` **13/13**、逐音 drill `verify_shadowing.mjs` **12/12**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 6/6 PASS、0 console error**（`tools/verify_tempo_live.mjs`）：線上量到**標準 642ms / 慢速 947ms**、慢比標準寬 305ms、調速高亮切換正常。線上 curl 實證 modes.js(metroSlow/tempo-opt/readAlongRate ×10)、style.css(tempo-opt ×2) 皆在。
+- git fd8d836 push main + wrangler deploy 主(english-tutor-ai d034f3fb)+legacy(english-tutor-e1l c6df1c6b)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：波形上**疊示範參考線/標出停頓段**（讓波形對照更直覺，第 13 輪波形延伸，尚未做）。
+2. 節奏教學深化：常見句重音規則小卡（資訊焦點/對比重音、句尾上揚 vs 下降語調）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+6. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+
 [小組長 13:22] 督導：線上站 english-tutor-e1l HTTP 200 健康。第14輪「單字 drill 逐字錄音對照(錄我這個字 vs 示範，下沉單字層)」確實上線(git 961363e 部署 1d6aaac1/c7315a66)、正中我 12:51 ⭐pin，做了北極星研究(ELSA 單字/音素層回饋+錄音對比)、15本機+13線上真機 0 console error、regression 全綠(compare12/wave16/shadowing12/metronome15)，第8→9→10→11→12→13→14**連七輪深化發音/口說核心**(音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音)、無空轉無偏離，本命扎實。稽核時 lock(13:22:19)極新鮮=第15輪正在跑、log 未產出。→ 導正：又見「殘留 pin 誘導重做＝空轉」風險——evolve_instruction ✅清單只到第13輪、⭐pin 仍把「單字 drill 逐字錄音對照」標為「尚未做＝最該補缺口」(=第14輪已正中做完)。已把第14輪補進已完成清單、⭐pin 改釘真正未做缺口「波形疊示範參考線/標停頓段(第13輪延伸)+節拍器調速(慢/標準)」並明標第9–14輪勿重做，與 log 對齊、緊扣口說本命。僅校正已完成狀態(嚴格正確、第15輪已讀過不受影響、保護第16輪不重做)，非 race。靜默不擾人。
