@@ -111,7 +111,11 @@ export function renderShadowing(view) {
   const drillUrls = [];
   // 節拍器（跟著重音節拍唸）：英文是 stress-timed 語言，重音落在規律的拍點上。
   // 用穩定的「咑」聲＋亮點打在每個實詞重音上，讓初學者用耳朵+眼睛抓到節奏，跟著拍子開口練。
-  let metroTimer = null, metroCtx = null;
+  let metroTimer = null, metroCtx = null, metroSlow = false;
+  // 節拍器拍距（ms）：標準≈94BPM、慢速≈64BPM。初學者跟不上標準拍 → 先用慢速把節奏唸穩，再切標準。
+  const METRO_MS = { std: 640, slow: 940 };
+  const metroMs = () => (metroSlow ? METRO_MS.slow : METRO_MS.std);
+  const readAlongRate = () => (metroSlow ? 0.62 : 0.8);
   const canRecord = () =>
     typeof MediaRecorder !== "undefined" && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
@@ -363,7 +367,12 @@ export function renderShadowing(view) {
       <div class="rhythm-card">
         <div class="rhythm-tip">🎵 英文是<b>重音節拍</b>語言：<b class="rhythm-hi">放大的實詞</b>（名詞／動詞／形容詞）唸得<b>重、長、清楚</b>，<span class="muted">灰色虛詞（the／a／to／of…）輕輕快快帶過</span>，整句就有道地的抑揚。</div>
         <div class="rhythm-line">${chips}</div>
-        <div class="metro-tip">🥁 按下節拍器，<b>每聲「咑」就是一個重音</b>——跟著拍子把放大的字唸出來、虛詞輕輕滑過，自然唸出英文的節奏感。</div>
+        <div class="metro-tip">🥁 按下節拍器，<b>每聲「咑」就是一個重音</b>——跟著拍子把放大的字唸出來、虛詞輕輕滑過，自然唸出英文的節奏感。<span class="muted">跟不上？先切<b>🐢 慢速</b>把節奏唸穩，再回標準。</span></div>
+        <div class="tempo-row">
+          <span class="tempo-lbl">速度</span>
+          <button class="tempo-opt${metroSlow ? "" : " on"}" data-tempo="std">🥁 標準</button>
+          <button class="tempo-opt${metroSlow ? " on" : ""}" data-tempo="slow">🐢 慢速</button>
+        </div>
         <div class="btn-row mt">
           <button class="btn btn-ghost" id="metroBtn">🥁 打節拍跟著唸</button>
           <button class="btn btn-ghost" id="rhythmPlay">🔊 跟著節奏唸一次</button>
@@ -371,9 +380,19 @@ export function renderShadowing(view) {
       </div>`;
     box.dataset.open = "1";
     const play = $("#rhythmPlay", box);
-    if (play) play.onclick = () => readAlong(text, 0.8);
+    if (play) play.onclick = () => readAlong(text, readAlongRate());
     const metro = $("#metroBtn", box);
     if (metro) metro.onclick = () => playMetronome(text, metro);
+    // 調速：切換慢/標準；若節拍器正在打，立即以新速度重啟，跟得上。
+    box.querySelectorAll(".tempo-opt").forEach((opt) => {
+      opt.onclick = () => {
+        const slow = opt.dataset.tempo === "slow";
+        if (slow === metroSlow) return;
+        metroSlow = slow;
+        box.querySelectorAll(".tempo-opt").forEach((o) => o.classList.toggle("on", o.dataset.tempo === opt.dataset.tempo));
+        if (metroTimer) { stopMetronome(); playMetronome(text, $("#metroBtn", box)); } // 邊打邊調速：無縫重啟
+      };
+    });
   }
 
   // 節拍器：best-effort WebAudio「咑」聲，每個重音一拍，視覺亮點同步打在實詞上。
@@ -430,7 +449,7 @@ export function renderShadowing(view) {
       prev = v;
     };
     step(); // 立刻打第一拍（預備拍）
-    metroTimer = setInterval(step, 640);
+    metroTimer = setInterval(step, metroMs());
   }
 
   function toggleMic() {
