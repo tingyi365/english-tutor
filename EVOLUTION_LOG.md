@@ -642,4 +642,37 @@
 4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
 5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
 
+### 第 21 輪 — 2026-06-29（依學習動機推「目標精選句」首頁卡｜讓第20輪推薦名副其實，正中小組長 16:25 🔴pin「內容廣度・依動機分主題」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+- **換子題到「內容面」、不重做 onboarding 流程**：第20輪 onboarding 問了動機卻只導「模式」、內容仍是同一套通用題庫＝推薦名不副實。本輪把推薦的**內容面補實**（小組長 16:25 🔴pin、第20輪 backlog #1+#2）。動力持續三大項(streak freeze 第18／成就牆+音效 第19／動機 onboarding 第20)已補齊、口說核心連十輪(第8–17)飽和，皆不重做。
+
+**北極星研究（必做）**
+- WebSearch「Duolingo/Babbel personalized content by learning goal travel/business lower friction relevance」。借鏡 Babbel：①依**學習目標**給最實用的內容——travel 一進門就教「I'd like a coffee」「Where's the nearest train station」這類**馬上用得到**的句子；②**可跳著學、聚焦個人需求**，把「幾個月練習真的累積成能在真實情境開口」當賣點；③Duolingo 重習慣、Babbel 重「對你的目標有用」。落地點子：①把句庫標上動機主題標籤、依使用者動機在首頁優先推對應主題句；②每句一鍵直接開口練（少一層選擇）；③沒選動機就不出（零摩擦不打擾）。
+- 來源：babbel.com/compare-best-language-learning-apps、babbel.com/best-language-learning-apps-for-digital-nomads、polychatapp.com/blog/duolingo-vs-babbel。
+
+**本輪進化：目標精選句（依學習動機推對應主題內容，讓「為你推薦」名副其實＝更容易學）**
+- 改動檔：`assets/js/data.js`（SENTENCES 每句加 `topic`(travel/work/exam/daily)＋**append 4 句**補齊各主題 ≥3，append-only 不動既有索引/錯題 key）、`assets/js/modes.js`（renderHome：動機已設→依 `getLearnMotive` 篩出對應主題句最多 3 句，出「為『XX』精選句」卡；點一句→寫 `shadowIdx` 直接進跟讀糾音練該句）、`assets/css/style.css`（`.goal-card/.goal-item/.gi-*`）。純加法、低風險、可回退、舊資料相容。
+- **依動機推主題內容**：首頁「📌 為『旅遊出國/工作職場/準備考試/日常開口』精選句」卡，列出**跟你目標最相關**的句子（旅遊→點咖啡/問路/機場、工作→開會/報告/排程、考試→閱讀測驗/選填、日常→寒暄/問句），每句附「🎤 開口練」。借鏡 Babbel「依目標先學最用得到的句子」。
+- **一鍵直接練**：點精選句 → `localStorage.shadowIdx` 設成該句索引 + `navigate("shadowing")`，直接在跟讀糾音練那一句（少一層「先進模式再翻句」的摩擦）。**只寫 shadowIdx、不動任何錯題/索引語意**。
+- **零摩擦不強迫＋絕不破壞既有**：沒選動機 → 不出卡（首頁 5 模式照常）；topic 主題標籤是純加法欄位，第20輪推薦緞帶、第6–19輪所有功能全維持不動。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、**dynamic import 既載入 app.js/data.js 真實模組** + 真實 renderHome 渲染）端到端 **20/20 PASS、0 console error**（`tools/verify_goal_pack.mjs`）：各主題句 ≥3(travel6/work8/exam4/daily10)／動機=旅遊出精選句卡(標題「為「旅遊出國」精選句」+✈️+3句+每句開口練鈕)+卡內每句 topic 都=travel／點第一句→shadowIdx=2+導向#shadowing+跟讀頁實際顯示「I would like a cup of coffee, please.」／動機=工作→卡切「為「工作職場」精選句」+💼+卡內每句 topic=work（內容隨動機改變）／未選動機→無精選句卡+5模式照常無回歸／回歸第20輪推薦緞帶仍在(旅遊→情境對話排最前)。
+- regression 全綠、確認無回歸：動機 onboarding `verify_motive_onboarding.mjs` **30/30**、成就牆 `verify_achievements.mjs` **21/21**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 9/9 PASS、0 console error**（`tools/verify_goal_pack_live.mjs`）：線上旅遊精選句卡/每句 topic=travel/點句→#shadowing+shadowIdx+顯示該句/未選動機無卡無回歸全正常。線上 curl 實證 modes.js(`goal-card`/`getLearnMotive`)、data.js(`topic:`/`airport`)、style.css(`.goal-item`) 皆在。
+- git 3704bad push main + wrangler deploy 主(english-tutor-ai 16d7ef88)+legacy(english-tutor-e1l 1bd0aee8)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※動力持續三大項(第18–20)＋本輪內容依動機分主題(第21)已補；可續做內容廣度或非口說低門檻 UX，避免空轉。
+1. 內容深化（延續本輪）：依動機也篩**對話/單字**（目前只篩句子）、對話分支選項與難度分級、各主題再擴句量。
+2. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
+3. 成就牆深化：解鎖那一刻在牆上高亮新解鎖項、冷門驚喜成就（夜貓子/週末練習）。
+4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
+5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+
+[小組長督導待補]
+
+---
+
 [小組長 16:25] 督導：兩站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.10s)。第20輪「學習動機 onboarding → 推薦起始模式」確實上線實證(線上 curl app.js 含 LEARN_MOTIVES/getRecommendedMode/setLearnMotive、modes.js 含 mc-rec、style.css 含 onb-motive，第18/19輪 freezesToNext/showAchievementWall 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「①動機 onboarding」、做了北極星研究(Duolingo/Babbel 問動機個人化降摩擦)、30本機+10線上真機 0 console error、regression 全綠(成就牆21/連續保護19)、舊資料相容。至此**動力持續/低門檻層三大項全數補齊**(streak freeze 第18+成就牆/音效 第19+動機 onboarding 第20)、口說核心連十輪(第8–17)飽和，二十輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(16:25:28)極新鮮=第21輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第19輪、🔴pin 仍把「①學習動機 onboarding」標為「動力持續層唯一尚未碰的大項」(=第20輪已正中做完)，會誘導第21/22輪以同理由重做。已①把第20輪動機 onboarding 補進✅已完成清單；②🔴pin 移除已完成的動機 onboarding、收斂為真正未碰且最該補的「內容廣度・依學習動機分主題」——第20輪推薦目前只導模式、內容仍是同一套通用題庫，使用者選旅遊/工作/考試卻看不到對應主題內容＝推薦名不副實，本輪把這塊補實(內容標主題標籤+依 learnMotive 篩選排前+對話分支/難度分級)，明標「本輪是把第20輪推薦的內容面補實、非重做 onboarding 流程」、動力持續三大項已補齊勿再加同層機制、第8–17口說全列勿重做。僅校正已完成狀態(嚴格正確、第21輪已讀過不受影響、保護第22輪不重做)，非 race。靜默不擾人。
