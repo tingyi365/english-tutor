@@ -1102,6 +1102,9 @@ export function renderFlashcard(view) {
 // ====================================================
 export function renderGrammar(view) {
   let i = 0, answered = false;
+  // 本回合計分：給「做完一輪」的完成感與分數總結，並引導下一步（複習錯題）＝降低「不知道學到哪/接下來幹嘛」的摩擦（容易學）。
+  let roundCorrect = 0, roundAnswered = 0;
+  const isLast = () => i >= GRAMMAR.length - 1;
   function draw() {
     const q = GRAMMAR[i];
     answered = false;
@@ -1121,7 +1124,7 @@ export function renderGrammar(view) {
           <div id="gramResult"></div>
         </div>
         <div class="btn-row mt">
-          <button class="btn btn-primary btn-block" id="nextBtn">下一題 →</button>
+          <button class="btn btn-primary btn-block" id="nextBtn">${isLast() ? "完成本回合 →" : "下一題 →"}</button>
         </div>
       </div>
     `));
@@ -1131,7 +1134,7 @@ export function renderGrammar(view) {
       b.onclick = () => choose(oi, b);
       opts.append(b);
     });
-    $("#nextBtn", view).onclick = () => { i = (i + 1) % GRAMMAR.length; draw(); };
+    $("#nextBtn", view).onclick = () => { if (isLast()) drawSummary(); else { i += 1; draw(); } };
   }
   function choose(oi, btn) {
     if (answered) return;
@@ -1144,11 +1147,44 @@ export function renderGrammar(view) {
       else if (bi === oi) b.classList.add("wrong");
     });
     const ok = oi === q.answer;
+    roundAnswered += 1;
+    if (ok) roundCorrect += 1;
     $("#blank", view).textContent = q.options[q.answer];
     speak(q.prompt.replace("___", q.options[q.answer]));
     addStat({ practiced: 1, best: ok ? 100 : 0 });
     if (!ok) addMistake({ key: `g${i}`, type: "grammar", qIndex: i });
     $("#gramResult", view).innerHTML = `<div class="explain mt"><b>${ok ? "✅ 答對了！" : "❌ 再想想"}</b>　${esc(q.explain)}${ok ? "" : `<div class="muted mt" style="font-size:13px">📒 已加入錯題本，稍後可在首頁「複習錯題」再練。</div>`}</div>`;
+  }
+  // 一輪做完的總結：分數 + 鼓勵 + 下一步（有錯題就引導去複習＝告訴使用者「接下來學什麼」）。
+  function drawSummary() {
+    const total = GRAMMAR.length;
+    const pct = roundAnswered ? Math.round((roundCorrect / roundAnswered) * 100) : 0;
+    const mistakeCount = getMistakeCount();
+    const praise = roundAnswered === 0
+      ? "這一輪都跳過了，下次挑幾題作答看看吧！"
+      : pct >= 90 ? "太強了，文法掌握得很穩！🎉"
+      : pct >= 60 ? "不錯的進度，把錯的幾題複習一下就更穩了 💪"
+      : "沒關係，錯的都進錯題本了，複習幾次就會了 🌱";
+    view.innerHTML = "";
+    view.append(el(`
+      <div>
+        <div class="lesson-head"><div class="ttl">📝 文法填空</div><span class="pill pill-lv">本回合完成</span></div>
+        <div class="card center">
+          <div style="font-size:40px">${pct >= 90 ? "🏆" : pct >= 60 ? "🎉" : "📘"}</div>
+          <b style="font-size:22px">答對 ${roundCorrect} / ${total} 題</b>
+          <p class="translation">${roundAnswered < total ? `作答 ${roundAnswered} 題・` : ""}正確率 ${pct}%</p>
+          <p class="translation">${praise}</p>
+          <div class="btn-row mt" style="flex-direction:column;gap:8px">
+            ${mistakeCount > 0 ? `<button class="btn btn-primary btn-block" id="gReview">📒 複習錯題 ${mistakeCount} 題</button>` : ""}
+            <button class="btn ${mistakeCount > 0 ? "btn-ghost" : "btn-primary"} btn-block" id="gAgain">🔁 再來一輪</button>
+            <button class="btn btn-ghost btn-block" id="gHome">回首頁</button>
+          </div>
+        </div>
+      </div>`));
+    const r = $("#gReview", view);
+    if (r) r.onclick = () => navigate("review");
+    $("#gAgain", view).onclick = () => { i = 0; roundCorrect = 0; roundAnswered = 0; draw(); };
+    $("#gHome", view).onclick = () => navigate("home");
   }
   draw();
 }
