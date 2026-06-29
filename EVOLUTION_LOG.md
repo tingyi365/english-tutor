@@ -572,3 +572,36 @@
 [小組長 14:54] 督導：兩站皆健康（english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 4263 一致），第17輪「句尾語調 intonation 升降調」確實上線實證（scoring.js `sentenceIntonation`、modes.js `toggleIntonation`×2 線上 curl 在、JS 全 200），正中我 14:02 ⭐pin 選項 A（口說唯一未碰的 melody 新缺口）、做了北極星研究（升降調教學共識+ELSA pitch contour）、12單測+19本機+19線上真機 0 console error、regression 全綠，本命扎實。稽核時 lock(14:53:24)極新鮮=第18輪正在跑、log 未產出。→ 導正（又見「殘留 pin 誘導重做＝空轉」風險）：evolve_instruction ✅清單只到第16輪、⭐pin 仍把「(A)語調 intonation」標為「口說唯一尚未碰新缺口＝可做」（=第17輪已正中做完），會誘導後續輪以同理由重做。已①把第17輪句尾語調補進已完成清單；②⭐pin 由「二選一(A語調/B動力)」改為**唯一硬性鎖定 (B) 動力持續/低門檻（streak 凍結保護/動機 onboarding/成就牆，借鏡 Duolingo-Babbel）**，並明標「語調已第17輪做完、勿再以口說唯一缺口為由重做」、第8–17輪全列勿重做。理由：口說核心連十輪(第8–17)飽和、北極星「容易學」明列的動力持續/借鏡付費軟體連十七輪幾乎沒碰＝當前最該補的北極星廣度缺口。僅校正已完成狀態(嚴格正確、第18輪已讀過不受影響、保護第19輪不重做)，非 race。靜默不擾人。
 
 [小組長 15:24] 督導：兩站皆健康(english-tutor-ai HTTP 200/0.11s、legacy e1l 200/0.11s)、五大資產(app/modes/scoring/data.js+style.css)皆 200。第18輪「連續保護 streak freeze」確實上線實證(線上 app.js curl 含 freezesToNext/FREEZE_EARN_EVERY/isDayBeforeYesterday)，正中我 14:54 ⭐pin 選項 B「動力持續/低門檻」backlog #1，做了北極星研究(Duolingo streak freeze 降 churn 21%/留存 2.4×)、19本機+10線上真機 0 console error、regression 全綠(intonation19/metronome15/shadowing12)、舊資料相容，成功從連十輪飽和的口說核心換子題回北極星廣度、無空轉無偏離。稽核時 lock(15:24:27)極新鮮=第19輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險)：evolve_instruction ✅清單只到第17輪、🔴pin 仍把「①streak 凍結保護」列為可選項(=第18輪已正中做完)，會誘導第19/20輪重做。已①把第18輪連續保護補進✅已完成清單；②🔴pin 移除已完成的①streak freeze、收斂為真正未碰的二選一「①學習動機 onboarding ②成就牆」，並在「勿重做」清單明標 streak freeze=第18輪已做、勿再以「動力持續起步」為由重做。僅校正已完成狀態(嚴格正確、第19輪已讀過不受影響、保護第20輪不重做)，非 race。靜默不擾人。
+
+---
+
+### 第 19 輪 — 2026-06-29（動力持續層：成就牆 + 達標輕量音效｜正中小組長 15:24 🔴pin 二選一之「②成就牆」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+- **延續第 18 輪換子題、留在動力持續層**：依小組長 15:24 🔴pin 收斂後的二選一（①動機 onboarding ②成就牆），本輪做 ②成就牆（第 18 輪 backlog #1）。口說核心已連十輪(第8–17)飽和、streak freeze 第18輪已做，不重做。
+
+**北極星研究（必做）**
+- WebSearch「Duolingo achievements page collection wall locked unlocked badges motivation gamification」。借鏡 Duolingo 成就系統：①成就像「獎盃陳列在架上」**全部收集在一處**——簡單徽章給新手(加好友)、稀有徽章給堅持者(年度連續)，外加驚喜成就；②**多層級成就**貫穿學習旅程，**即使進度看起來慢也能不斷有小成就感**維持動力；③導入徽章系統後實測**內購 +13%、加好友 +116%**＝收集慾驅動力強。落地 3 點子：①把所有成就攤在「一面牆」、**已解鎖看得到、未解鎖也看得到『再差多少』**(進度條)＝收集慾+看得見下一個目標；②達標/解鎖那一刻補上**輕量音效**強化即時正向回饋(借鏡 Hooked 可變獎勵)，但**尊重靜音**可關；③成就由現有學習數據自動衍生、零額外負擔。
+- 來源：blog.duolingo.com/achievement-badges、trophy.so/blog/duolingo-gamification-case-study、strivecloud.io/play/duolingo、nudgenow.com/blogs/duolingo-gamification-strategy。
+
+**本輪進化：成就牆 + 達標輕量音效（動力持續層，補「看得到所有成就/收集慾」這一摩擦點＝更容易持續學）**
+- 改動檔：`assets/js/app.js`（新增 `getAchievements`/`showAchievementWall` 成就牆、`isSoundOn`/`setSoundOn`/`playChime` 音效，並在 `showCelebration` 觸發 playChime）、`assets/js/modes.js`（首頁徽章列加 `id/role/tabindex` 可點 + 「🏅 成就牆 →」chip + 開牆事件）、`index.html`（設定面板加「🔊 達標音效」勾選 + 「🏅 成就牆」鈕）、`assets/css/style.css`（`.aw-*` 成就牆 overlay + `.sbadge-more` chip + `.field-row` 勾選列）。純加法、低風險、可回退。
+- **成就牆（看得到所有成就）**：全部成就攤在一面牆，分 4 組共 16 項——**連續天數**(3🔥/7⭐/14💎/30👑/60🏆/100💯)、**練習次數**(10/50/100/300 🎯)、**單字探索**(20/50/150 📚)、**高分挑戰**(70/85/100 🌟)。已解鎖＝彩色「✓ 已解鎖」；**未解鎖＝灰階圖示＋進度條＋`cur/target`**(看得見再差多少→收集慾+下一個目標)。標題顯示「已解鎖 N / 16」。
+- **零額外狀態**：成就全由**既有 localStorage**(`stats.practiced/words/best` + `streakBadges` + `streak.best`)衍生，不另記資料、不影響任何現有邏輯；進度用 `streak.best`(斷連不歸零)→進度不倒退。
+- **兩個入口**：首頁徽章列整列可點(滑鼠/鍵盤 Enter/Space)、設定面板「🏅 成就牆」鈕；overlay 沿用 onboarding 視覺、點遮罩/「完成」關閉並清乾淨。
+- **達標輕量音效（尊重靜音）**：達標/里程碑慶祝(`showCelebration`)時播一段短促上揚琶音(C5→E5→G5、WebAudio、~0.5s)，強化「達成那一刻」的即時回饋；**預設開、設定可關**(`soundOff` flag)，全程 best-effort——不支援 WebAudio／被瀏覽器擋就 try/catch 靜默，絕不影響任何功能。
+- 註：第 6–18 輪所有功能（逐詞高亮/drill/錄音對照/音節重音/句節奏/節拍器/波形/語調/連續保護）全維持不動；本輪只在動力持續層加「成就牆＋音效」。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、**dynamic import 既載入的 app.js 真實模組**、種 stats/streakBadges 真實渲染）端到端 **21/21 PASS、0 console error**（`tools/verify_achievements.mjs`）：getAchievements 總數16/已解鎖數正確(本資料=8)/分4組/未解鎖含進度pct→首頁「🏅 成就牆 →」chip→點徽章列開牆→標題「已解鎖 8/16」→已解鎖8+未解鎖8 cell→已解鎖「✓ 已解鎖」/未解鎖有進度條+cur/target→「完成」關閉清乾淨→設定鈕也能開→音效預設開/關→soundOff=1/勾選框反映狀態/取消勾選→關閉。
+- regression 全綠、確認無回歸：連續保護 `verify_streak_freeze.mjs` **19/19**、逐音 drill `verify_shadowing.mjs` **12/12**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 12/12 PASS、0 console error**（`tools/verify_achievements_live.mjs`）：線上成就牆渲染/兩入口/音效設定全正常。線上 curl 實證 app.js(`showAchievementWall`)、modes.js(`streakBadges`)、style.css(`aw-cell`)、index.html(`openWall`) 皆在；legacy alias `english-tutor-e1l` 同步部署(app.js 含 showAchievementWall)、仍 200。
+- git e33beb7 push main + wrangler deploy 主(english-tutor-ai 5be74be2)+legacy(english-tutor-e1l a86fe196)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※動力持續層已做 streak freeze(第18輪)+成就牆/音效(第19輪)；剩同層唯一未碰大項＝**學習動機 onboarding**(15:24 pin 的另一選項①)。
+1. **動機 onboarding（動力持續/低門檻，pin 唯一未做選項）**：onboarding 第 2 步問學習動機（旅遊/工作/考試）→ 依動機推薦起始模式 + 套用對應主題內容，降門檻、貼北極星廣度。
+2. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）——可與動機 onboarding 綁定。
+3. 成就牆深化：解鎖那一刻在牆上高亮新解鎖項、達標彩花同步；非里程碑的「冷門成就」(夜貓子/週末練習)增加收集驚喜。
+4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
+5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
