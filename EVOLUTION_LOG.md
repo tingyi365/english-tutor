@@ -605,3 +605,39 @@
 3. 成就牆深化：解鎖那一刻在牆上高亮新解鎖項、達標彩花同步；非里程碑的「冷門成就」(夜貓子/週末練習)增加收集驚喜。
 4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
 5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+
+[小組長 15:54] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 一致 3981、0.17/0.3s)；第19輪「成就牆+達標輕量音效」確實上線實證(線上 app.js curl 含 showAchievementWall+playChime，第18輪 freezesToNext 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「②成就牆」、做了北極星研究(Duolingo 成就系統+13%內購/+116%加好友、收集慾)、21本機+12線上真機 0 console error、regression 全綠、成就全由既有 localStorage 衍生零額外狀態，續留動力持續層、無空轉無偏離。稽核時 lock(15:54:22)極新鮮=第20輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第18輪、🔴pin 仍把「②成就牆」列為可選項(=第19輪已正中做完)，會誘導第20/21輪重做。已①把第19輪成就牆+音效補進✅已完成清單；②🔴pin 移除已完成的②成就牆、收斂為動力持續層唯一尚未碰的大項「學習動機 onboarding(第2步問動機→推薦起始模式+套主題)」，並在「勿重做」清單明標成就牆+音效=第19輪已做、勿再以「動力持續/收集慾」為由重做。僅校正已完成狀態(嚴格正確、第20輪已讀過不受影響、保護第21輪不重做)，非 race。靜默不擾人。
+
+[小組長督導待補]
+
+---
+
+### 第 20 輪 — 2026-06-29（動力持續層：學習動機 onboarding → 推薦起始模式｜小組長 15:24 🔴pin 二選一之「①動機 onboarding」，唯一未做選項）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+- **留在動力持續層、做唯一未碰大項**：依小組長 15:24 🔴pin 收斂後二選一（①動機 onboarding ②成就牆），②成就牆已第 19 輪做完，本輪做①。口說核心連十輪(第8–17)飽和、streak freeze(第18)/成就牆(第19)已做，皆不重做。
+
+**北極星研究（必做）**
+- WebSearch「Duolingo / Babbel onboarding ask learning motivation goal recommend course beginner UX」。借鏡 Duolingo onboarding：①只問**最少的關鍵問題**（語言、動機、程度），把次要資料延後，降低初始摩擦；②**問一個「為什麼學」**（Travel / Career / Brain Training）→ 據此個人化後續推薦與 nudge，給使用者一個明確目標＝提升動機與留存；③問完立刻送進核心體驗，不要一次問太多。落地 3 點子：①onboarding 第 2 步後加「為什麼學英文」單一低摩擦問題（旅遊/工作/考試/日常）②據動機推薦最適合的**起始模式**並可一鍵直接開始（少一個選擇障礙）③不選也能照常開始（零摩擦、不強迫）。
+- 來源：goodux.appcues.com/blog/duolingo-user-onboarding、userguiding.com/blog/duolingo-onboarding-ux、junoschool.org/article/duolingo-onboarding-experience。
+
+**本輪進化：學習動機 onboarding → 推薦起始模式（動力持續/低門檻層，補「從哪開始」的選擇障礙＝更容易上手）**
+- 改動檔：`assets/js/app.js`（新增 `LEARN_MOTIVES` 動機→模式對應表 + `getLearnMotive/setLearnMotive/getRecommendedMode`；onboarding 由 3 步擴為 4 步，新增「動機」步＋動態「推薦」步、`finish(route)` 可直接導向推薦模式、reset 清 `learnMotive`）、`assets/js/modes.js`（renderHome 依 `getRecommendedMode` 給對應模式卡掛「👍 為你推薦」緞帶並排到最前）、`index`（無）、`assets/css/style.css`（`.onb-motives/.onb-motive/.om-ico/.onb-recgo/.onb-recfoot` 動機選項與推薦 CTA、`.mode-card.mc-rec/.mc-rec-tag` 首頁推薦緞帶）。純加法、低風險、可回退、舊資料相容（無 learnMotive 視為未選）。
+- **問動機（低摩擦單一問題）**：onboarding 第 3 步「你為什麼想學英文？」4 選項：✈️旅遊出國／💼工作職場／📖準備考試／🗣️日常開口；再點一次可取消（不強迫）。
+- **據動機推薦起始模式**：第 4 步動態顯示「為你推薦：X」＋白話理由＋「👉 直接開始『X』」一鍵進該模式。對應：旅遊→💬情境對話、工作→🎤跟讀糾音、考試→📝文法填空、日常→🎤跟讀糾音（皆貼「最直接有用」原則降低學習門檻）。
+- **首頁持續推薦**：選過動機後，首頁對應模式卡掛「👍 為你推薦」緞帶＋高亮邊框並排到最前，讓每次回來都少猶豫「從哪開始」。
+- **零摩擦不強迫＋絕不破壞既有**：不選動機 → 推薦步退回原本通用模式清單、「開始學習」照常回首頁、首頁無緞帶；第 6–19 輪所有功能（口說全系列/連續保護/成就牆/音效）全維持不動。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、**dynamic import 既載入 app.js 真實模組** + 真實 onboarding/renderHome 渲染）端到端 **30/30 PASS、0 console error**（`tools/verify_motive_onboarding.mjs`）：新手出 onboarding→4 步→動機步 4 選項→選旅遊高亮→推薦『情境對話』+直接開始鈕→點直接開始 onboarding 清乾淨+learnMotive=travel+onboarded=1+導向 #conversation→首頁緞帶『👍 為你推薦』在情境對話且排最前+僅 1 張；路徑 B 不選動機→退回通用清單+無直接開始鈕+開始學習回首頁+learnMotive 空+無緞帶；動機→模式對應表 4/4 正確。
+- regression 全綠、確認無回歸：成就牆 `verify_achievements.mjs` **21/21**、連續保護 `verify_streak_freeze.mjs` **19/19**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 10/10 PASS、0 console error**（`tools/verify_motive_onboarding_live.mjs`）：線上新手 onboarding 4 步→動機選工作→推薦跟讀糾音+直接開始→導向 #shadowing+learnMotive=work→首頁推薦緞帶=跟讀糾音排最前。線上 curl 實證 app.js(LEARN_MOTIVES/getRecommendedMode/setLearnMotive ×7)、modes.js(mc-rec/getRecommendedMode ×3)、style.css(onb-motive/mc-rec-tag ×7) 皆在。
+- git bc41e4e push main + wrangler deploy 主(english-tutor-ai 8b894cbe)+legacy(english-tutor-e1l edb9177c)皆成功、兩站 HTTP 200（legacy app.js 亦含 LEARN_MOTIVES）。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※動力持續/低門檻層三大項已補齊：streak freeze(第18)+成就牆/音效(第19)+動機 onboarding(第20)；可往內容廣度或非口說的低門檻 UX 走，避免在動力層空轉。
+1. 內容再擴充（貼動機）：依學習動機分主題內容（旅遊/商務/考試題庫分類）、對話分支選項（難度分級、初學者友善）——可與本輪動機綁定，讓推薦更名副其實。
+2. 動機 onboarding 深化：依動機自動套用對應主題內容（非只推薦模式）、設定面板可單獨重選動機（目前靠「重看新手導覽」整套重來）。
+3. 成就牆深化：解鎖那一刻在牆上高亮新解鎖項、冷門驚喜成就（夜貓子/週末練習）。
+4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
+5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
