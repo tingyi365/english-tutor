@@ -1114,7 +1114,7 @@ export function renderFlashcard(view) {
         <div class="rate-hint">先翻卡看答案，再誠實點選 — 不熟的會優先排到前面多複習</div>
         <div class="btn-row mt">
           <button class="btn btn-ghost" id="prevBtn">← 上一張</button>
-          <button class="btn btn-ghost" id="nextBtn">略過 →</button>
+          <button class="btn btn-ghost" id="nextBtn">${isLast() ? "完成這一輪 →" : "略過 →"}</button>
         </div>
       </div>
     `));
@@ -1128,8 +1128,37 @@ export function renderFlashcard(view) {
     $("#nextBtn", view).onclick = () => { advance(); };
     setTimeout(() => speak(v.word), 200);
   }
-  function advance() { pos = (pos + 1) % len; draw(); }
+  function isLast() { return pos >= len - 1; }
+  function advance() { if (isLast()) drawSummary(); else { pos += 1; draw(); } }
   function bumpWords() { addStat({ words: 1 }); }
+  // 走完一圈的小結：用 Leitner 盒況給「已熟/複習中/新字」看得見的進度（Anki 式 tangible progress）＝
+  // 補「走完一圈靜默 wrap、不知道做完沒、進度看不見」的真實摩擦（第30輪真機稽核證實）。
+  // 單字卡屬 SRS 連續複習，故不硬停、改在每圈給里程碑小結＋「再複習一輪」續練＝容易學。
+  function drawSummary() {
+    const known = VOCAB.filter((v) => getVocabBox(v.word) >= MAX_BOX).length;
+    const learning = VOCAB.filter((v) => { const b = getVocabBox(v.word); return b >= 1 && b < MAX_BOX; }).length;
+    const fresh = VOCAB.filter((v) => getVocabBox(v.word) === 0).length;
+    const praise = known === len ? "全部都熟了，太厲害！🏆"
+      : known / len >= 0.5 ? "熟悉的字越來越多了，繼續保持 💪"
+      : "持續複習，不熟的字會慢慢變熟 🌱";
+    view.innerHTML = "";
+    view.append(el(`
+      <div>
+        <div class="lesson-head"><div class="ttl">🃏 單字卡</div><span class="pill pill-lv">本回合完成</span></div>
+        <div class="card center">
+          <div style="font-size:40px">${known === len ? "🏆" : known / len >= 0.5 ? "🎉" : "📘"}</div>
+          <b style="font-size:22px">走完一圈 ${len} 張單字</b>
+          <p class="translation">🟢 已熟 ${known}　🟡 複習中 ${learning}　🆕 新字 ${fresh}</p>
+          <p class="translation">${praise}</p>
+          <div class="btn-row mt" style="flex-direction:column;gap:8px">
+            <button class="btn btn-primary btn-block" id="fAgain">🔁 再複習一輪</button>
+            <button class="btn btn-ghost btn-block" id="fHome">回首頁</button>
+          </div>
+        </div>
+      </div>`));
+    $("#fAgain", view).onclick = () => { pos = 0; draw(); };
+    $("#fHome", view).onclick = () => navigate("home");
+  }
   draw();
 }
 
