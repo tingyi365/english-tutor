@@ -379,6 +379,26 @@ body {
 .compare-row .btn { flex: 1; padding: 12px; font-size: 15px; font-weight: 700; }
 .compare-row .cmp-mine { border-color: rgba(56,189,248,.5); }
 
+/* ---- 我的聲音波形 + 速度對照（容易學：把「快慢／節奏」變成看得見的長短條與聲波圖） ---- */
+.wave-wrap { margin-top: 12px; }
+.wave-label { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; line-height: 1.5; }
+.wave-label b { color: #7dd3fc; }
+.wave-cv { width: 100%; height: 54px; display: block; background: rgba(56,189,248,.06); border-radius: 8px; }
+.pace { margin-top: 12px; }
+.pace-hint { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.pace-hint b { color: var(--text); }
+.pace-bars { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.pace-row { display: flex; align-items: center; gap: 8px; }
+.pace-tag { width: 34px; font-size: 12px; color: var(--muted); flex: none; }
+.pace-bar { flex: 1; height: 14px; background: rgba(255,255,255,.08); border-radius: 7px; overflow: hidden; }
+.pace-bar > i { display: block; height: 100%; background: #64748b; border-radius: 7px; transition: width .4s; }
+.pace-bar.pace-mine > i { background: #38bdf8; }
+.pace-sec { width: 38px; text-align: right; font-size: 12px; color: var(--text); flex: none; }
+.pace-verdict { font-size: 13.5px; line-height: 1.55; padding: 8px 10px; border-radius: 8px; }
+.pace-verdict b { font-weight: 800; }
+.pace-ok { background: rgba(34,197,94,.12); color: #86efac; }
+.pace-slow, .pace-fast { background: rgba(250,204,21,.12); color: #fcd34d; }
+
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }
 
 /* ---- PWA 安裝邀請橫幅（容易學：邀請加到主畫面，回來只要一鍵） ---- */

@@ -131,7 +131,53 @@ export function renderShadowing(view) {
     }).catch(() => null);
   }
 
-  // 停掉錄音、把錄到的音檔轉成可回放的 URL；回傳該 URL（無錄音則 null）
+  // 把錄到的音檔解碼成「時長 + 波形包絡」，讓學生看得到自己的節奏、比得出快慢（借鏡 Oxford「Say It」聲波圖）。
+  // 全程 best-effort：不支援/解碼失敗 → 回 {dur:null, peaks:null}，照舊只回放、不出波形/速度卡。
+  function envelope(buf, n = 48) {
+    try {
+      const data = buf.getChannelData(0);
+      const block = Math.floor(data.length / n) || 1;
+      const peaks = []; let max = 0;
+      for (let i = 0; i < n; i++) {
+        let sum = 0; const start = i * block;
+        for (let j = 0; j < block; j++) { const v = data[start + j] || 0; sum += v * v; }
+        const rms = Math.sqrt(sum / block);
+        peaks.push(rms); if (rms > max) max = rms;
+      }
+      return max > 0 ? peaks.map((p) => p / max) : peaks;
+    } catch (_) { return null; }
+  }
+  function decodeRecording(blob) {
+    return new Promise((resolve) => {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC || !blob.arrayBuffer) { resolve({ dur: null, peaks: null }); return; }
+        blob.arrayBuffer().then((ab) => {
+          const ctx = new AC();
+          const done = (out) => { try { ctx.close(); } catch (_) {} resolve(out); };
+          ctx.decodeAudioData(
+            ab.slice(0),
+            (b) => done({ dur: b.duration, peaks: envelope(b) }),
+            () => done({ dur: null, peaks: null })
+          );
+        }).catch(() => resolve({ dur: null, peaks: null }));
+      } catch (_) { resolve({ dur: null, peaks: null }); }
+    });
+  }
+  function drawWave(canvas, peaks) {
+    try {
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height, n = peaks.length, bw = W / n;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#38bdf8";
+      peaks.forEach((p, i) => {
+        const h = Math.max(2, p * (H - 4));
+        ctx.fillRect(i * bw + bw * 0.15, (H - h) / 2, bw * 0.7, h);
+      });
+    } catch (_) {}
+  }
+
+  // 停掉錄音、轉成可回放 URL，並解碼出時長/波形；回傳 {url, dur, peaks}（無錄音則 null）
   function finishRecording() {
     if (!recHandle) return Promise.resolve(null);
     const h = recHandle; recHandle = null;
@@ -139,7 +185,7 @@ export function renderShadowing(view) {
       if (!blob) return null;
       if (recordedUrl) URL.revokeObjectURL(recordedUrl);
       recordedUrl = URL.createObjectURL(blob);
-      return recordedUrl;
+      return decodeRecording(blob).then((info) => ({ url: recordedUrl, dur: info.dur, peaks: info.peaks }));
     }).catch(() => null);
   }
 
@@ -226,7 +272,7 @@ export function renderShadowing(view) {
   }
   function readAlong(text, rate) {
     const box = $("#sentence", view);
-    if (!box) { speak(text, { rate }); return; }
+    if (!box) { return speak(text, { rate }); }
     const spans = [...box.querySelectorAll(".w")];
     const offs = wordOffsets(text);
     let cur = -1;
@@ -239,7 +285,7 @@ export function renderShadowing(view) {
       if (cur >= 0 && spans[cur]) spans[cur].classList.remove("w-now");
       cur = wi; if (spans[wi]) spans[wi].classList.add("w-now");
     };
-    speak(text, { rate, onWord }).then(clear);
+    return speak(text, { rate, onWord }).then(clear);
   }
 
   // 句子節奏 / 句重音導覽（借鏡 ELSA Sentence Stress）：把該重讀的實詞放大、該弱化的虛詞縮灰，
@@ -348,10 +394,10 @@ export function renderShadowing(view) {
       },
       onEnd: (finalText, conf) => {
         listening = false; micBtn.textContent = "🎙️ 開口跟讀";
-        finishRecording().then((myUrl) => {
+        finishRecording().then((my) => {
           if (!finalText) { heard.innerHTML = `<span style="color:#fcd34d">沒聽清楚，再試一次 🙂</span>`; return; }
           heard.innerHTML = `你說：<b>${esc(finalText)}</b>`;
-          evaluate(finalText, conf, myUrl);
+          evaluate(finalText, conf, my);
         });
       },
     });
@@ -361,8 +407,9 @@ export function renderShadowing(view) {
     startRecording().then((h) => { recHandle = h; }).catch(() => {});
   }
 
-  function evaluate(heardText, conf, myUrl) {
+  function evaluate(heardText, conf, my) {
     const s = SENTENCES[idx];
+    const myUrl = my && my.url;
     const result = alignAndScore(s.en, heardText, getStrictness());
     renderSentence(s.en, result.tStatus);
     const score = finalScore(result.accuracy, conf);
@@ -403,6 +450,13 @@ export function renderShadowing(view) {
             <button class="btn btn-ghost cmp-model">🔊 老師示範</button>
             <button class="btn btn-ghost cmp-mine">🎧 我的錄音</button>
           </div>
+          ${my.peaks ? `<div class="wave-wrap">
+            <div class="wave-label">🎙️ 你的聲音波形（<b>高</b>＝唸得重、大聲；<b>低／平</b>＝輕或停頓）</div>
+            <canvas class="wave-cv" width="320" height="54"></canvas>
+          </div>` : ""}
+          ${my.dur ? `<div class="pace" id="pace">
+            <div class="pace-hint">⏱️ 你這次唸了 <b>${my.dur.toFixed(1)} 秒</b>。點上方「🔊 老師示範」，自動幫你比快慢。</div>
+          </div>` : ""}
         </div>`);
       const playMine = () => {
         stopSpeaking();
@@ -410,7 +464,33 @@ export function renderShadowing(view) {
         myAudio = new Audio(myUrl);
         myAudio.play().catch(() => {});
       };
-      $(".cmp-model", cmpCard).onclick = () => { if (myAudio) { try { myAudio.pause(); } catch (_) {} } readAlong(s.en); };
+      // 我的聲音波形：把錄音畫成聲波圖，讓初學者「看得到」自己的重音落點與停頓（借鏡 Oxford Say It）。
+      if (my.peaks) { const cv = $(".wave-cv", cmpCard); if (cv) drawWave(cv, my.peaks); }
+      // 速度對照：量測老師示範的真實播放時長，與我的錄音並列成長短條，直觀看出唸太快/太慢/剛好。
+      let refDur = 0;
+      const now = () => (window.performance && performance.now) ? performance.now() : Date.now();
+      const renderPace = () => {
+        const box = $("#pace", cmpCard);
+        if (!box || !my.dur || !refDur) return;
+        const mx = Math.max(my.dur, refDur);
+        const ratio = my.dur / refDur;
+        let verdict, vcls;
+        if (ratio > 1.25) { verdict = "你唸得比示範<b>慢</b> — 試著稍微加快、把字連起來，整句會更自然流暢。"; vcls = "pace-slow"; }
+        else if (ratio < 0.8) { verdict = "你唸得比示範<b>快</b> — 放慢一點點，把重音字唸足，聽起來更清楚。"; vcls = "pace-fast"; }
+        else { verdict = "速度跟示範<b>差不多</b>，節奏抓得很好！👍"; vcls = "pace-ok"; }
+        box.innerHTML = `
+          <div class="pace-bars">
+            <div class="pace-row"><span class="pace-tag">老師</span><span class="pace-bar"><i style="width:${(refDur / mx * 100).toFixed(0)}%"></i></span><span class="pace-sec">${refDur.toFixed(1)}s</span></div>
+            <div class="pace-row"><span class="pace-tag">你</span><span class="pace-bar pace-mine"><i style="width:${(my.dur / mx * 100).toFixed(0)}%"></i></span><span class="pace-sec">${my.dur.toFixed(1)}s</span></div>
+          </div>
+          <div class="pace-verdict ${vcls}">${verdict}</div>`;
+      };
+      $(".cmp-model", cmpCard).onclick = () => {
+        if (myAudio) { try { myAudio.pause(); } catch (_) {} }
+        const t0 = now();
+        const p = readAlong(s.en);
+        if (p && p.then) p.then(() => { const d = (now() - t0) / 1000; if (d > 0.3 && my.dur) { refDur = d; renderPace(); } });
+      };
       $(".cmp-mine", cmpCard).onclick = playMine;
       resBox.append(cmpCard);
     }
