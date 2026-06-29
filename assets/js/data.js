@@ -34,6 +34,9 @@ export const SENTENCES = [
   { lv: "中級", en: "Let's schedule a meeting to discuss the project.", zh: "我們來約個時間討論這個專案。", ipa: "/lɛts ˈskɛdʒuːl ə ˈmiːtɪŋ tə dɪˈskʌs ðə ˈprɒdʒɛkt/", topic: "work" },
   { lv: "進階", en: "Which option best completes the meaning of the sentence?", zh: "哪個選項最能完成這個句子的意思？", ipa: "/wɪtʃ ˈɒpʃən bɛst kəmˈpliːts ðə ˈmiːnɪŋ əv ðə ˈsɛntəns/", topic: "exam" },
   { lv: "進階", en: "According to the passage, what is the author's main point?", zh: "根據這段文章，作者的主要論點是什麼？", ipa: "/əˈkɔːrdɪŋ tə ðə ˈpæsɪdʒ wɒt ɪz ðə ˈɔːθərz meɪn pɔɪnt/", topic: "exam" },
+  // —— 第 36 輪：補 exam 句 4→6（內容矩陣 exam 為跨模式最單薄動機；原 exam 句全為進階、補 2 句中級口說考常用句給較親和的 on-ramp；append-only，不動既有索引/錯題 key）——
+  { lv: "中級", en: "In my opinion, the main advantage is that it saves time.", zh: "我認為，主要的好處是它能節省時間。", ipa: "/ɪn maɪ əˈpɪnjən ðə meɪn ədˈvæntɪdʒ ɪz ðæt ɪt seɪvz taɪm/", topic: "exam" },
+  { lv: "中級", en: "Let me think about that for a moment before I answer.", zh: "讓我先想一下再回答。", ipa: "/lɛt miː θɪŋk əˈbaʊt ðæt fɔːr ə ˈmoʊmənt bɪˈfɔːr aɪ ˈænsər/", topic: "exam" },
 ];
 
 // 單字卡
