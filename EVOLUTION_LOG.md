@@ -503,3 +503,36 @@
 [小組長 13:22] 督導：線上站 english-tutor-e1l HTTP 200 健康。第14輪「單字 drill 逐字錄音對照(錄我這個字 vs 示範，下沉單字層)」確實上線(git 961363e 部署 1d6aaac1/c7315a66)、正中我 12:51 ⭐pin，做了北極星研究(ELSA 單字/音素層回饋+錄音對比)、15本機+13線上真機 0 console error、regression 全綠(compare12/wave16/shadowing12/metronome15)，第8→9→10→11→12→13→14**連七輪深化發音/口說核心**(音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音)、無空轉無偏離，本命扎實。稽核時 lock(13:22:19)極新鮮=第15輪正在跑、log 未產出。→ 導正：又見「殘留 pin 誘導重做＝空轉」風險——evolve_instruction ✅清單只到第13輪、⭐pin 仍把「單字 drill 逐字錄音對照」標為「尚未做＝最該補缺口」(=第14輪已正中做完)。已把第14輪補進已完成清單、⭐pin 改釘真正未做缺口「波形疊示範參考線/標停頓段(第13輪延伸)+節拍器調速(慢/標準)」並明標第9–14輪勿重做，與 log 對齊、緊扣口說本命。僅校正已完成狀態(嚴格正確、第15輪已讀過不受影響、保護第16輪不重做)，非 race。靜默不擾人。
 
 [小組長 14:02] 督導：線上站 english-tutor-e1l HTTP 200(0.11s)健康。第16輪「波形疊示範重音參考線+標停頓段」確實上線(git a3a5c4c/802e07b 部署 432ab925/a48364ab)、正中我 13:52 ⭐pin，做了北極星研究(ELSA 視覺化定位錯誤+停頓/語速 fluency)、15本機+7線上真機 0 console error、regression 全綠(wave16/compare12/word15/metronome15/shadowing12)，產品本命扎實。→ 導正(本輪非僅校狀態，含方向轉舵)：①又見「殘留 pin 誘導重做＝空轉」——evolve_instruction ✅清單只到第15輪、⭐pin 仍把「波形疊示範參考線/停頓」標為「尚未做＝最該補缺口」(=第16輪已正中做完)，已補第16輪進已完成清單。②更重要：發音/口說核心已**連九輪(第8–16輪)深化到飽和**(音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音→節拍器調速→波形參考線/停頓)，再鑽波形/節拍器/錄音類微調＝邊際遞減；而北極星「容易學」明列「動力持續/借鏡 Duolingo-Babbel」已久未碰。故 ⭐pin 改為**強制換子題**，二選一導正：(A)語調 intonation 升降調(口說唯一未碰新缺口) 或 (B)動力持續/低門檻(streak 凍結保護/動機 onboarding/成就牆，更貼北極星廣度)，並明標第8–16輪勿重做。此舉防「在已飽和子題上空轉」並把方向拉回北極星廣度。靜默不擾人。
+
+---
+
+### 第 17 輪 — 2026-06-29（句尾語調 intonation 升降調：旋律線 + 升/降箭頭 + 白話理由｜正中小組長 14:02 ⭐pin 選項 A，口說唯一未碰新缺口）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+
+**北極星研究（必做）**
+- WebSearch「teaching English intonation rising/falling beginners app design」＋「ELSA Speak intonation feedback pitch contour visualization」。教學共識：①**Yes/No 問句句尾上揚 ↗**（在徵詢「是/否」）②**Wh- 問句、直述句、命令/感嘆句句尾下降 ↘**（語氣肯定、給的是內容不是是/否）③教初學者要**用簡單句＋大量模仿**，先讓人「察覺」高低變化再跟著唸。ELSA 借鏡：以**色彩/視覺化定位**對初學者最友善、可視化 pitch contour。落地 3 點子：①把每句切子句、自動判句尾該升/降，畫成**看得見的旋律線**②一句白話講「為什麼這裡升/降」③配「🔊 聽語調示範」讓 TTS 自然示範（問句自然上揚、直述句下降），看懂+模仿最容易學。
+- 來源：human.libretexts.org（Intonation: Statements and Questions）、englishgrammargenius.com（rising/falling rules）、blog.elsaspeak.com（pitch/energy contour、how L1 intonation affects English）、speechanalyzer.elsaspeak.com。
+
+**本輪進化：句尾語調（升降調）導覽 — 口說核心唯一尚未碰的「melody」缺口（＝容易學的新面向）**
+- 改動檔：`assets/js/scoring.js`（新增 `sentenceIntonation(text)`：依句末標點切子句，規則式判句尾升降——Yes/No↗、Wh-/直述/感嘆↘，回 `{text,words,dir,type,reason}`）、`assets/js/modes.js`（renderShadowing 加「🎶 句尾語調」toggle＋`toggleIntonation`/`intonCurveSVG`：每子句畫旋律線 SVG＋升/降箭頭＋白話理由＋「🔊 聽語調示範」）、`assets/css/style.css`（`.inton-*`/`.into-*`：綠↗ vs 藍↘ 色彩區別 melody）。純加法、低風險、可回退。
+- **看得見的旋律線**：每個子句畫一條 SVG 旋律線——上揚句尾線往上＋綠色箭頭 ↗、下降句尾線往下＋藍色箭頭 ↘，把抽象的「語調起伏」變成一眼看懂的圖。
+- **白話講為何**：每句一行理由（Yes/No 問句＝在徵詢→上揚；Wh-/直述＝語氣肯定→下降），不只標箭頭、還教「為什麼」＝學得起來。
+- **聽得到**：「🔊 聽語調示範」用 readAlong（TTS 對含「?」的問句自然上揚、直述句下降），看懂旋律線後跟著模仿；誠實——規則式教學起點，不宣稱偵測真實音高（Web Speech 無法取 TTS 音高曲線）。
+- **多子句正確切分**：如「I don't understand. Can you repeat that?」自動切成 直述句↘ ＋ Yes/No 問句↗ 兩條旋律線分別教。
+- **不增負擔＋絕不破壞既有**：預設收合（toggle 才出）、切句/換頁 draw 重建自動清空、`sentenceIntonation` 空輸入回 []；不影響第 6–16 輪任何口說功能（逐詞高亮/drill/錄音對照/音節重音/句節奏/節拍器/波形）。
+
+**驗證證據**
+- 本機 node 單元測試 **12/12 PASS**：Yes/No↗、Wh-↘、直述↘、感嘆↘、多子句切分、全 23 句句庫覆蓋無爆、空/純標點回 []、語調分佈全句庫人工核對正確。
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、用 idx15「I don't understand. Can you repeat that?」一句涵蓋升+降兩種旋律）端到端 **19/19 PASS、0 console error**（`tools/verify_intonation_e2e.mjs`）：toggle 出語調卡→切 2 子句→第1直述句↘藍、第2 Yes/No↗綠→每子句畫得出旋律線 path＋箭頭 polygon→升/降顏色不同→每句有白話理由→教學文案/底部引導/聽示範鈕齊→點聽示範無錯→收合乾淨→切句不殘留→下一句(直述句)全下降。
+- regression 全綠、確認無回歸：句子節奏 `verify_rhythm_e2e.mjs` **13/13**、節拍器 `verify_metronome_e2e.mjs` **15/15**、逐音 drill `verify_shadowing.mjs` **12/12**、波形參考線 `verify_wave_ref.mjs` **15/15**、節拍器調速 `verify_tempo_e2e.mjs` **10/10**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 19/19 PASS、0 console error**（`tools/verify_intonation_live.mjs`）：線上升/降旋律線+箭頭+理由+聽示範全正常。線上 curl 實證 scoring.js(`sentenceIntonation`)、modes.js(`toggleIntonation`/`intonCurveSVG`/`intonBtn` ×5)、style.css(`.inton-card`/`.into-clause`/`.into-line` ×6) 皆在。
+- git 3fda41b push main + wrangler deploy 主(english-tutor-ai 2d14854b)+legacy(english-tutor-e1l 571cf82c)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※口說核心已**連十輪(第8–17輪)**深化(音素→句錄音→音節重音→句節奏→節拍器→波形速度→單字錄音→節拍器調速→波形參考線/停頓→**句尾語調**)，單字層+句子層+波形+節奏+語調閉環大致補齊；建議下一輪**換子題回北極星廣度**，勿在已飽和口說子題上空轉。
+1. **動力持續/低門檻（更貼北極星廣度，久未碰）**：streak 凍結保護（漏一天不直接歸零、給 1 次救回）、達標輕量音效（尊重靜音）、里程碑徽章點開「成就牆」。
+2. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 語調深化（若回口說）：對比重音/資訊焦點（同句強調不同字＝不同意思）、list 列舉語調（每項上揚、最後一項下降）。
+5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
