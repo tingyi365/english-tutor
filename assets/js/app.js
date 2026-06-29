@@ -290,6 +290,58 @@ export function showOnboarding() {
   draw();
 }
 
+// ---------- PWA：可安裝到主畫面 + 離線可用（容易學：回來只要一鍵、沒網路也能練） ----------
+// 借鏡：把網頁變成主畫面上的 app 圖示，回來不用打網址、不用找瀏覽器，最大幅降低「再次打開」的門檻；
+// service worker 快取讓弱網/離線也能秒開，移除「載入摩擦」。多數人不會自己「加到主畫面」，所以主動邀請。
+let deferredInstall = null;
+function isStandalone() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+function registerSW() {
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch((err) => console.warn("SW 註冊失敗（不影響使用）", err));
+  });
+}
+function showInstallBanner() {
+  if (document.getElementById("pwaInstall")) return;
+  const bar = document.createElement("div");
+  bar.id = "pwaInstall";
+  bar.className = "pwa-install";
+  bar.innerHTML = `
+    <span class="pwa-ico">📲</span>
+    <div class="pwa-txt"><b>安裝到主畫面</b><span>下次一鍵打開、離線也能練</span></div>
+    <button class="btn btn-primary pwa-go" id="pwaGo" type="button">安裝</button>
+    <button class="pwa-x" id="pwaDismiss" type="button" aria-label="關閉">✕</button>`;
+  document.body.appendChild(bar);
+  requestAnimationFrame(() => bar.classList.add("show"));
+  document.getElementById("pwaGo").addEventListener("click", async () => {
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    try { await deferredInstall.userChoice; } catch {}
+    deferredInstall = null;
+    bar.remove();
+  });
+  document.getElementById("pwaDismiss").addEventListener("click", () => {
+    localStorage.setItem("pwaInstallDismissed", "1");
+    bar.classList.remove("show");
+    setTimeout(() => bar.remove(), 300);
+  });
+}
+function initPWA() {
+  registerSW();
+  if (isStandalone()) return; // 已安裝就不再邀請
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstall = e;
+    if (localStorage.getItem("pwaInstallDismissed") !== "1") showInstallBanner();
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredInstall = null;
+    document.getElementById("pwaInstall")?.remove();
+  });
+}
+
 // ---------- 語音狀態徽章 ----------
 function updateVoiceBadge() {
   const badge = document.getElementById("voiceBadge");
@@ -359,6 +411,7 @@ function initSettings() {
 function init() {
   updateVoiceBadge();
   initSettings();
+  initPWA();
   tabbar.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => navigate(t.dataset.route)));
   document.getElementById("brandHome").addEventListener("click", () => navigate("home"));
   window.addEventListener("hashchange", () => {

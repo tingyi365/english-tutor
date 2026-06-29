@@ -322,3 +322,26 @@ body {
 }
 
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }
+
+/* ---- PWA 安裝邀請橫幅（容易學：邀請加到主畫面，回來只要一鍵） ---- */
+.pwa-install {
+  position: fixed; left: 50%; transform: translate(-50%, 16px);
+  bottom: calc(74px + var(--safe-b));
+  z-index: 40; width: min(92vw, 560px);
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(99,102,241,.22), rgba(124,58,237,.22)), var(--card);
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .3s ease;
+}
+.pwa-install.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.pwa-install .pwa-ico { font-size: 26px; line-height: 1; }
+.pwa-install .pwa-txt { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; flex: 1; }
+.pwa-install .pwa-txt b { font-size: 15px; }
+.pwa-install .pwa-txt span { font-size: 12px; color: var(--muted); }
+.pwa-install .pwa-go { padding: 8px 16px; font-size: 14px; white-space: nowrap; }
+.pwa-install .pwa-x {
+  background: transparent; border: 0; color: var(--muted); font-size: 16px;
+  cursor: pointer; padding: 6px; line-height: 1; border-radius: 8px;
+}
+.pwa-install .pwa-x:hover { color: var(--text); background: rgba(255,255,255,.06); }

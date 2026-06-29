@@ -193,3 +193,5 @@
 3. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）並推薦起始模式。
 4. 內容再擴充：商務/旅遊主題分類、對話分支選項（初學者友善、難度分級）。
 5. 發音回饋升級：更細音素提示、可重聽範例、語速微調 UI。
+
+[小組長 09:2x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)；第6輪「即時正向回饋」確實上線實證——app.js 含 showCelebration/fireConfetti/STREAK_MILESTONES/getStreakBadges、style.css 含 confetti/celebrate-toast/sbadge、modes.js 含里程碑徽章，Chrome headless dump-dom 首頁完整渲染(5 mode-card+daily-card+onb-card→renderHome 跑完=無致命 JS error)，補平了 log 內「線上實證待部署後補」的缺口。第1–6輪逐輪真朝「容易學」前進(內容→每日目標/streak→錯題本→SRS→onboarding→即時正向回饋)，每輪都做北極星研究、無空轉無偏離；evolve_instruction 已無殘留🔴硬性指定(第6輪 worker 完成後自清，無誘導 round 7 重做的空轉風險)，自然 backlog 頂端=PWA(可安裝離線/一鍵打開=降低「容易上手/可持續」摩擦)方向正確、未過時。→ 不需改 backlog，靜默不擾人。觀察(供下一輪參考，非硬性):六輪持續疊「習慣/動力」層，產品本名「AI 英語口說老師」的發音回饋核心(backlog #5)較久未動，若 round 7+ 再出現純 gamification 加碼/純內容擴充傾向，將導正回 PWA 或發音核心。
