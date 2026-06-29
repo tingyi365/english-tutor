@@ -165,6 +165,49 @@ export const DIALOGUES = [
       { ai: "Sure, I'll pass that along.", hint: "Thank you. I appreciate it.", zh: "謝謝你，很感謝。" },
     ],
   },
+  // —— 第 24 輪：補足「工作職場」對話量（work 3→4），append-only ——
+  {
+    title: "跟客戶報告進度", topic: "work", level: "中級",
+    scene: "你在會議上向客戶報告專案的最新進度。",
+    turns: [
+      { ai: "Good morning. How is the project going?", hint: "It's going well. We're on schedule.", zh: "進展順利，我們照計畫進行。" },
+      { ai: "Great. What have you finished so far?", hint: "We've completed the first two stages.", zh: "我們已完成前兩個階段。" },
+      { ai: "When can we expect the final result?", hint: "By the end of next month.", zh: "下個月底前。" },
+      { ai: "Sounds good. Keep up the good work.", hint: "Thank you. We will.", zh: "謝謝，我們會的。" },
+    ],
+  },
+  // —— 第 24 輪：補實「準備考試」主題對話（exam 0→3，口說考試情境：暖身問答／描述照片／表達意見）。
+  //     讓動機=考試的人進「情境對話」也能看到考試情境＝推薦名副其實。append-only，不動既有索引 ——
+  {
+    title: "口說考試暖身問答", topic: "exam", level: "初級",
+    scene: "你正在參加英文口說考試，考官先問你一些暖身問題（類似 IELTS Part 1）。",
+    turns: [
+      { ai: "Hello. Let's begin. Could you tell me your name?", hint: "My name is Anna. Nice to meet you.", zh: "我叫安娜，很高興認識你。" },
+      { ai: "Where are you from?", hint: "I'm from Taipei, Taiwan.", zh: "我來自台灣台北。" },
+      { ai: "What do you like to do in your free time?", hint: "I like reading and listening to music.", zh: "我喜歡閱讀和聽音樂。" },
+      { ai: "Thank you. That's the end of part one.", hint: "Thank you.", zh: "謝謝。" },
+    ],
+  },
+  {
+    title: "描述一張照片", topic: "exam", level: "中級",
+    scene: "口說考試請你描述一張照片，說出你看到的內容（類似 TOEIC 口說描述題）。",
+    turns: [
+      { ai: "Please describe the picture you see.", hint: "In the picture, some people are working in an office.", zh: "在這張照片裡，有些人正在辦公室工作。" },
+      { ai: "What are they doing exactly?", hint: "Two of them are talking, and one is typing on a computer.", zh: "其中兩人在交談，一人在打電腦。" },
+      { ai: "How would you describe the mood?", hint: "It looks busy but friendly.", zh: "看起來忙碌但氣氛友善。" },
+      { ai: "Good. Thank you for your description.", hint: "Thank you.", zh: "謝謝。" },
+    ],
+  },
+  {
+    title: "表達意見並說明理由", topic: "exam", level: "中級",
+    scene: "考官請你針對一個主題表達意見並說明理由（類似 IELTS Part 3）。",
+    turns: [
+      { ai: "Do you think technology makes life easier?", hint: "Yes, I think it saves us a lot of time.", zh: "是的，我認為它為我們省下很多時間。" },
+      { ai: "Could you give me an example?", hint: "For example, we can study online from home.", zh: "例如，我們可以在家線上學習。" },
+      { ai: "Are there any downsides?", hint: "Sometimes people rely on it too much.", zh: "有時候人們太過依賴它。" },
+      { ai: "Thank you. That's a clear answer.", hint: "Thank you very much.", zh: "非常感謝。" },
+    ],
+  },
 ];
 
 // 文法填空（單選，含解析）
