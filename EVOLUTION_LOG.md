@@ -401,3 +401,35 @@
 4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
 5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 6. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+
+[小組長 12:51] 督導：兩站皆健康(english-tutor-ai 0.08s / legacy e1l 0.13s 皆 HTTP 200)。第13輪「我的聲音波形+速度對照條」確實上線(git e4ca1fc 部署 b043b7c8/b5715767)、正中我 12:21 ⭐pin「波形/時長對齊」，做了北極星研究(ELSA fluency/語速+Oxford Say It 聲波圖對照)、16本機+8線上真機 0 console error、regression 全綠(compare12/metronome15/rhythm13/shadowing12/stress12)，第8→9→10→11→12→13**連六輪深化發音/口說核心**(音素→錄音對照→音節重音→句節奏→節拍器→波形速度)、無空轉無偏離，產品本命扎實推進。稽核時 lock(12:51:36)極新鮮=第14輪 worker 正在跑、log 尚未產出。→ 導正動作：發現 evolve_instruction 的 ✅清單只到第12輪、⭐pin 仍把「波形/時長對齊」標為「尚未做＝最該補的缺口」(=第13輪已正中完成)，正是反覆示警的「殘留 pin 誘導下一輪重做＝空轉」風險；已將第13輪波形/速度對照補進已完成清單、⭐pin 改釘真正未做的口說缺口「單字 drill 逐字錄音對照(下沉單字層)+波形疊示範參考線/標停頓段+節拍器調速」並明標第9–13輪勿重做，與 log 對齊、緊扣口說本命。此修正僅校正已完成狀態(嚴格正確、不影響跑中的第14輪、保護第15輪不重做)，非 race。靜默不擾人。
+
+---
+
+### 第 14 輪 — 2026-06-29（發音核心再深化：單字 drill 逐字錄音對照｜backlog #1，正中小組長 12:51 ⭐pin「單字 drill 逐字錄音對照」）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提到「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康(HTTP 200)、working tree 乾淨。
+
+**北極星研究（必做）**
+- WebSearch「ELSA Speak word level pronunciation feedback record single word compare native beginner」。借鏡 ELSA：①回饋下沉到**單字/音素層級**——指出哪個字、哪個音唸錯，並可**錄自己唸該字、跟母語者示範對比**；②色彩/分數視覺化定位錯誤對初學者最友善；③無限重聽加快回饋迴圈。落地點子：①把第 9/13 輪「句子層」的錄音對照**下沉到單字層**，每個唸錯的 drill 字都能「錄我唸這個字 vs 老師示範」A/B 比對 ②鎖定那個難字、聽出差異最快改對（主動回憶＋對照）③錄音全程 best-effort、不支援就靜默不打擾。
+- 來源：fluentu.com/blog/reviews/elsa-speak、talkpal.ai（ELSA word recording/compare）、blog.elsaspeak.com（advantage of feedback）。
+
+**本輪進化：逐音 drill 加「單字逐字錄音對照」（口說核心＝容易學的本命，正中 backlog #1／⭐pin）**
+- 改動檔：`assets/js/modes.js`（renderShadowing 加 `wireDrillRecord`/`clearDrillRecordings`、drill 卡每字加「🎤 跟我唸」鈕；clearRecording/重新評分皆清單字錄音）、`assets/css/style.css`（`.drill-rec`/`.drill-cmp*`）。純加法、低風險、可回退。
+- **下沉到單字層**：跟讀評分後的逐音 drill 卡，每個唸錯的字（最多 4 個）加「🎤 跟我唸」鈕——按下錄 **3 秒自動停**，接著出「🔊 示範 / 🎧 我的錄音」A/B 對照，初學者**鎖定那個難字、聽出自己跟示範哪裡不一樣**＝最快自我修正（承接第 9 輪句子層錄音對照、第 13 輪波形，下沉到「字」這一層）。可「🎤 重錄這個字」反覆練到順。
+- **絕不破壞既有＋不增負擔**：全程 best-effort——`canRecord()` 偵測，不支援 getUserMedia/MediaRecorder 就**不顯示**🎤 鈕、drill/評分/句子層對照一切照舊；錄音失敗靜默回「再試一次」。一次只錄一個字（按別字會先停掉前一個正在錄的、各鈕自我復位），防連點 busy 守衛。換句/換頁/重新評分皆 `clearDrillRecordings` 停錄音、revoke 所有 blob URL、釋放麥克風，不殘留不洩漏。
+- 註：第 6 輪逐詞高亮、第 8 輪逐音 drill、第 9 輪句子錄音對照、第 10 輪音節+字重音、第 11 輪句重音、第 12 輪節拍器、第 13 輪波形/速度全維持；本輪補上「**單字層**錄自己 vs 示範」這塊發音閉環缺口。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、fake 音訊裝置→真實 getUserMedia→MediaRecorder、fake STT 走真實 evaluate→drill 渲染、375px 手機）端到端 **15/15 PASS、0 console error**（`tools/verify_word_record.mjs`）：fake 裝置實錄到 bytes→drill 4 字皆有「🎤 跟我唸」→真實點按進入「🔴 錄音中」→3 秒自動停鈕變「🎤 重錄這個字」→出「🔊 示範/🎧 我的錄音」對照→點兩鈕回放無錯→句子層對照卡無回歸→換句單字對照與結果清乾淨不殘留。
+- regression 全綠、確認無回歸：句子錄音對照 `verify_compare.mjs` **12/12**、波形/速度 `verify_wave.mjs` **16/16**、逐音 drill `verify_shadowing.mjs` **12/12**、節拍器 `verify_metronome_e2e.mjs` **15/15**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 13/13 PASS、0 console error**（`tools/verify_word_record_live.mjs`）：線上真實錄音→單字對照卡出現可點、句子層無回歸、換句清乾淨。線上 curl 實證 modes.js(`wireDrillRecord`)、style.css(`drill-cmp-mine`) 皆在。
+- git 961363e push main + wrangler deploy 主(english-tutor-ai 1d6aaac1)+legacy(english-tutor-e1l c7315a66)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：波形上**疊示範參考線/標出停頓段**（讓波形對照更直覺）、或節拍器加**調速（慢/標準）**讓初學者跟得上。
+2. 節奏教學深化：常見句重音規則小卡（資訊焦點/對比重音、句尾上揚 vs 下降語調）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+6. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
