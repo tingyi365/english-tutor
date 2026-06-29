@@ -358,7 +358,8 @@
 - 本機真 Chrome（puppeteer-core 驅動、375px 手機、真 WebAudio：攔 `osc.start` 計數證明咑聲真有發出）端到端 **15/15 PASS、0 console error**（`tools/verify_metronome_e2e.mjs`）：展開出節拍器鈕+教學文案→真實點按鈕變「停止節拍」→節拍亮點(beat-now)打在實詞重音上→osc.start 觸發 5 次(咑聲真響)→整句打完自動停+鈕復原+亮點清除→再按可手動停→**節拍器跑著切下一句自動停、面板收合不殘留(open 重置、句子確實換到 My name is Anna…)**→收合面板一併停。
 - regression 全綠、確認無回歸：句子節奏 `verify_rhythm_e2e.mjs` **13/13**、逐音 drill `verify_shadowing.mjs` **12/12**、音節+重音 `verify_stress.mjs` **12/12**，皆 0 console error。
 - 過程中發現並修一個既有測試脆弱點（非產品 bug）：節拍器教學文案讓節奏卡變高，puppeteer `page.click` 對被 **sticky 底部導覽列(.tabbar position:sticky;bottom:0)** 蓋住座標的鈕會誤點到 tab→誤導航。實證：把鈕 `scrollIntoView({block:"center"})` 後 hit-test=該鈕本身、真實 page.click 正常運作＝**真實使用者把鈕捲到畫面內即可正常點按**（鈕在頁面中段、下方還有 heard/result/上下句，可自由捲離底列）。已把 verify_rhythm_e2e/verify_metronome 的相關點按改為「先捲到中央再真實點按」＝忠實模擬真人操作。
-- 部署後待補：線上 `https://english-tutor-ai.pages.dev` curl 實證 + 線上真機（見下方部署段）。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 15/15 PASS、0 console error**（`tools/verify_metronome_live.mjs`）：真實點按啟動節拍器→WebAudio osc.start 觸發(咑聲真響)→beat-now 打在實詞重音→整句打完自動停→切句(換到 My name is Anna…)/收合皆收乾淨。線上 curl 實證 modes.js(playMetronome/metroBtn/stopMetronome)、style.css(.beat-now/.metro-tip/.beat-pass) 皆在。
+- git e19d6b6 push main + wrangler deploy 主(english-tutor-ai a235ad9d)+legacy(english-tutor-e1l 75bd9111)皆成功、兩站 HTTP 200。
 
 **下一輪 backlog 想法（優先序建議）**
 1. 發音核心再深化：錄音與示範**時長/波形對齊**讓快慢差異更直覺(第9輪錄音對照延伸)、或節拍器可調速(慢/標準)＋單字 drill 也加「錄我的這個字 vs 示範」逐字對照。
