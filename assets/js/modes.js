@@ -105,6 +105,10 @@ export function renderShadowing(view) {
   // 「範例 vs 我的錄音」對照：用 MediaRecorder 錄下學生跟讀的聲音，評分後可回放跟老師示範對比。
   // 全程 best-effort，不影響既有 STT/評分（先讓 recognizer 啟動，再開錄音；任何失敗都靜默略過、不出對照卡）。
   let recHandle = null, recordedUrl = null, myAudio = null;
+  // 單字逐字錄音對照：drill 卡裡每個唸錯的字可「🎤 跟我唸」錄下單字、跟老師示範 A/B 比對，
+  // 把第 9/13 輪的「句子層錄音對照」下沉到「單字層」——初學者鎖定那個難字、聽出差異最快改對（容易學）。
+  let drillRecHandle = null, drillAudio = null;
+  const drillUrls = [];
   // 節拍器（跟著重音節拍唸）：英文是 stress-timed 語言，重音落在規律的拍點上。
   // 用穩定的「咑」聲＋亮點打在每個實詞重音上，讓初學者用耳朵+眼睛抓到節奏，跟著拍子開口練。
   let metroTimer = null, metroCtx = null;
@@ -193,6 +197,61 @@ export function renderShadowing(view) {
     if (recHandle) { try { recHandle.stop(); } catch (_) {} recHandle = null; }
     if (myAudio) { try { myAudio.pause(); } catch (_) {} myAudio = null; }
     if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = null; }
+    clearDrillRecordings();
+  }
+
+  // 清掉所有單字 drill 錄音（換句/換頁/重新評分前呼叫），釋放麥克風與 blob URL、不殘留不洩漏
+  function clearDrillRecordings() {
+    if (drillRecHandle) { try { drillRecHandle.stop(); } catch (_) {} drillRecHandle = null; }
+    if (drillAudio) { try { drillAudio.pause(); } catch (_) {} drillAudio = null; }
+    while (drillUrls.length) { try { URL.revokeObjectURL(drillUrls.pop()); } catch (_) {} }
+  }
+
+  // 給一個 drill 字接上「🎤 跟我唸」單字錄音 → 錄 3 秒自動停 → 顯示「🔊 示範 / 🎧 我的錄音」A/B 對照。
+  // 全程 best-effort：不支援/失敗一律靜默，不影響評分、drill、句子錄音對照等既有功能。
+  function wireDrillRecord(item, word) {
+    const recBtn = $(".drill-rec", item);
+    const cmp = $(".drill-cmp", item);
+    if (!recBtn || !cmp) return;
+    let myUrl = null;
+    const playMine = () => {
+      if (!myUrl) return;
+      stopSpeaking();
+      if (drillAudio) { try { drillAudio.pause(); } catch (_) {} }
+      drillAudio = new Audio(myUrl);
+      drillAudio.play().catch(() => {});
+    };
+    recBtn.onclick = () => {
+      if (recBtn.dataset.busy === "1") return;            // 防連點
+      if (drillRecHandle) { try { drillRecHandle.stop(); } catch (_) {} drillRecHandle = null; } // 停掉別字正在錄的
+      stopSpeaking();
+      recBtn.dataset.busy = "1";
+      recBtn.textContent = "🔴 錄音中…唸這個字";
+      startRecording().then((h) => {
+        if (!h) { recBtn.textContent = "此裝置無法錄音"; recBtn.disabled = true; recBtn.dataset.busy = ""; return; }
+        drillRecHandle = h;
+        setTimeout(() => {
+          if (drillRecHandle !== h) { recBtn.dataset.busy = ""; recBtn.textContent = "🎤 跟我唸"; return; } // 已被別字搶錄
+          drillRecHandle = null;
+          h.stop().then((blob) => {
+            recBtn.dataset.busy = "";
+            if (!blob) { recBtn.textContent = "🎤 再試一次"; return; }
+            if (myUrl) { try { URL.revokeObjectURL(myUrl); } catch (_) {} }
+            myUrl = URL.createObjectURL(blob); drillUrls.push(myUrl);
+            recBtn.textContent = "🎤 重錄這個字";
+            cmp.hidden = false;
+            cmp.innerHTML = `
+              <div class="drill-cmp-tip">🎧 比一比：先點 <b>🔊 示範</b>，再點 <b>🎧 我的錄音</b>，聽出哪裡不一樣，最快改對。</div>
+              <div class="drill-cmp-row">
+                <button class="btn btn-ghost drill-cmp-model">🔊 示範</button>
+                <button class="btn btn-ghost drill-cmp-mine">🎧 我的錄音</button>
+              </div>`;
+            $(".drill-cmp-model", cmp).onclick = () => speak(word);
+            $(".drill-cmp-mine", cmp).onclick = playMine;
+          }).catch(() => { recBtn.dataset.busy = ""; recBtn.textContent = "🎤 再試一次"; });
+        }, 3000);
+      }).catch(() => { recBtn.dataset.busy = ""; recBtn.textContent = "🎤 跟我唸"; });
+    };
   }
 
   function draw() {
@@ -497,12 +556,14 @@ export function renderShadowing(view) {
 
     // 逐音 drill：把唸錯/近音/漏唸的字逐一列出，給「更細的音」提示＋可重聽單字示範(正常/慢速)，
     // 讓回饋從「診斷」變「能立刻照做的修正」（借鏡 ELSA：鎖定錯的音、無限重聽正確示範）。
+    clearDrillRecordings(); // 重新評分前先清掉上一輪 drill 錄音，避免 blob URL 殘留
     const drills = wordDrills(result);
+    const recCap = canRecord(); // 能錄音才顯示「🎤 跟我唸」單字對照
     if (drills.length) {
       const stLabel = { bad: "再加強", near: "接近了", miss: "漏唸" };
       const drillCard = el(`
         <div class="card mt drill-card">
-          <div class="drill-head">🎯 重點練這幾個音 — 點 🔊 聽<b>單字正確示範</b>，跟著慢慢唸到順為止</div>
+          <div class="drill-head">🎯 重點練這幾個音 — 點 🔊 聽<b>單字正確示範</b>${recCap ? "、按 🎤 <b>錄自己唸這個字</b>跟示範比一比" : ""}，跟著慢慢唸到順為止</div>
           <div class="drill-list"></div>
         </div>`);
       const list = $(".drill-list", drillCard);
@@ -532,10 +593,13 @@ export function renderShadowing(view) {
             <div class="drill-btns">
               <button class="btn btn-ghost drill-say">🔊 正常</button>
               <button class="btn btn-ghost drill-slow">🐢 慢速</button>
+              ${recCap ? `<button class="btn btn-ghost drill-rec">🎤 跟我唸</button>` : ""}
             </div>
+            ${recCap ? `<div class="drill-cmp" hidden></div>` : ""}
           </div>`);
         $(".drill-say", item).onclick = () => speak(d.word);
         $(".drill-slow", item).onclick = () => speak(d.word, { rate: 0.5 });
+        if (recCap) wireDrillRecord(item, d.word);
         list.append(item);
       });
       resBox.append(drillCard);

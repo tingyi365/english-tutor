@@ -335,8 +335,17 @@ body {
 .drill-miss { color: #fcd34d; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); }
 .drill-heard { font-size: 12px; color: var(--muted); }
 .drill-tip { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 7px 0 10px; }
-.drill-btns { display: flex; gap: 8px; }
-.drill-btns .btn { flex: 1; padding: 9px 12px; font-size: 14px; }
+.drill-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.drill-btns .btn { flex: 1 1 0; min-width: 84px; padding: 9px 12px; font-size: 14px; }
+.drill-rec { border-color: rgba(56,189,248,.5); color: #7dd3fc; }
+
+/* ---- 單字逐字錄音對照（容易學：錄自己唸這個字 vs 老師示範，A/B 聽出差異最快改對） ---- */
+.drill-cmp { margin-top: 10px; padding: 10px 11px; background: rgba(56,189,248,.07); border: 1px solid rgba(56,189,248,.22); border-radius: 11px; }
+.drill-cmp-tip { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+.drill-cmp-tip b { color: #7dd3fc; }
+.drill-cmp-row { display: flex; gap: 8px; }
+.drill-cmp-row .btn { flex: 1; padding: 9px 12px; font-size: 14px; }
+.drill-cmp-mine { border-color: rgba(56,189,248,.5); }
 
 /* ---- 音節 + 重音標記（容易學：看得到重音在哪一節 → 跟著示範把那節唸重） ---- */
 .drill-syl { margin: 2px 0 10px; padding: 9px 11px; background: rgba(56,189,248,.07); border: 1px solid rgba(56,189,248,.22); border-radius: 11px; }
