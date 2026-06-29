@@ -530,7 +530,12 @@ function updateVoiceBadge() {
 // ---------- 設定面板 ----------
 function initSettings() {
   const panel = document.getElementById("settingsPanel");
-  const open = () => { fillVoices(); panel.classList.remove("hidden"); };
+  const open = () => {
+    fillVoices();
+    const ms = document.getElementById("motiveSelect");
+    if (ms) ms.value = getLearnMotive();  // 每次開啟同步目前動機（可能被 onboarding 改過）
+    panel.classList.remove("hidden");
+  };
   const close = () => panel.classList.add("hidden");
   document.getElementById("settingsBtn").onclick = open;
   document.getElementById("settingsClose").onclick = close;
@@ -562,6 +567,23 @@ function initSettings() {
   if (goalSel) {
     goalSel.value = getDailyGoalLevel();
     goalSel.onchange = () => { setDailyGoalLevel(goalSel.value); if (current === "home") navigate("home"); };
+  }
+
+  // 學習動機：可在設定單獨重選（不必整套重看 onboarding）；改後即時更新首頁「為你推薦」
+  const motiveSel = document.getElementById("motiveSelect");
+  if (motiveSel) {
+    const opts = [`<option value="">未設定（不特別推薦）</option>`].concat(
+      Object.entries(LEARN_MOTIVES).map(([k, m]) =>
+        `<option value="${k}">${m.ico} ${m.t}</option>`)
+    );
+    motiveSel.innerHTML = opts.join("");
+    motiveSel.value = getLearnMotive();
+    motiveSel.onchange = () => {
+      const v = motiveSel.value;
+      if (v && LEARN_MOTIVES[v]) setLearnMotive(v);
+      else localStorage.removeItem("learnMotive");
+      if (current === "home") navigate("home");
+    };
   }
 
   const soundToggle = document.getElementById("soundToggle");
