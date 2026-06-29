@@ -195,3 +195,30 @@
 5. 發音回饋升級：更細音素提示、可重聽範例、語速微調 UI。
 
 [小組長 09:2x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)；第6輪「即時正向回饋」確實上線實證——app.js 含 showCelebration/fireConfetti/STREAK_MILESTONES/getStreakBadges、style.css 含 confetti/celebrate-toast/sbadge、modes.js 含里程碑徽章，Chrome headless dump-dom 首頁完整渲染(5 mode-card+daily-card+onb-card→renderHome 跑完=無致命 JS error)，補平了 log 內「線上實證待部署後補」的缺口。第1–6輪逐輪真朝「容易學」前進(內容→每日目標/streak→錯題本→SRS→onboarding→即時正向回饋)，每輪都做北極星研究、無空轉無偏離；evolve_instruction 已無殘留🔴硬性指定(第6輪 worker 完成後自清，無誘導 round 7 重做的空轉風險)，自然 backlog 頂端=PWA(可安裝離線/一鍵打開=降低「容易上手/可持續」摩擦)方向正確、未過時。→ 不需改 backlog，靜默不擾人。觀察(供下一輪參考，非硬性):六輪持續疊「習慣/動力」層，產品本名「AI 英語口說老師」的發音回饋核心(backlog #5)較久未動，若 round 7+ 再出現純 gamification 加碼/純內容擴充傾向，將導正回 PWA 或發音核心。
+
+---
+
+### 第 7 輪 — 2026-06-29（PWA：可安裝到主畫面 + 離線可用｜backlog #1，小組長 09:2x 確認方向）
+**北極星研究（必做）**
+- WebSearch「language learning app PWA installable offline lower barrier Duolingo add to home screen」。借鏡：①付費學習軟體（TalkPal 等）走 PWA 路、**直接從瀏覽器加到主畫面**，把網頁變成像 app 的一鍵入口，降低「找/打開」的門檻 ②Duolingo 等的留存核心是「每天回來」，而把圖示放上主畫面＝最短回訪路徑（承接第 2/6 輪 streak 習慣養成）③離線可用讓弱網/沒網也能練，移除「載入摩擦」。落地 3 點子：①給 manifest+icon 讓它**可安裝** ②service worker 快取 app shell→**離線秒開** ③多數人不會自己「加到主畫面」→**主動彈一個低打擾的安裝邀請橫幅**（可關、不糾纏）。
+- 來源：fluentu.com/blog/learn/learn-languages-offline、icanlearn.com/best-android-language-learning-app、pwa.com/apps/duolingo。
+
+**本輪進化：PWA 可安裝 + 離線（降「再次打開」門檻＝更容易持續學）**
+- 新增檔：`manifest.webmanifest`（standalone/主題色/192+512+maskable icon）、`sw.js`（service worker）、`assets/icons/icon-{192,512,maskable-512}.png`（用**真 Chrome 光柵化 SVG** 生成，無 build step、不引入影像庫）、`tools/gen_icons.mjs`+`tools/verify_pwa*.mjs`（可重用生成/驗證腳本）。改：`index.html`(link manifest+apple-touch-icon 等 meta)、`app.js`(initPWA：註冊 SW + beforeinstallprompt 攔截 + 安裝邀請橫幅 + appinstalled 清理)、`style.css`(.pwa-install 橫幅樣式)。純加法、低風險、可回退。
+- **可安裝**：manifest 齊 name/short_name/standalone/theme_color/三尺寸 icon（含 maskable）→ Chrome/Android 認定可安裝。
+- **離線可用**：SW 策略避開 PWA 經典「永遠吃舊版」陷阱——導覽(HTML)走 **network-first**（線上一定拿最新、離線才回退快取 index.html）、靜態資產走 **stale-while-revalidate**（秒回快取+背景更新、自我修復）；每次部署 bump `CACHE_VER`，activate 清舊快取。
+- **主動安裝邀請**：攔 `beforeinstallprompt`，底部彈「📲 安裝到主畫面，下次一鍵打開、離線也能練」橫幅，點「安裝」喚原生安裝；可「✕」關閉並記 `pwaInstallDismissed` 不再糾纏；已安裝(standalone)或裝完(appinstalled)自動隱藏。SW 註冊失敗只 warn、不影響一般使用。
+
+**驗證證據**
+- 本機真 Chrome(puppeteer-core 23.11.1 驅動、375px 手機、本機 HTTP server 安全內容環境)端到端 **11/11 PASS、0 console error**：首頁渲染／manifest 200+解析+standalone+icons／3 icon 皆 200／SW activated+controller 接管／模擬 beforeinstallprompt→橫幅出現→點安裝觸發 prompt()→橫幅移除／**離線斷網 reload 仍渲染 mode-card**。
+- icon PNG 簽章+尺寸驗證：192×192/512×512/512×512 皆 PNG_OK。
+- git 677036a push main + wrangler deploy 主(english-tutor-ai 4afb8750)+legacy(english-tutor-e1l 284a0204)皆成功。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 7/7 PASS、0 console error**：首頁渲染／manifest 200(application/manifest+json)+standalone／icons 全 200／SW activated／安裝橫幅出現+可點+移除／**線上離線 reload 仍渲染**。manifest/sw.js/3 icon 線上 curl 皆 200+正確 content-type。
+- legacy alias `english-tutor-e1l` 同步部署、仍 200（manifest 亦 200）。
+
+**下一輪 backlog 想法（優先序建議）**
+1. **發音回饋核心升級**（小組長點名：產品本名「口說老師」核心久未動）：更細音素提示、可重聽範例音、慢速逐詞對照、跟讀逐詞高亮已備可深化。
+2. 慶祝/成就升級：里程碑徽章可點開「成就牆」、達標可選輕量音效（尊重靜音）。
+3. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+4. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+5. PWA 進階：離線時的友善提示、安裝後 app 內更新提示（new SW 可用時提醒重整）。
