@@ -535,6 +535,76 @@ body {
 .inton-foot { font-size: 12px; color: var(--muted); line-height: 1.6; margin-top: 11px; padding: 8px 10px; background: rgba(124,58,237,.1); border-radius: 8px; }
 .inton-foot b { color: var(--text); }
 
+/* ============ 淺色主題（容易學：白天／明亮環境護眼、降低長時間學習的視覺疲勞）============
+   深色仍為預設（不動既有體驗＝零回歸），淺色為選用；純加法覆寫，不改任何既有規則。
+   做法：① 覆寫 :root 設計 token（多數元件用 var() → 自動適配）
+        ② 覆寫少數寫死的深色覆蓋層（頁底漸層／頂列／底部導覽列）
+        ③ 把「深色底專用的亮色文字」改成同色系較深值（保留語意色相、確保白底對比） */
+html[data-theme="light"] {
+  --bg: #f3f5fb;
+  --bg-soft: #ffffff;
+  --card: #ffffff;
+  --card-2: #eef1f8;
+  --line: #d9dded;
+  --text: #1b1e36;
+  --muted: #5a6086;
+  --shadow: 0 10px 30px rgba(30,38,99,.10);
+}
+html[data-theme="light"] body {
+  background: radial-gradient(1200px 600px at 20% -10%, #e6e9ff 0%, transparent 60%),
+              radial-gradient(900px 500px at 100% 0%, #f4e8ff 0%, transparent 55%),
+              var(--bg);
+}
+[data-theme="light"] .topbar { background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.62)); }
+[data-theme="light"] .tabbar { background: linear-gradient(0deg, rgba(255,255,255,.96), rgba(255,255,255,.72)); }
+[data-theme="light"] .brand-text { background: linear-gradient(90deg, #4f46e5, #a21caf); -webkit-background-clip: text; background-clip: text; }
+/* 同色系較深值，保留語意（紫＝品牌／黃＝提醒／綠＝對／紅＝錯／藍＝錄音對照） */
+[data-theme="light"] .daily-label b,
+[data-theme="light"] .onb-card p b,
+[data-theme="light"] .gap-blank,
+[data-theme="light"] .sbadge-more,
+[data-theme="light"] .rhythm-tip .rhythm-hi,
+[data-theme="light"] .beat-pass .beat-w,
+[data-theme="light"] .phonetic { color: #4f46e5; }
+[data-theme="light"] .daily-hint b { color: #a21caf; }
+[data-theme="light"] .onb-goal em,
+[data-theme="light"] .beat-strong .beat-w { color: #6d28d9; }
+[data-theme="light"] .w-ok,
+[data-theme="light"] .opt.correct,
+[data-theme="light"] .aw-c-s.done,
+[data-theme="light"] .mastery-dots,
+[data-theme="light"] .pace-ok { color: #15803d; }
+[data-theme="light"] .w-bad,
+[data-theme="light"] .opt.wrong,
+[data-theme="light"] .drill-bad { color: #be123c; }
+[data-theme="light"] .w-miss,
+[data-theme="light"] .tip-banner,
+[data-theme="light"] .btn-unknown,
+[data-theme="light"] .drill-head b,
+[data-theme="light"] .drill-near,
+[data-theme="light"] .drill-miss,
+[data-theme="light"] .metro-tip b,
+[data-theme="light"] .tempo-opt.on,
+[data-theme="light"] .beat-now .beat-w,
+[data-theme="light"] .wave-tip .wt-ref,
+[data-theme="light"] .pace-slow,
+[data-theme="light"] .pace-fast { color: #b45309; }
+[data-theme="light"] .drill-rec,
+[data-theme="light"] .drill-cmp-tip b,
+[data-theme="light"] .compare-head b,
+[data-theme="light"] .wave-label b { color: #0369a1; }
+[data-theme="light"] .into-rise .into-arrow,
+[data-theme="light"] .into-rise-c,
+[data-theme="light"] .into-rise .into-line { color: #0f766e; stroke: #0f766e; }
+[data-theme="light"] .into-rise .into-pt { fill: #0f766e; }
+[data-theme="light"] .into-fall .into-arrow,
+[data-theme="light"] .into-fall-c,
+[data-theme="light"] .into-fall .into-line { color: #1d4ed8; stroke: #1d4ed8; }
+[data-theme="light"] .into-fall .into-pt { fill: #1d4ed8; }
+/* 深色用的白色軌道／hover 底，淺色改深一點才看得見 */
+[data-theme="light"] .pace-bar { background: rgba(0,0,0,.08); }
+[data-theme="light"] .pwa-install .pwa-x:hover { background: rgba(0,0,0,.05); }
+
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }
 
 /* ---- PWA 安裝邀請橫幅（容易學：邀請加到主畫面，回來只要一鍵） ---- */

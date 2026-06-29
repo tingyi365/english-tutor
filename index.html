@@ -15,6 +15,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="英語老師" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <!-- 主題：開畫前先套用已存的偏好，避免淺/深色閃爍（深色為預設） -->
+  <script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light";}catch(e){}</script>
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
@@ -27,6 +29,7 @@
       </div>
       <div class="topbar-right">
         <span id="voiceBadge" class="badge badge-warn" title="語音功能狀態">語音檢測中…</span>
+        <button id="themeToggle" class="icon-btn" title="切換深色／淺色（護眼）" aria-label="切換深色或淺色主題">🌙</button>
         <button id="settingsBtn" class="icon-btn" title="設定">⚙️</button>
       </div>
     </header>

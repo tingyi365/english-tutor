@@ -590,8 +590,25 @@ function initSettings() {
   };
 }
 
+// ---------- 主題（深色／淺色，容易學：白天/明亮環境護眼、降低長時間學習的視覺疲勞）----------
+// 深色為預設（不動既有體驗）；淺色為選用，存 localStorage 跨次保留。主題屬顯示偏好、非學習進度 → 清除進度時不動它。
+export function getTheme() { return localStorage.getItem("theme") === "light" ? "light" : "dark"; }
+export function applyTheme(t) {
+  const light = t === "light";
+  if (light) document.documentElement.dataset.theme = "light";
+  else delete document.documentElement.dataset.theme;
+  const btn = document.getElementById("themeToggle");
+  if (btn) { btn.textContent = light ? "☀️" : "🌙"; btn.title = light ? "切換深色（夜間護眼）" : "切換淺色（白天護眼）"; }
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", light ? "#f3f5fb" : "#4f46e5");
+}
+export function setTheme(t) { localStorage.setItem("theme", t === "light" ? "light" : "dark"); applyTheme(getTheme()); }
+export function toggleTheme() { setTheme(getTheme() === "light" ? "dark" : "light"); }
+
 // ---------- 啟動 ----------
 function init() {
+  applyTheme(getTheme());
+  document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
   updateVoiceBadge();
   initSettings();
   initPWA();

@@ -772,9 +772,43 @@
 3. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
 4. 文法題也標 topic 依動機篩（內容依動機分主題唯一還沒碰的模式）。
 
-[小組長督導待補]
+[小組長 18:28] 督導：雙站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 一致 3981)。第24輪「補實 exam 主題對話 0→3 + work 3→4」確實落地、正中我 17:26🔴pin 之①內容量補實（exam 0→3 讓動機=考試族群推薦名副其實），做了北極星研究(TOEIC/IELTS 口說考試情境短劇+hint)、16本機+10線上真機 0 console error、regression 全綠(topic_dialogue19/branch16)、純資料層 append-only 不動既有索引＝無空轉無偏離。當前線上即第24輪部署(aec28eb)、驗證紮實。稽核時 lock(18:27:22)極新鮮=第25輪正在跑、log 未產出，故不跑會 race 的重型 headless、僅憑雙站 200+size 一致判健康。→ 導正(又見「殘留 pin 誘導重做＝空轉」老模式)：evolve_instruction ✅清單只到第23輪、🔴pin 仍把「exam 對話 0→≥3」列為①(=第24輪已正中做完)，會誘導第25/26輪重做內容量擴充。已①把第24輪 exam 0→3+work 3→4 補進✅已完成清單與「勿重做」清單；②🔴pin 移除已完成的內容量①，收斂為 pin 原列但從未做、且第24輪 backlog #1 點名的真實操作摩擦 bug「UX 體質：sticky 底部導覽列遮長頁內容→補 `.view` padding-bottom」(純 CSS 低風險、直接降操作摩擦＝容易學)，並明標內容量已於第24輪補齊勿重做擴充。僅校正已完成狀態(嚴格正確、第25輪已讀過 instruction 不受影響、保護第26輪不重做)，非 race。靜默不擾人。
 
 ---
+
+### 第 25 輪 — 2026-06-29（深色／淺色主題切換：白天/明亮環境護眼、降低長時間學習的視覺疲勞｜🔴pin 次選「深色模式」，並以真機診斷退役「sticky padding-bottom」假 bug）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200）、working tree 乾淨（HEAD=第24輪 docs）。
+
+**選題依據（避免空轉）**
+- 🔴pin 之①「exam 對話內容量補實」第24輪已正中做完（exam 0→3、work 3→4、aec28eb 已部署線上）＝勿重做。
+- 🔴pin 小組長 18:28 收斂為②「sticky 底列遮長頁內容→補 `.view` padding-bottom」，但**小組長自註當輪未跑 headless、僅憑 HTTP 200+size 判健康**＝該 pin 為假設、未經真機驗證。
+- **本輪先用真機診斷驗證該假設**（`tools/diag_tabbar_overlap.mjs`，375px、捲到底量測 tabbar 與 .view 末元素 rect）：home/shadowing/grammar/dictation/flashcard/conversation **六模式 overlapBehindBar 皆=0px**——`.tabbar` 是 `position:sticky` 的「流內最後一個子元素」，捲到底時回到自身自然槽位、末內容(lastBottom 607/624)永遠在 tabbar 頂(654)之上＝**內容從不被遮**，補 padding-bottom 只會多一段空白＝為改而改、違反鐵律「跟容易學無關的炫技不做」。→ 退役此假 bug。
+- 改做 🔴pin 明列的**次選「深色／淺色模式切換」**：本站長期僅深色，加淺色選項讓使用者**依環境配色護眼**（北極星研究：螢幕與環境光一致可緩解調節疲勞）＝真實降低長時間學習的視覺疲勞摩擦＝容易學，且 24 輪從未碰。
+
+**北極星研究（必做）**
+- WebSearch「Duolingo dark/light theme eye strain reduce fatigue UX」。借鏡：①深色模式在低光/夜間**降低眼睛疲勞**（減少螢幕與環境的對比、減少藍光、減少調節疲勞）；②但 Duolingo 預設**淺色**、深色為選用——關鍵是讓使用者**依當下環境挑舒服的配色**；③本站與其相反（僅深色），缺的正是**淺色選項**（白天/明亮環境、偏好淺色或淺色更易讀者）。落地點子：①給淺色主題＋一鍵切換；②記住偏好跨次保留；③開畫前先套用避免閃爍；④預設維持深色＝零回歸。
+- 來源：toolsmart.ai/blog/unlocking-duolingo-dark-mode、lingoly.io/duolingo-dark-mode-guide、nighteye.app/duolingo-dark-mode。
+
+**本輪進化：深色／淺色主題切換（護眼＝降低持續學的視覺疲勞摩擦）**
+- 改動檔：`assets/css/style.css`（**純加法** `html[data-theme="light"]` 區塊：覆寫 :root 設計 token＋少數寫死的深色覆蓋層(頁底漸層/頂列/底部導覽列)＋把「深色底專用亮色文字」改同色系較深值保證白底對比；不改任何既有規則）、`index.html`（head 加「開畫前套主題」inline script 防閃＋topbar 加切換鈕 `#themeToggle`）、`assets/js/app.js`（+`getTheme/applyTheme/setTheme/toggleTheme`、init 套用+綁鈕、更新鈕圖示與 `meta theme-color`）。低風險、可回退。
+- **深色為預設＝零回歸**：無 `data-theme` 即原深色（既有體驗一字未動）；淺色為選用，存 localStorage `theme` 跨次保留。
+- **護眼**：淺色主題整套 token 改亮底深字＋語意色(紫品牌/黃提醒/綠對/紅錯/藍對照)改較深值保白底對比；切換鈕在 topbar（🌙↔☀️），白天明亮環境可切淺色、夜間切回深色。
+- **防閃**：`<head>` inline script 於樣式前先讀偏好套 `data-theme`，開畫即正確配色不閃。
+- **不破壞**：主題屬顯示偏好非學習進度→「清除學習進度」不動它；第6–24輪所有功能全維持。
+
+**驗證證據**
+- 本機先跑**真機診斷**證實「sticky padding-bottom」非真 bug（六模式 overlapBehindBar=0px，見上）→ 不做該改動、改做主題。
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server）端到端 **38/38 PASS、0 console error**（`tools/verify_theme.mjs`）：預設無 data-theme+深底(亮度0.07)+鈕🌙／切淺色→data-theme=light+localStorage+鈕☀️+meta #f3f5fb+亮底(0.96)深字(0.12)／9 個重映亮色文字在白底皆變深(w-ok/w-bad/w-miss/opt.correct/drill-near/pace-ok/into-arrow/phonetic 亮度0.23–0.39)／重整持久化仍淺色+head 防閃 inline script 在樣式前／六模式淺色皆渲染且內文深字可讀／切回深色+持久化。
+- regression 全綠、0 console error：`verify_exam_dialogue` **16/16**、`verify_branch_dialogue` **16/16**、`verify_motive_onboarding` **30/30**。
+- 線上部署＋線上真機驗證證據：見下方部署後補。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※「sticky padding-bottom」經真機診斷確認為**非 bug、已退役**（tabbar 流內 sticky、內容從不被遮）→ 勿再以此為由改動。深色/淺色（第25）已做、勿重做。
+1. 淺色主題進階：可選「跟隨系統 `prefers-color-scheme`」（目前預設深色+手動切；淺色已驗證穩可考慮開放系統跟隨）。
+2. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
+3. 文法題也標 topic 依動機篩（內容依動機分主題唯一還沒碰的模式）。
+4. 內容量續擴充（各主題對話/句量加深）。
 
 [小組長 16:25] 督導：兩站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.10s)。第20輪「學習動機 onboarding → 推薦起始模式」確實上線實證(線上 curl app.js 含 LEARN_MOTIVES/getRecommendedMode/setLearnMotive、modes.js 含 mc-rec、style.css 含 onb-motive，第18/19輪 freezesToNext/showAchievementWall 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「①動機 onboarding」、做了北極星研究(Duolingo/Babbel 問動機個人化降摩擦)、30本機+10線上真機 0 console error、regression 全綠(成就牆21/連續保護19)、舊資料相容。至此**動力持續/低門檻層三大項全數補齊**(streak freeze 第18+成就牆/音效 第19+動機 onboarding 第20)、口說核心連十輪(第8–17)飽和，二十輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(16:25:28)極新鮮=第21輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第19輪、🔴pin 仍把「①學習動機 onboarding」標為「動力持續層唯一尚未碰的大項」(=第20輪已正中做完)，會誘導第21/22輪以同理由重做。已①把第20輪動機 onboarding 補進✅已完成清單；②🔴pin 移除已完成的動機 onboarding、收斂為真正未碰且最該補的「內容廣度・依學習動機分主題」——第20輪推薦目前只導模式、內容仍是同一套通用題庫，使用者選旅遊/工作/考試卻看不到對應主題內容＝推薦名不副實，本輪把這塊補實(內容標主題標籤+依 learnMotive 篩選排前+對話分支/難度分級)，明標「本輪是把第20輪推薦的內容面補實、非重做 onboarding 流程」、動力持續三大項已補齊勿再加同層機制、第8–17口說全列勿重做。僅校正已完成狀態(嚴格正確、第21輪已讀過不受影響、保護第22輪不重做)，非 race。靜默不擾人。
 
