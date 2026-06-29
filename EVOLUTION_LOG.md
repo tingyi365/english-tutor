@@ -224,3 +224,30 @@
 5. PWA 進階：離線時的友善提示、安裝後 app 內更新提示（new SW 可用時提醒重整）。
 
 [小組長 09:5x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)、第7輪 PWA 線上實證齊(manifest.webmanifest/sw.js/icon-192 皆 200，app.js 線上含 initPWA+showCelebration+STREAK_MILESTONES+showOnboarding=第5/6/7輪功能全在線)。第1–7輪逐輪真朝「容易學」前進、每輪都做北極星研究、無空轉無偏離；evolve_instruction 第7輪後已自清無殘留🔴(無誘導重做的空轉風險)。導正動作：六/七輪持續疊習慣/動力/離線層，但產品本名「AI 英語口說老師」的**發音/口說核心連7輪未深化**＝對初學者最大的「不容易學」摩擦點(唸得對不對、錯在哪、怎麼修)。→ 已在 evolve_instruction 釘🔴第8輪硬性指定「發音回饋核心升級(以容易學為框架)」：具體哪個音/詞錯而非只給分數、一鍵重聽範例+慢速、跟讀逐詞高亮深化；明令禁漂移到 PWA進階/純gamification/純內容擴充/onboarding加步驟。靜默不擾人。
+
+---
+
+### 第 8 輪 — 2026-06-29（發音回饋核心升級：逐音 drill｜小組長 09:5x 🔴硬性指定 backlog #1）
+**北極星研究（必做）**
+- WebSearch「ELSA Speak pronunciation feedback design phoneme score beginners」。借鏡 ELSA：①回饋是**音素層級**——指出每個字裡「哪個音」唸錯，而非只給一個總分 ②色彩+分數**視覺化定位錯誤**，看得到要修哪裡 ③**無限重聽/重練**直到唸對，加快回饋迴圈。落地 3 點子：①把唸錯的字逐一列出、針對「那個音」給具體咬字提示 ②每個字可**重聽正確示範**（正常/慢速逐詞對照）③一次只給少量重點字（小批次低壓力）。
+- 來源：vn.elsaspeak.com（ELSA Score 五技能/音素級）、medium @elsaspeak、toolworthy.ai/tool/elsa-speak。
+
+**本輪進化：逐音 drill — 把發音回饋從「診斷」升成「能立刻照做的修正」（口說核心＝容易學的本命，正中🔴硬性指定）**
+- 改動檔：`scoring.js`（`pronunHint` 改 export 並加規則式 `phoneticHint` + `SILENT_LETTER` 表、新增 `wordDrills` 挑錯字）、`modes.js`（`renderShadowing.evaluate` 評分後渲染 drill 卡）、`style.css`（`.drill-*` 樣式）。純加法、低風險、可回退。
+- **規則式音素提示（更細的音）**：以前只有 10 個硬編字有提示、其餘無建議；現在依拼字特徵涵蓋華語母語者常見難點——th 咬舌 /θ//ð/、r vs l、v 咬唇別發 w、silent letter(know/walk…)、kn/wr 開頭、-ed 三讀法、-tion=/ʃən/、ee/ea 長音 vs ɪ 短音、oo 長短、字尾子音收音…查無精選時自動產生，**幾乎每個字都給得出具體咬字建議**（不再只罵分數）。
+- **可重聽範例音（慢速逐詞對照）**：每個重點字附 🔊正常 / 🐢慢速 兩鈕，重聽「該單字」的正確發音、對到順為止＝ELSA 式無限重聽。
+- **小批次低壓力**：只列唸錯/近音/漏唸的字、去重、**最多 4 個**；**全對則不出卡**，不增無謂負擔。
+- 註：跟讀逐詞高亮（karaoke read-along）第 6 輪已上線、本輪維持；本輪聚焦「錯在哪+怎麼修+重聽」的回饋閉環。
+
+**驗證證據**
+- 本機 node 單元測試 **15/15 PASS**：規則式提示覆蓋(th/r/silent/長母音/tion/-ed/v…非空且具體)、精選表優先、wordDrills 去重+上限4+狀態合法+全對無 drill。
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、注入假 STT 走**真實 mic→evaluate→drill 渲染路徑**）端到端 **12/12 PASS、0 console error**：唸錯→出 drill 卡(4)+每字有音素提示+🔊正常/🐢慢速鈕+句子上色+點慢速重聽無錯；全對→不出卡。腳本 `tools/verify_shadowing.mjs` 可重跑。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 11/11 PASS、0 console error**；scoring/modes/style 新 token 線上 curl 實證。
+- git daf452c push main + wrangler deploy 主(english-tutor-ai b4f60e59)+legacy(english-tutor-e1l 87a8ba68)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：**範例 vs 我的錄音對照**（MediaRecorder 錄學生音回放、與示範並列）、單字音節重音標記。
+2. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+3. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+4. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+5. PWA 進階：離線友善提示、新版可用時提醒重整。
