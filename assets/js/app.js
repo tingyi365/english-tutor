@@ -534,6 +534,8 @@ function initSettings() {
     fillVoices();
     const ms = document.getElementById("motiveSelect");
     if (ms) ms.value = getLearnMotive();  // 每次開啟同步目前動機（可能被 onboarding 改過）
+    const ts = document.getElementById("themeSelect");
+    if (ts) ts.value = getThemePref();    // 每次開啟同步目前主題偏好（可能被 topbar 鈕改過）
     panel.classList.remove("hidden");
   };
   const close = () => panel.classList.add("hidden");
@@ -586,6 +588,13 @@ function initSettings() {
     };
   }
 
+  // 外觀主題：可在設定選「跟隨系統／淺色／深色」（第27輪：開放系統自動跟隨；預設仍深色＝零回歸）
+  const themeSel = document.getElementById("themeSelect");
+  if (themeSel) {
+    themeSel.value = getThemePref();
+    themeSel.onchange = () => setThemePref(themeSel.value);
+  }
+
   const soundToggle = document.getElementById("soundToggle");
   if (soundToggle) {
     soundToggle.checked = isSoundOn();
@@ -612,25 +621,62 @@ function initSettings() {
   };
 }
 
-// ---------- 主題（深色／淺色，容易學：白天/明亮環境護眼、降低長時間學習的視覺疲勞）----------
-// 深色為預設（不動既有體驗）；淺色為選用，存 localStorage 跨次保留。主題屬顯示偏好、非學習進度 → 清除進度時不動它。
-export function getTheme() { return localStorage.getItem("theme") === "light" ? "light" : "dark"; }
+// ---------- 主題（三態：跟隨系統／淺色／深色，容易學：依環境護眼、降低長時間學習的視覺疲勞）----------
+// 預設深色＝零回歸（無偏好時不跟隨系統，維持既有深色體驗）；使用者可在設定改「跟隨系統」依 OS 自動切換、或固定淺/深。
+// 主題屬顯示偏好、非學習進度 → 清除進度時不動它。
+const THEME_PREFS = ["system", "light", "dark"];
+export function getThemePref() {
+  const v = localStorage.getItem("theme");
+  return THEME_PREFS.includes(v) ? v : "dark"; // 預設深色（零回歸）
+}
+function systemPrefersLight() {
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: light)").matches;
+}
+// 把偏好解析成「實際要套用」的主題（system → 看 OS）
+export function getEffectiveTheme(pref = getThemePref()) {
+  if (pref === "light") return "light";
+  if (pref === "dark") return "dark";
+  return systemPrefersLight() ? "light" : "dark"; // system
+}
+export function getTheme() { return getEffectiveTheme(); } // 相容舊用法：回傳生效主題
 export function applyTheme(t) {
   const light = t === "light";
   if (light) document.documentElement.dataset.theme = "light";
   else delete document.documentElement.dataset.theme;
+  const pref = getThemePref();
   const btn = document.getElementById("themeToggle");
-  if (btn) { btn.textContent = light ? "☀️" : "🌙"; btn.title = light ? "切換深色（夜間護眼）" : "切換淺色（白天護眼）"; }
+  if (btn) {
+    btn.textContent = pref === "system" ? "🌗" : (light ? "☀️" : "🌙");
+    btn.title = pref === "system" ? "目前跟隨系統（點擊改為固定深／淺）"
+      : (light ? "切換深色（夜間護眼）" : "切換淺色（白天護眼）");
+  }
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", light ? "#f3f5fb" : "#4f46e5");
+  const sel = document.getElementById("themeSelect");
+  if (sel && sel.value !== pref) sel.value = pref;
 }
-export function setTheme(t) { localStorage.setItem("theme", t === "light" ? "light" : "dark"); applyTheme(getTheme()); }
-export function toggleTheme() { setTheme(getTheme() === "light" ? "dark" : "light"); }
+export function setThemePref(pref) {
+  const p = THEME_PREFS.includes(pref) ? pref : "dark";
+  localStorage.setItem("theme", p);
+  applyTheme(getEffectiveTheme(p));
+}
+export function setTheme(t) { setThemePref(t === "light" ? "light" : "dark"); } // 相容舊用法
+// topbar 鈕：在固定深／淺之間快速切換（會脫離「跟隨系統」）
+export function toggleTheme() { setThemePref(getEffectiveTheme() === "light" ? "dark" : "light"); }
+// 「跟隨系統」時，OS 主題變動即時套用（白天自動淺、夜間自動深）
+function watchSystemTheme() {
+  if (typeof window.matchMedia !== "function") return;
+  const mq = window.matchMedia("(prefers-color-scheme: light)");
+  const handler = () => { if (getThemePref() === "system") applyTheme(getEffectiveTheme()); };
+  if (mq.addEventListener) mq.addEventListener("change", handler);
+  else if (mq.addListener) mq.addListener(handler);
+}
 
 // ---------- 啟動 ----------
 function init() {
-  applyTheme(getTheme());
+  applyTheme(getEffectiveTheme());
   document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
+  watchSystemTheme();
   updateVoiceBadge();
   initSettings();
   initPWA();

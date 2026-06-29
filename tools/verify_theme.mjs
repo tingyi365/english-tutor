@@ -41,7 +41,7 @@ try {
 
   // 0) 無閃保證：index.html head 內含「開畫前套用主題」的 inline script
   const html = await (await fetch(BASE)).text();
-  ok("index.html 含開畫前套主題的 inline script（不閃）", /localStorage\.getItem\("theme"\)==="light"/.test(html) && html.indexOf('rel="stylesheet"') > html.indexOf('dataset.theme="light"'), "");
+  ok("index.html 含開畫前套主題的 inline script（不閃）", /localStorage\.getItem\("theme"\)/.test(html) && /prefers-color-scheme/.test(html) && html.indexOf('rel="stylesheet"') > html.indexOf('dataset.theme="light"'), "");
 
   // 1) 預設 = 深色（零回歸）
   let st = await page.evaluate(() => ({

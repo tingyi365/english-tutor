@@ -16,7 +16,7 @@
   <meta name="apple-mobile-web-app-title" content="英語老師" />
   <meta name="mobile-web-app-capable" content="yes" />
   <!-- 主題：開畫前先套用已存的偏好，避免淺/深色閃爍（深色為預設） -->
-  <script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light";}catch(e){}</script>
+  <script>try{var __t=localStorage.getItem("theme");var __sl=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches;if(__t==="light"||(__t==="system"&&__sl))document.documentElement.dataset.theme="light";}catch(e){}</script>
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
@@ -81,6 +81,14 @@
           <option value="lenient">寬鬆（初學者友善）</option>
           <option value="normal" selected>標準</option>
           <option value="strict">嚴格</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>外觀主題（容易學：依環境護眼，可跟隨系統白天自動淺、夜間自動深）</span>
+        <select id="themeSelect">
+          <option value="system">跟隨系統</option>
+          <option value="light">淺色（白天/明亮環境）</option>
+          <option value="dark" selected>深色（夜間護眼，預設）</option>
         </select>
       </label>
       <label class="field field-row">
