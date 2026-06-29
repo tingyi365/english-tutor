@@ -537,4 +537,36 @@
 4. 語調深化（若回口說）：對比重音/資訊焦點（同句強調不同字＝不同意思）、list 列舉語調（每項上揚、最後一項下降）。
 5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
 
+---
+
+### 第 18 輪 — 2026-06-29（換子題回北極星廣度：連續保護 streak freeze｜小組長 14:02 ⭐pin 選項 B「動力持續」、backlog #1）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`，instruction + log 皆同步。開工前雙站健康（HTTP 200）、working tree 乾淨。
+- **本輪正式換子題**：口說核心已連十輪(第8–17輪含第17輪語調)深化到飽和，依小組長 14:02 ⭐pin「強制換子題」之選項 B（動力持續/低門檻、更貼北極星廣度、久未碰），做 backlog #1「streak 凍結保護」。
+
+**北極星研究（必做）**
+- WebSearch「Duolingo streak freeze / achievements / 留存 / 降門檻動機」。借鏡 Duolingo：①**streak freeze 是留存最強的單一機制**——保護連續天數不因漏一天而歸零，降低「斷連焦慮」同時保住損失趨避動力；實測**對「即將斷連」的高風險使用者降低 churn 21%**、7 天以上連續使用者留存是無連續者的 2.4×。②設計成**零摩擦、免購買、自動賺得**對初學者最友善（day-one 低門檻成就感）。③保護是「保住投入」而非「免責放縱」，仍維持每天回來的核心迴圈。落地點子：①漏一天有保護→自動補回缺口、連續不歸零，給安心回饋；②持續練習自動賺保護（不需付費/不需找入口）；③首頁看得到保護存量＋「再 X 天解鎖」當動力。
+- 來源：trophy.so/blog/duolingo-gamification-case-study、blog.duolingo.com/how-duolingo-streak-builds-habit、trypropel.ai（streak freeze 降 churn 21%）、strivecloud.io。
+
+**本輪進化：連續保護（streak freeze）— 動力持續層，降低「斷連就前功盡棄」的最大放棄點（＝更容易持續學）**
+- 改動檔：`assets/js/app.js`（`isDayBeforeYesterday` 判前天、`getStreak` 加 `freezes`、`MAX_FREEZE=2`/`FREEZE_EARN_EVERY=3`/`freezesToNext()`、bumpDaily 改寫連續天數判定：昨天接續／漏一天+有保護補回缺口消耗1張+跳安心 toast／漏≥2天或無保護歸零）、`assets/js/modes.js`（renderHome daily 卡顯示保護狀態列）、`assets/css/style.css`（`.streak-freeze`/`.sf-*`）。純加法、低風險、可回退、舊資料相容（無 freezes 視為 0）。
+- **漏一天不歸零**：回來時若「剛好漏掉昨天一天」且有保護 → 消耗 1 張、把缺口補回、連續天數照常 +1（不歸零），並跳「🛡️ 連續保護生效！昨天的缺口已自動補上」安心回饋（鬆一口氣＝動力持續）。
+- **保護只擋一天、零摩擦自動賺**：漏 ≥2 天或無保護則正常歸零（保護不被多日缺口消耗）；持續練習**連續每滿 3 天自動 +1 張**（上限 2 張），不需付費、不需找任何入口＝最符「容易學」。
+- **首頁看得到**：daily 卡有保護時顯示「🛡️ 連續保護 ×N・漏一天也不中斷」，無保護但有連續時顯示「再 X 天解鎖連續保護」當動力提示；「清除學習進度」一併清（freezes 存在 streak 物件內）。
+- 註：第 6–17 輪所有口說功能（逐詞高亮/drill/錄音對照/音節重音/句節奏/節拍器/波形/語調）全維持不動；本輪是**換子題**到動力持續層、不碰口說。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、**dynamic import 既載入的 app.js 真實 addStat→bumpDaily 路徑**而非另寫一份邏輯，用同一日期格式產昨天/前天/前3天 key）端到端 **19/19 PASS、0 console error**（`tools/verify_streak_freeze.mjs`）：昨天接續 4→5 不動保護／漏一天有保護保住 4→5(非1)+消耗1張+安心 toast／漏一天無保護歸零(→1,best 保留)／漏2天即使有保護也歸零且保護不消耗(仍2)／連續滿3天自動賺1張／保護達上限2不溢出／同一天再練不重複累加／getStreak 含 freezes／首頁「🛡️連續保護×2」與「再X天解鎖」狀態列／清除進度 freezes 歸0。
+- regression 全綠、確認無回歸：句尾語調 `verify_intonation_e2e.mjs` **19/19**、節拍器 `verify_metronome_e2e.mjs` **15/15**、逐音 drill `verify_shadowing.mjs` **12/12**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 10/10 PASS、0 console error**（`tools/verify_streak_freeze_live.mjs`）：線上保護補回缺口/歸零/自動賺/首頁狀態列全正常。線上 curl 實證 app.js(freezesToNext/FREEZE_EARN_EVERY/isDayBeforeYesterday/連續保護生效)、modes.js(streak-freeze/連續保護 ×)、style.css(streak-freeze/sf-ico) 皆在。
+- git 5e4a9d4 push main + wrangler deploy 主(english-tutor-ai e6dedd04)+legacy(english-tutor-e1l c8723e55)皆成功、兩站 HTTP 200（legacy 亦含 freezesToNext）。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※動力持續層本輪起步（連續保護）；可續做同層其他低門檻/動機項，或回內容廣度。
+1. 動力持續續做：里程碑徽章點開「**成就牆**」（收集慾、看得到所有已得/未解鎖成就）、達標輕量音效（尊重靜音、可關）。
+2. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式（降門檻、貼北極星）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 語調深化（若回口說）：對比重音/資訊焦點、list 列舉語調。
+5. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+
 [小組長 14:54] 督導：兩站皆健康（english-tutor-ai 與 legacy e1l 皆 HTTP 200、size 4263 一致），第17輪「句尾語調 intonation 升降調」確實上線實證（scoring.js `sentenceIntonation`、modes.js `toggleIntonation`×2 線上 curl 在、JS 全 200），正中我 14:02 ⭐pin 選項 A（口說唯一未碰的 melody 新缺口）、做了北極星研究（升降調教學共識+ELSA pitch contour）、12單測+19本機+19線上真機 0 console error、regression 全綠，本命扎實。稽核時 lock(14:53:24)極新鮮=第18輪正在跑、log 未產出。→ 導正（又見「殘留 pin 誘導重做＝空轉」風險）：evolve_instruction ✅清單只到第16輪、⭐pin 仍把「(A)語調 intonation」標為「口說唯一尚未碰新缺口＝可做」（=第17輪已正中做完），會誘導後續輪以同理由重做。已①把第17輪句尾語調補進已完成清單；②⭐pin 由「二選一(A語調/B動力)」改為**唯一硬性鎖定 (B) 動力持續/低門檻（streak 凍結保護/動機 onboarding/成就牆，借鏡 Duolingo-Babbel）**，並明標「語調已第17輪做完、勿再以口說唯一缺口為由重做」、第8–17輪全列勿重做。理由：口說核心連十輪(第8–17)飽和、北極星「容易學」明列的動力持續/借鏡付費軟體連十七輪幾乎沒碰＝當前最該補的北極星廣度缺口。僅校正已完成狀態(嚴格正確、第18輪已讀過不受影響、保護第19輪不重做)，非 race。靜默不擾人。
