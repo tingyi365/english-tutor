@@ -280,4 +280,31 @@
 4. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 5. PWA 進階：離線友善提示、新版可用時提醒重整。
 
+---
+
+### 第 10 輪 — 2026-06-29（發音核心再深化：逐音 drill 加「拆音節 + 標重音節」｜backlog #1，緊扣口說本命）
+**北極星研究（必做）**
+- WebSearch「ELSA Speak syllable stress marker / word stress teaching beginners app design」。借鏡 ELSA「Word Stress」模組＋教學界共識：①重音是初學者最易忽略卻最影響聽感與聽得懂的點，唸錯音節＝意思可能被誤解；②**視覺化標出該重讀的音節**（ELSA 用顏色標、教學用「拆音節＋看得到 stress pattern」）讓抽象的重音變看得見；③重讀音節要**更大聲、更長、音調略高**，配合可無限重聽的示範音加快回饋迴圈。落地 3 點子：①把唸錯的字拆成音節、標出重音節 ②一句話講清楚「那一節怎麼唸（更大聲更長更高）」③配既有 🔊正常/🐢慢速 示範音對著練。
+- 來源：blog.elsaspeak.com（Word Stress 模組/錯音節標紅）、iastate.pressbooks.pub teachingpronunciation（word stress 視覺教學）、boldvoice.com（stress rules）。
+
+**本輪進化：逐音 drill 加「音節 + 重音標記」（口說核心＝容易學的本命，正中 backlog #1）**
+- 改動檔：`assets/js/scoring.js`（`STRESS_DICT` 精選字典 + `syllabify`/`guessStress`/`syllableStress`、`wordDrills` 多帶 `syl` 欄位）、`assets/js/modes.js`（drill 卡渲染音節 chip + 重音節高亮 + 指引文案）、`assets/css/style.css`（`.drill-syl/.syl-chip/.syl-stress/.syl-tip`）。純加法、低風險、可回退。
+- **看得到重音在哪**：每個唸錯的多音節字，拆成音節 chip（如 `morn·ing`），把該重讀的音節**高亮成金色放大**，並附一句「重音在第 N 音節「X」：這一節唸得更大聲、更長、音調略高」。配既有 🔊正常/🐢慢速 示範音對著練＝把抽象重音變成看得見、跟得上的小步驟。
+- **正確優先**：`STRESS_DICT` 收錄 app 內 SENTENCES + VOCAB 實際會出現的多音節字（~95 字），重音索引**逐字對 data.js 的 IPA 主重音校正**確保顯示正確；字典查無時用啟發式 `syllabify`（母音群切分＋silent-e 合併＋雙字母不拆）+ 字尾規則 `guessStress` 給「參考」音節，且有真人示範音可對照。**單音節字回 null → 不顯示**（不增無謂負擔）。
+- 註：第 6 輪跟讀逐詞高亮、第 8 輪逐音 drill、第 9 輪錄音對照維持；本輪補上「重音/音節」這塊發音閉環缺口。
+
+**驗證證據**
+- 本機 node 單元測試 **51/51 PASS**：精選字典重音節文字正確(appreciate→pre/recommend→mend/understand→stand…)、大小寫標點正規化、單音節回 null、重音 index 合法範圍、啟發式後備給≥2 音節+合法重音、音節拼回原字不漏不增、wordDrills 帶 syl 欄位。
+- 本機真 Chrome（puppeteer-core 驅動、注入假 STT 走**真實 evaluate→drill 渲染路徑**、375px 手機）端到端 **12/12 PASS、0 console error**：固定第一句(含 morning/today)→唸錯逼出 drill→morning 音節 `morn·ing`+唯一重音節 `morn`+指引文案正確→有音節卡的字皆恰 1 重音節+chip 拼回原字→單音節字(how/are/you)不顯示音節卡→點 🐢慢速 無錯。腳本 `tools/verify_stress.mjs` 可重跑。
+- 第 8 輪 drill regression `tools/verify_shadowing.mjs` **12/12 PASS**（確認無回歸）。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 6/6 PASS、0 console error**（`tools/verify_stress_live.mjs`）；scoring.js(syllableStress/STRESS_DICT)、modes.js(drill-syl/syl-stress)、style.css(syl-chip) 線上 curl 實證在。
+- git cfa4272 push main + wrangler deploy 主(english-tutor-ai cdcbefda)+legacy(english-tutor-e1l 6c81ff7e)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：句子層級的**句重音/節奏**標記（哪幾個字該重讀），或單字 drill 加「錄我的這個字 vs 示範」逐字對照（接第 9 輪錄音對照）。
+2. 重音教學深化：重音卡可加「拍手/點點」節奏提示，或常見重音規則小卡（-tion 前一節、雙音節名詞重前…）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+
 [小組長 10:5x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200，主站 modes.js 線上 curl 含 compare-card/startRecording=第9輪功能在線)。第9輪「範例 vs 我的錄音對照」確實落實 backlog #1、做了北極星研究(ELSA/Speechling 錄自己→比對示範)、12/12本機+11/11線上真機 0 console error，正中我第7/8輪示警的「口說核心久未深化」最大摩擦點(第8輪逐音 drill→第9輪錄音對照，連兩輪深化口說本命)，無空轉無偏離；evolve_instruction 第9輪後無殘留🔴 pin。→ 導正動作：發現 evolve_instruction 靜態 backlog 仍把「⭐SRS 弱點優先」列最高優先，但 SRS 早在第4輪完成、onboarding(5)/PWA(7)亦完成，殘留會誘導未來輪重做=空轉風險(雖 round5–9 證 worker 實讀 log 新 backlog 未中招)；已將該區塊更新為「已完成清單(第2–9輪逐項標明勿重做)+⭐改釘發音/口說核心再深化為優先(逐音節重音/波形對齊/單字錄音對照)」，與 log 新 backlog 對齊、緊扣產品本命。靜默不擾人。
