@@ -131,3 +131,32 @@
 4. 首次進站 onboarding 引導（降門檻）。
 5. 內容再擴充：商務/旅遊主題分類、對話分支選項。
 6. SRS 進階：依盒設「下次複習日」時間間隔（目前是同 session 內弱點優先排序，未做跨日排程）。
+
+---
+
+### 第 5 輪 — 2026-06-29（首次進站 onboarding 引導｜降低新手第一次的門檻）
+**北極星研究（必做）**
+- WebSearch「language learning app onboarding first-time UX lower barrier Duolingo/Babbel beginner」。借鏡 Duolingo onboarding：①**價值先行**——先讓人體驗、把註冊延後（我們本來就免註冊，等同把第一道門檻直接砍掉）②**親切歡迎降低焦慮**（吉祥物迎接，讓新手放鬆、敢開始）③**請使用者設一個低門檻的目標 + 問動機**，再放進主畫面開始 bite-sized 課程。落地 3 點子：①第一次進站用親切歡迎卡降低陌生感 ②引導裡直接設「每天小目標」並**預設推薦輕鬆檔**（先養成習慣）③第三步用一句話交代 5 種方式怎麼開始，立刻能動手。
+- 來源：goodux.appcues.com/blog/duolingo-user-onboarding、babbel.com/compare-best-language-learning-apps、researchgate（Babbel vs Duolingo UX 比較）。
+
+**本輪進化：首次進站 onboarding 三步引導（降門檻＝容易學）**
+- 改動檔：`app.js`（+`showOnboarding/hasOnboarded`、init 首次自動開、設定面板「重看新手導覽」掛勾）、`index.html`（設定加「🧭 重看新手導覽」鈕）、`style.css`（`.onb-*` 引導樣式）。純加法、低風險、可回退（只多一個 localStorage flag `onboarded`）。
+- 第 1 步歡迎：👋 親切自介「逐字糾正、免註冊免費」降低新手焦慮與陌生感。
+- 第 2 步設每天目標：3 檔可選，**預設推薦「輕鬆 5」**並標「推薦新手」徽章（降門檻、先養成習慣）；選擇即時 highlight，完成時寫入 `dailyGoalLevel`。
+- 第 3 步怎麼開始：一句話交代 5 種學習方式 + 鼓勵連續天數，按「開始學習 →」收掉直接進首頁。
+- 只第一次自動出現（`onboarded` flag）；非最後一步可「略過」；設定面板可「重看新手導覽」隨時重開。
+
+**驗證證據**
+- 本機 `node --check` app.js / modes.js 語法全綠。
+- 本機 Chrome 真機（puppeteer-core 驅動真 Chrome、375px 手機）端到端 **17/17 PASS、0 console error**：首訪出現引導→step1 歡迎→3 點進度點→step2 三檔目標→選輕鬆 highlight→step3 開始學習鈕（最後步隱藏略過）→完成 overlay 移除＋`onboarded=1`＋`dailyGoalLevel=easy`＋首頁每日卡顯示 0/5＋5 張 mode-card→重整不再出現→設定「重看新手導覽」可重開。
+- 線上部署後 `https://english-tutor-ai.pages.dev` HTTP 200、線上實證 app.js 含 `showOnboarding`、index.html 含 `replayOnboarding`、style.css 含 `.onb-card`；legacy alias `english-tutor-e1l` 同步部署仍 200。
+
+**下一輪 backlog 想法**
+1. 跟讀逐詞高亮（speak onWord boundary 已備）。
+2. PWA：manifest + service worker，可安裝離線。
+3. 達標慶祝動畫/里程碑徽章(3/7/30 天)。
+4. SRS 進階：依盒設「下次複習日」跨日排程。
+5. 內容再擴充：商務/旅遊主題分類、對話分支選項。
+6. onboarding 進階：第 2 步可加「問學習動機（旅遊/工作/考試）」並據此推薦起始模式。
+
+[小組長 08:2x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)；第4輪確實落實導正檔硬性指定(SRS Leitner 弱點優先+精熟畢業)，做了北極星研究、14/14單測+15/15真機0 console error、無空轉無偏離。但觀察到方向風險：第1–4輪持續往「持續/精熟」做深(streak→錯題本→SRS)，新使用者首次落地仍無任何引導＝目前最大「不容易上手」摩擦點，而 backlog 殘留「SRS跨日排程」會誘導再往 power-user 深掘、偏離北極星。→ 導正動作：已移除第4輪已完成的硬性指定區塊，改釘第5輪「首次進站 onboarding 引導(降門檻)」為硬性指定(首次偵測+極簡導覽+可跳過+直送第一個30秒練習)，明令勿跳 SRS跨日排程/純內容擴充。靜默不擾人。

@@ -252,4 +252,36 @@ body {
 .btn-known { background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff; }
 .btn-unknown { background: var(--card-2); color: #fcd34d; border: 1px solid rgba(245,158,11,.45); }
 .rate-hint { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+/* ---- 首次進站引導 onboarding ---- */
+.onb { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: rgba(6,8,20,.72); backdrop-filter: blur(6px); animation: onbFade .25s ease; }
+@keyframes onbFade { from { opacity: 0; } to { opacity: 1; } }
+.onb-card { width: 100%; max-width: 420px; background: linear-gradient(180deg, var(--card), var(--bg-soft));
+  border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: 26px 22px 20px; text-align: center; }
+.onb-body { min-height: 188px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.onb-ico { font-size: 50px; margin-bottom: 6px; }
+.onb-card h2 { font-size: 21px; margin: 6px 0 10px; }
+.onb-card p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 0 0 6px; }
+.onb-card p b { color: #c7d2fe; }
+.onb-sub { font-size: 13px; }
+.onb-goals { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 6px; }
+.onb-goal { position: relative; text-align: left; background: var(--card-2); border: 1.5px solid var(--line);
+  color: var(--text); border-radius: 14px; padding: 12px 14px; cursor: pointer; transition: .15s; }
+.onb-goal b { font-size: 16px; display: inline-block; }
+.onb-goal span { color: var(--muted); font-size: 13px; margin-left: 8px; }
+.onb-goal em { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-style: normal;
+  font-size: 11px; font-weight: 700; color: #d8b4fe; background: rgba(139,92,246,.18);
+  border: 1px solid rgba(139,92,246,.4); padding: 3px 8px; border-radius: 999px; }
+.onb-goal.on { border-color: var(--brand); background: rgba(99,102,241,.16); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+.onb-goal:active { transform: scale(.98); }
+.onb-modes { display: flex; flex-direction: column; gap: 8px; width: 100%; margin: 4px 0 8px; text-align: left; }
+.onb-modes div { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px; font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+.onb-modes b { color: var(--text); }
+.onb-dots { display: flex; justify-content: center; gap: 7px; margin: 16px 0 14px; }
+.onb-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); transition: .2s; }
+.onb-dots i.on { background: var(--brand); width: 20px; border-radius: 999px; }
+.onb-actions { display: flex; gap: 10px; }
+.onb-actions .btn { flex: 1; }
+
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }

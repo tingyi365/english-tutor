@@ -141,6 +141,96 @@ export function rateVocab(word, known) {
   localStorage.setItem("vocabSrs", JSON.stringify(srs));
 }
 
+// ---------- 首次進站引導 onboarding（容易學：降低第一次的陌生與不知所措） ----------
+// 借鏡 Duolingo：先用親切歡迎降低焦慮 → 讓使用者設一個低門檻的每天目標 → 立刻知道怎麼開始。
+// 只在第一次出現（localStorage `onboarded`）；設定面板可重看。
+export function hasOnboarded() { return localStorage.getItem("onboarded") === "1"; }
+export function showOnboarding() {
+  if (document.getElementById("onboarding")) return;
+  let step = 0;
+  let pickedGoal = getDailyGoalLevel(); // 預設沿用現有；新使用者預設 normal
+  const steps = [
+    {
+      html: `<div class="onb-ico">👋</div>
+             <h2>歡迎！我是你的 AI 英語老師</h2>
+             <p>開口說英文，我會<b>逐字</b>標出對與錯，給你具體的發音建議。</p>
+             <p class="onb-sub">免註冊、免費、不用任何金鑰 — 打開就能練。</p>`,
+    },
+    {
+      html: `<div class="onb-ico">🎯</div>
+             <h2>先設一個每天小目標</h2>
+             <p class="onb-sub">目標小一點，最容易養成每天打開的習慣 — 之後隨時能在設定調整。</p>
+             <div class="onb-goals" id="onbGoals"></div>`,
+      goal: true,
+    },
+    {
+      html: `<div class="onb-ico">🚀</div>
+             <h2>挑一種方式，現在就開始</h2>
+             <div class="onb-modes">
+               <div>🎤 <b>跟讀糾音</b> — 開口跟讀，即時糾正發音（核心）</div>
+               <div>✍️ <b>聽寫</b> — 只聽聲音把句子打出來</div>
+               <div>💬 <b>情境對話</b>　🃏 <b>單字卡</b>　📝 <b>文法填空</b></div>
+             </div>
+             <p class="onb-sub">每天完成一點點就會進步，連續天數別中斷喔 🔥</p>`,
+    },
+  ];
+
+  const overlay = document.createElement("div");
+  overlay.id = "onboarding";
+  overlay.className = "onb";
+  overlay.innerHTML = `
+    <div class="onb-card" role="dialog" aria-modal="true">
+      <div class="onb-body"></div>
+      <div class="onb-dots"></div>
+      <div class="onb-actions">
+        <button class="btn btn-ghost" id="onbSkip" type="button">略過</button>
+        <button class="btn btn-primary" id="onbNext" type="button">下一步</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const body = overlay.querySelector(".onb-body");
+  const dots = overlay.querySelector(".onb-dots");
+  const nextBtn = overlay.querySelector("#onbNext");
+  const skipBtn = overlay.querySelector("#onbSkip");
+
+  const GOAL_OPTS = [
+    { k: "easy", t: "輕鬆", d: "每天 5 個練習", tag: "推薦新手" },
+    { k: "normal", t: "標準", d: "每天 10 個練習", tag: "" },
+    { k: "serious", t: "認真", d: "每天 20 個練習", tag: "" },
+  ];
+
+  function draw() {
+    body.innerHTML = steps[step].html;
+    dots.innerHTML = steps.map((_, i) => `<i class="${i === step ? "on" : ""}"></i>`).join("");
+    nextBtn.textContent = step === steps.length - 1 ? "開始學習 →" : "下一步";
+    skipBtn.style.visibility = step === steps.length - 1 ? "hidden" : "visible";
+    if (steps[step].goal) {
+      const wrap = body.querySelector("#onbGoals");
+      wrap.innerHTML = GOAL_OPTS.map((g) =>
+        `<button type="button" class="onb-goal ${g.k === pickedGoal ? "on" : ""}" data-k="${g.k}">
+           <b>${g.t}</b><span>${g.d}</span>${g.tag ? `<em>${g.tag}</em>` : ""}
+         </button>`
+      ).join("");
+      wrap.querySelectorAll(".onb-goal").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          pickedGoal = btn.dataset.k;
+          wrap.querySelectorAll(".onb-goal").forEach((b) => b.classList.toggle("on", b.dataset.k === pickedGoal));
+        });
+      });
+    }
+  }
+  function finish() {
+    setDailyGoalLevel(pickedGoal);
+    localStorage.setItem("onboarded", "1");
+    overlay.remove();
+    if (current === "home") navigate("home");
+  }
+  nextBtn.addEventListener("click", () => { if (step < steps.length - 1) { step++; draw(); } else finish(); });
+  skipBtn.addEventListener("click", finish);
+  draw();
+}
+
 // ---------- 語音狀態徽章 ----------
 function updateVoiceBadge() {
   const badge = document.getElementById("voiceBadge");
@@ -190,6 +280,9 @@ function initSettings() {
     goalSel.onchange = () => { setDailyGoalLevel(goalSel.value); if (current === "home") navigate("home"); };
   }
 
+  const replayBtn = document.getElementById("replayOnboarding");
+  if (replayBtn) replayBtn.onclick = () => { close(); showOnboarding(); };
+
   document.getElementById("resetProgress").onclick = () => {
     localStorage.removeItem("stats");
     localStorage.removeItem("daily");
@@ -214,6 +307,7 @@ function init() {
   });
   const initial = location.hash.replace("#", "") || "home";
   navigate(initial);
+  if (!hasOnboarded()) showOnboarding();
 }
 
 init();
