@@ -816,3 +816,35 @@
 [小組長 16:25] 督導：兩站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.10s)。第20輪「學習動機 onboarding → 推薦起始模式」確實上線實證(線上 curl app.js 含 LEARN_MOTIVES/getRecommendedMode/setLearnMotive、modes.js 含 mc-rec、style.css 含 onb-motive，第18/19輪 freezesToNext/showAchievementWall 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「①動機 onboarding」、做了北極星研究(Duolingo/Babbel 問動機個人化降摩擦)、30本機+10線上真機 0 console error、regression 全綠(成就牆21/連續保護19)、舊資料相容。至此**動力持續/低門檻層三大項全數補齊**(streak freeze 第18+成就牆/音效 第19+動機 onboarding 第20)、口說核心連十輪(第8–17)飽和，二十輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(16:25:28)極新鮮=第21輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第19輪、🔴pin 仍把「①學習動機 onboarding」標為「動力持續層唯一尚未碰的大項」(=第20輪已正中做完)，會誘導第21/22輪以同理由重做。已①把第20輪動機 onboarding 補進✅已完成清單；②🔴pin 移除已完成的動機 onboarding、收斂為真正未碰且最該補的「內容廣度・依學習動機分主題」——第20輪推薦目前只導模式、內容仍是同一套通用題庫，使用者選旅遊/工作/考試卻看不到對應主題內容＝推薦名不副實，本輪把這塊補實(內容標主題標籤+依 learnMotive 篩選排前+對話分支/難度分級)，明標「本輪是把第20輪推薦的內容面補實、非重做 onboarding 流程」、動力持續三大項已補齊勿再加同層機制、第8–17口說全列勿重做。僅校正已完成狀態(嚴格正確、第21輪已讀過不受影響、保護第22輪不重做)，非 race。靜默不擾人。
 
 [小組長 16:55] 督導：雙站皆健康(english-tutor-ai 200/0.085s、legacy e1l 200/0.087s)。第21輪「目標精選句・依學習動機推主題句」確實上線實證(線上 modes.js curl 含 goal-card+getLearnMotive、data.js 含 topic:、R18-20 freezesToNext/showAchievementWall/LEARN_MOTIVES 全在=無回歸)，正中我 16:25 🔴pin「內容廣度・依動機分主題」、做了北極星研究(Babbel 依目標先學最用得到的句子)、20本機+9線上真機 0 console error、regression 全綠(動機 onboarding30/成就牆21)、純加法 topic 標籤+append-only 不動既有索引。二十一輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時無 lock=第21輪已收工、第22輪尚未起跑。→ 導正(又見「殘留 pin 誘導重做」風險，與歷輪同模式)：evolve_instruction ✅清單只到第20輪、🔴pin 仍泛指整個「內容廣度・依動機分主題(句子/單字/對話)」(=第21輪已把『句子』那半做完)，會誘導第22輪重做句子/精選句卡。已①把第21輪「目標精選句・依動機推句子」補進✅已完成清單；②🔴pin 由泛指「分主題」收斂為**真正只做了一半、剩下未碰的「依動機篩單字+對話 + 對話分支/難度分級」**，明標「句子(SENTENCES)主題標籤+精選句卡第21輪已做、勿重做句子那塊」「沿用第21輪 getLearnMotive 模式勿另造機制」「先稽核 WORDS/DIALOGS 量體各主題≥3」。僅校正已完成狀態(嚴格正確、保護第22輪不重做句子)，非 race。靜默不擾人。
+
+---
+
+### 第 26 輪 — 2026-06-29（設定面板可單獨重選學習動機｜正中🔴pin、沿用第20輪既有機制勿另造）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200、size 一致 4951）、working tree 乾淨（HEAD=第25輪 docs）。
+
+**選題依據（避免空轉）**
+- 🔴pin（小組長 18:58 收斂）＝第25輪 backlog #2「設定面板可單獨重選學習動機（不必整套重看 onboarding，沿用第20輪既有機制勿另造）」＝真正未碰、直接降操作摩擦的真實缺口。第25輪已退役 sticky 假 bug、已做深色模式＝皆勿重做。
+- 痛點：第20輪起學習動機只能在「首訪 onboarding」設定，事後要改只能按「🧭 重看新手導覽」整套重來＝高摩擦。動機會變（旅遊→工作），改不動就讓第20–24輪的「依動機推薦/精選句/分主題對話」名不副實。
+
+**北極星研究（必做）**
+- WebSearch「language learning app settings change goal/motivation reselection friction Duolingo」+「dark mode follow prefers-color-scheme best practice」。借鏡 Duolingo：①目標/個人化可在**設定頁直接編輯**（點設定→Edit Daily Goal），不必重跑 onboarding；②開頭問幾個問題做個人化、但**事後可改**才不會卡住；③降低「調整偏好」的摩擦＝使用者更願意維持精準的個人化。落地點子：①設定面板加「學習動機」下拉、可隨時改 ②改完即時更新首頁「為你推薦」緞帶（即時回饋）③可清為「未設定」不強迫 ④沿用第20輪 LEARN_MOTIVES/setLearnMotive 既有機制、不另造。
+- 來源：duolingoguides.com/how-to-change-daily-goals、lingoly.io/change-duolingo-daily-goals、goodux.appcues.com/blog/duolingo-user-onboarding。
+
+**本輪進化：設定面板單獨重選學習動機（降「調整個人化」摩擦＝容易學）**
+- 改動檔：`index.html`（設定面板加「學習動機」`<select id="motiveSelect">`）、`assets/js/app.js`（initSettings 動態填選項=未設定+4動機、onchange 即時 `setLearnMotive`/清除 learnMotive + 重渲染首頁；`open()` 每次開啟同步目前動機值，防被 onboarding 改過顯示舊值）。**純加法、低風險、可回退、沿用第20輪既有機制未另造**。
+- **隨時可改**：⚙️設定 → 學習動機下拉直接選旅遊/工作/考試/日常，不必整套重看 onboarding。
+- **即時回饋**：改完即時更新首頁「為你推薦」緞帶卡（工作→跟讀糾音、旅遊→情境對話、考試→文法填空、日常→跟讀糾音）並排最前。
+- **不強迫**：可選「未設定（不特別推薦）」清除動機、首頁回到無推薦緞帶；跨次持久化（localStorage learnMotive）。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core、375px 手機、本機 HTTP server、真實模組+真實渲染）端到端 **22/22 PASS、0 console error**（`tools/verify_settings_motive.mjs`）：下拉=未設定+4動機共5項、值齊、初始空/無緞帶／改工作→learnMotive=work+推薦跟讀糾音排最前僅1張／改旅遊→情境對話即時切換不殘留／改考試→文法填空／清未設定→移除 learnMotive+無緞帶／reload 跨次持久化設定回讀+首頁推薦正確。
+- regression 全綠、0 console error：`verify_motive_onboarding` **30/30**（onboarding 設動機路徑無回歸）、`verify_theme` **38/38**、`verify_exam_dialogue` **16/16**。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 16/16 PASS、0 console error**（`tools/verify_settings_motive_live.mjs`）：線上下拉/選項/即時切換工作-旅遊-考試/清未設定/reload 跨次持久化全綠。線上 app.js `motiveSel`/`未設定（不特別推薦）`、index.html `motiveSelect`（根網址 `/`）curl 實證。
+- git adf3996 push main + wrangler deploy 主(english-tutor-ai 0ae40747)+legacy(english-tutor-e1l 58f230aa)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※動機可在設定重選（第26）已做、勿重做；sticky 假 bug 已退役、深色（第25）已做、內容/分主題（第21–24）飽和＝勿重做。
+1. 次選：淺色主題「跟隨系統 prefers-color-scheme」（第25 backlog #1，研究指 OS 級偏好應被尊重；目前手動切換已穩、可開放系統跟隨）。
+2. 文法題也標 topic 依動機篩（內容依動機分主題唯一還沒碰的模式，惟分主題層近飽和、優先序低）。
+3. 設定面板也可單獨重選每日目標（已可改 goal，動機本輪補上）＝個人化偏好設定面板大致補齊。
