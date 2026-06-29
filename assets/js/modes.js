@@ -1,7 +1,7 @@
 // ============ 各學習模式 ============
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
-import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize } from "./scoring.js";
+import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills } from "./scoring.js";
 import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -251,6 +251,39 @@ export function renderShadowing(view) {
     fb.forEach((f) => fbBox.append(el(
       `<div class="fb-item ${f.kind === "good" ? "fb-good" : "fb-warn"}"><span class="ico">${f.kind === "good" ? "✅" : "💡"}</span><span>${esc(f.text)}</span></div>`
     )));
+
+    // 逐音 drill：把唸錯/近音/漏唸的字逐一列出，給「更細的音」提示＋可重聽單字示範(正常/慢速)，
+    // 讓回饋從「診斷」變「能立刻照做的修正」（借鏡 ELSA：鎖定錯的音、無限重聽正確示範）。
+    const drills = wordDrills(result);
+    if (drills.length) {
+      const stLabel = { bad: "再加強", near: "接近了", miss: "漏唸" };
+      const drillCard = el(`
+        <div class="card mt drill-card">
+          <div class="drill-head">🎯 重點練這幾個音 — 點 🔊 聽<b>單字正確示範</b>，跟著慢慢唸到順為止</div>
+          <div class="drill-list"></div>
+        </div>`);
+      const list = $(".drill-list", drillCard);
+      drills.forEach((d) => {
+        const item = el(`
+          <div class="drill-item">
+            <div class="drill-row">
+              <span class="drill-w">${esc(d.word)}</span>
+              <span class="drill-st drill-${d.status}">${stLabel[d.status] || ""}</span>
+              ${d.heard ? `<span class="drill-heard">聽起來像 "${esc(d.heard)}"</span>` : ""}
+            </div>
+            <div class="drill-tip">${esc(d.tip)}</div>
+            <div class="drill-btns">
+              <button class="btn btn-ghost drill-say">🔊 正常</button>
+              <button class="btn btn-ghost drill-slow">🐢 慢速</button>
+            </div>
+          </div>`);
+        $(".drill-say", item).onclick = () => speak(d.word);
+        $(".drill-slow", item).onclick = () => speak(d.word, { rate: 0.5 });
+        list.append(item);
+      });
+      resBox.append(drillCard);
+    }
+
     $("#againBtn", resBox).onclick = toggleMic;
     $("#cmpBtn", resBox).onclick = () => readAlong(s.en);
     resBox.scrollIntoView({ behavior: "smooth", block: "nearest" });

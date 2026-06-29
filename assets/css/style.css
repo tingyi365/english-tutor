@@ -321,6 +321,23 @@ body {
   .celebrate-toast { transition: opacity .2s; }
 }
 
+/* ---- 逐音 drill（發音回饋核心：鎖定錯的音 + 可重聽單字示範 / 慢速逐詞對照） ---- */
+.drill-card { border-color: rgba(245,158,11,.35); }
+.drill-head { font-size: 14px; line-height: 1.55; color: var(--text); margin-bottom: 12px; }
+.drill-head b { color: #fcd34d; }
+.drill-list { display: flex; flex-direction: column; gap: 10px; }
+.drill-item { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; }
+.drill-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.drill-w { font-size: 19px; font-weight: 800; letter-spacing: .3px; }
+.drill-st { font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; }
+.drill-bad { color: #fda4af; background: var(--bad-soft); border: 1px solid rgba(244,63,94,.4); }
+.drill-near { color: #fcd34d; background: rgba(245,158,11,.16); border: 1px solid rgba(245,158,11,.4); }
+.drill-miss { color: #fcd34d; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); }
+.drill-heard { font-size: 12px; color: var(--muted); }
+.drill-tip { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 7px 0 10px; }
+.drill-btns { display: flex; gap: 8px; }
+.drill-btns .btn { flex: 1; padding: 9px 12px; font-size: 14px; }
+
 @media (min-width: 640px) { .tab i { font-size: 12px; } .target-sentence { font-size: 30px; } }
 
 /* ---- PWA 安裝邀請橫幅（容易學：邀請加到主畫面，回來只要一鍵） ---- */

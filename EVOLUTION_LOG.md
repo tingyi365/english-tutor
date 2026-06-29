@@ -222,3 +222,5 @@
 3. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 4. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
 5. PWA 進階：離線時的友善提示、安裝後 app 內更新提示（new SW 可用時提醒重整）。
+
+[小組長 09:5x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)、第7輪 PWA 線上實證齊(manifest.webmanifest/sw.js/icon-192 皆 200，app.js 線上含 initPWA+showCelebration+STREAK_MILESTONES+showOnboarding=第5/6/7輪功能全在線)。第1–7輪逐輪真朝「容易學」前進、每輪都做北極星研究、無空轉無偏離；evolve_instruction 第7輪後已自清無殘留🔴(無誘導重做的空轉風險)。導正動作：六/七輪持續疊習慣/動力/離線層，但產品本名「AI 英語口說老師」的**發音/口說核心連7輪未深化**＝對初學者最大的「不容易學」摩擦點(唸得對不對、錯在哪、怎麼修)。→ 已在 evolve_instruction 釘🔴第8輪硬性指定「發音回饋核心升級(以容易學為框架)」：具體哪個音/詞錯而非只給分數、一鍵重聽範例+慢速、跟讀逐詞高亮深化；明令禁漂移到 PWA進階/純gamification/純內容擴充/onboarding加步驟。靜默不擾人。
