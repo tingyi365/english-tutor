@@ -675,6 +675,40 @@
 
 ---
 
+### 第 22 輪 — 2026-06-29（對話依動機分主題 + 難度分級 + 自由跳級；單字依動機優先｜正中小組長 16:55 🔴pin「依動機篩單字+對話＋難度分級」，把第21輪只做句子的範圍補實）
+**第 0 優先（網址）：第 3 輪已處理、本輪不需重做**
+- 使用者派工提「換網址 english-tutor.pages.dev」，但該名為全域唯一名、已被外部帳號（Voice Recorder）永久佔用、技術不可取得；第 3 輪已遷至乾淨網址 `english-tutor-ai.pages.dev`。開工前雙站健康（HTTP 200）、working tree 乾淨。
+- **本輪在「內容面」續做未碰的一半**：第21輪已把**句子**標主題並依動機篩、做精選句卡（勿重做）；但**對話/單字**仍是同一套通用內容、且對話無難度分級＝動機=工作的人進「情境對話」看不到工作情境。本輪把對話/單字補實（沿用第21輪 `getLearnMotive` 模式、不另造機制）。動力持續三大項(第18–20)、口說核心(第8–17)已飽和，皆不重做；句子那塊第21輪已做、不重做。
+
+**北極星研究（必做）**
+- WebSearch「Babbel/Duolingo dialogue branching difficulty levels content by topic travel/business」。借鏡 Babbel：①課程**依學習目標/主題組織**（Business、旅遊各有專屬情境：訂餐廳/訂飯店/問路/面試），一進門就給「馬上用得到」的內容；②**難度分級但可自由跳級**——不把內容鎖在進度門後，想複習 A1 或挑戰 B2 都能直接跳，對初學者「先學最有用的」最友善；③對話以情境短劇＋提示句設計。落地點子：①對話標主題(旅遊/工作/日常)+難度(初/中級)、依動機預設聚焦；②主題 chip 可自由切換不鎖門；③單字也標主題、同熟練度下動機主題字優先。
+- 來源：univext.com/duolingo-vs-babbel-english-2026、learnlanguagesfromhome.com/babbel-review、unite.ai/babbel-review（Babbel 依主題/難度組織、可自由跳級不鎖進度門）。
+
+**本輪進化：對話依動機分主題 + 難度分級 + 可自由跳級；單字依動機優先（內容廣度層，讓「為你推薦」連對話/單字也名副其實＝更容易學）**
+- 改動檔：`assets/js/data.js`（DIALOGUES 每則加 `topic`(travel/work/daily)+`level`(初/中級)、**append 3 則工作職場對話**「跟同事約開會(初)/工作面試自我介紹(中)/商務電話留言(中)」補齊 work 主題；VOCAB 每字加 `topic`、**append 5 字** reservation/passport/luggage(travel)+passage/summarize(exam) 補齊各主題）、`assets/js/modes.js`（renderConversation 改：依 `getLearnMotive` 預設聚焦對應主題、主題篩選 chip「全部＋實際存在主題」可自由跳級、lesson-head 顯示難度徽章、換情境在過濾後清單內循環；renderFlashcard 排序加次要鍵：同 Leitner 盒下動機主題字優先）、`assets/css/style.css`（`.conv-chips/.conv-chip`）。純加法、低風險、可回退、舊資料相容（無 topic/level/motive 視為未設）。
+- **對話依動機分主題**：選了學習動機（第20輪）→ 情境對話**預設聚焦對應主題**（工作→work 對話排前），動機對應主題無對話則退「全部」（如動機=考試，零摩擦不強迫）。
+- **難度分級 + 自由跳級**：每則對話標初/中級徽章；主題 chip（全部/✈️旅遊/💼工作/🗣️日常）**可隨意切換、不鎖進度門**（借鏡 Babbel）。
+- **單字依動機優先**：單字卡同熟練度（Leitner 盒）下，對應動機主題字排前；**弱點優先仍是主排序**（不破壞 SRS）。
+- **絕不破壞既有**：沒選動機→對話 filter=all、單字照原順序、首頁無變化；對話無持久化索引（不影響任何錯題/索引語意）；第6–21輪所有功能（口說全系列/連續保護/成就牆/音效/動機 onboarding/精選句）全維持不動。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、**dynamic import 既載入 app.js/data.js/modes.js 真實模組** + 真實渲染）端到端 **19/19 PASS、0 console error**（`tools/verify_topic_dialogue.mjs`）：對話/單字全標 topic+level、work 主題已補(3則)、難度含初/中級、動機=工作→對話聚焦 work 且目前對話 topic=work+難度徽章、4 顆主題 chip、點旅遊 chip→切 travel(自由跳級)、換情境仍在 travel 內循環、未選動機→filter=all 照常、單字卡動機=旅遊→第一張為 travel 字。
+- regression 全綠、確認無回歸：目標精選句 `verify_goal_pack.mjs` **20/20**、動機 onboarding `verify_motive_onboarding.mjs` **30/30**、逐音 drill `verify_shadowing.mjs` **12/12**，皆 0 console error。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 10/10 PASS、0 console error**（`tools/verify_topic_dialogue_live.mjs`）：線上對話/單字 topic+level、動機=工作聚焦 work、難度徽章、主題 chip 自由跳級、未選動機 filter=all、單字依動機優先、回歸推薦緞帶+精選句卡全正常。線上 data.js `topic:` 標籤 63 處實證。
+- git b8dcd28 push main + wrangler deploy 主(english-tutor-ai a76c2e9e)+legacy(english-tutor-e1l 20c3780e)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+- ※內容廣度依動機分主題已覆蓋 句子(第21)+對話/單字(第22)；動力持續三大項(第18–20)+口說核心(第8–17)飽和。避免在已飽和層空轉。
+1. 內容**量**再擴充：各主題對話/句量加深（目前 work 對話 3 則、exam 對話 0）、文法題也標主題依動機篩。
+2. 設定面板可單獨重選學習動機（目前只能靠「重看新手導覽」整套重來）。
+3. 對話分支選項（同一情境多種回應分歧），讓對話更像真實互動（本輪做了主題/難度，分支留待）。
+4. UX 體質：sticky 底部導覽列補 `.view` padding-bottom，讓長頁內容都能捲離導覽列。
+5. 深色／淺色模式切換（降門檻體驗）。
+
+[小組長督導待補]
+
+---
+
 [小組長 16:25] 督導：兩站皆健康(english-tutor-ai 200/0.12s、legacy e1l 200/0.10s)。第20輪「學習動機 onboarding → 推薦起始模式」確實上線實證(線上 curl app.js 含 LEARN_MOTIVES/getRecommendedMode/setLearnMotive、modes.js 含 mc-rec、style.css 含 onb-motive，第18/19輪 freezesToNext/showAchievementWall 仍在=無回歸)，正中我 15:24 🔴pin 二選一之「①動機 onboarding」、做了北極星研究(Duolingo/Babbel 問動機個人化降摩擦)、30本機+10線上真機 0 console error、regression 全綠(成就牆21/連續保護19)、舊資料相容。至此**動力持續/低門檻層三大項全數補齊**(streak freeze 第18+成就牆/音效 第19+動機 onboarding 第20)、口說核心連十輪(第8–17)飽和，二十輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時 lock(16:25:28)極新鮮=第21輪正在跑、log 未產出。→ 導正(又見「殘留 pin 誘導重做＝空轉」風險，與歷輪同模式)：evolve_instruction ✅清單只到第19輪、🔴pin 仍把「①學習動機 onboarding」標為「動力持續層唯一尚未碰的大項」(=第20輪已正中做完)，會誘導第21/22輪以同理由重做。已①把第20輪動機 onboarding 補進✅已完成清單；②🔴pin 移除已完成的動機 onboarding、收斂為真正未碰且最該補的「內容廣度・依學習動機分主題」——第20輪推薦目前只導模式、內容仍是同一套通用題庫，使用者選旅遊/工作/考試卻看不到對應主題內容＝推薦名不副實，本輪把這塊補實(內容標主題標籤+依 learnMotive 篩選排前+對話分支/難度分級)，明標「本輪是把第20輪推薦的內容面補實、非重做 onboarding 流程」、動力持續三大項已補齊勿再加同層機制、第8–17口說全列勿重做。僅校正已完成狀態(嚴格正確、第21輪已讀過不受影響、保護第22輪不重做)，非 race。靜默不擾人。
 
 [小組長 16:55] 督導：雙站皆健康(english-tutor-ai 200/0.085s、legacy e1l 200/0.087s)。第21輪「目標精選句・依學習動機推主題句」確實上線實證(線上 modes.js curl 含 goal-card+getLearnMotive、data.js 含 topic:、R18-20 freezesToNext/showAchievementWall/LEARN_MOTIVES 全在=無回歸)，正中我 16:25 🔴pin「內容廣度・依動機分主題」、做了北極星研究(Babbel 依目標先學最用得到的句子)、20本機+9線上真機 0 console error、regression 全綠(動機 onboarding30/成就牆21)、純加法 topic 標籤+append-only 不動既有索引。二十一輪逐輪真朝「容易學」前進、無空轉無偏離。稽核時無 lock=第21輪已收工、第22輪尚未起跑。→ 導正(又見「殘留 pin 誘導重做」風險，與歷輪同模式)：evolve_instruction ✅清單只到第20輪、🔴pin 仍泛指整個「內容廣度・依動機分主題(句子/單字/對話)」(=第21輪已把『句子』那半做完)，會誘導第22輪重做句子/精選句卡。已①把第21輪「目標精選句・依動機推句子」補進✅已完成清單；②🔴pin 由泛指「分主題」收斂為**真正只做了一半、剩下未碰的「依動機篩單字+對話 + 對話分支/難度分級」**，明標「句子(SENTENCES)主題標籤+精選句卡第21輪已做、勿重做句子那塊」「沿用第21輪 getLearnMotive 模式勿另造機制」「先稽核 WORDS/DIALOGS 量體各主題≥3」。僅校正已完成狀態(嚴格正確、保護第22輪不重做句子)，非 race。靜默不擾人。
