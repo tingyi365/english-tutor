@@ -2,7 +2,7 @@
 import { SENTENCES, VOCAB, DIALOGUES, GRAMMAR } from "./data.js";
 import { speak, stopSpeaking, createRecognizer, speechSupport } from "./speech.js";
 import { alignAndScore, finalScore, gradeLabel, buildFeedback, tokenize, wordDrills, sentenceStress, sentenceIntonation } from "./scoring.js";
-import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, navigate } from "./app.js";
+import { addStat, getStrictness, getDaily, getStreak, getDailyGoal, addMistake, removeMistake, getMistakes, getMistakeCount, promoteMistake, demoteMistake, MAX_BOX, getVocabSrs, getVocabBox, rateVocab, getStreakBadges, STREAK_MILESTONES, freezesToNext, FREEZE_EARN_EVERY, navigate } from "./app.js";
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const el = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -27,6 +27,20 @@ export function renderHome(view, navigate) {
   const mistakeCount = getMistakeCount();
   const badges = getStreakBadges();
   const nextMilestone = STREAK_MILESTONES.find((n) => n > streak.count);
+  // 連續保護（streak freeze）狀態：有保護就秀盾牌＋安心文案；沒有就秀「再 X 天解鎖」當動力
+  const freezes = streak.freezes;
+  const freezeToNext = freezesToNext();
+  const freezeHtml = freezes > 0
+    ? `<div class="streak-freeze has" title="漏一天也不會中斷，會自動補上缺口">
+         <span class="sf-ico">🛡️</span>
+         <div class="sf-txt"><b>連續保護 ×${freezes}</b><span>漏一天也不中斷・自動補上缺口</span></div>
+       </div>`
+    : (streak.count > 0 && freezeToNext > 0
+      ? `<div class="streak-freeze" title="連續練習每 ${FREEZE_EARN_EVERY} 天賺 1 張連續保護">
+           <span class="sf-ico sf-dim">🛡️</span>
+           <div class="sf-txt"><b>再 ${freezeToNext} 天解鎖連續保護</b><span>保護能讓你漏一天也不中斷</span></div>
+         </div>`
+      : "");
   const modes = [
     { r: "shadowing", ico: "🎤", t: "跟讀糾音", d: "聽老師示範，開口跟讀，逐字即時糾正發音。" },
     { r: "dictation", ico: "✍️", t: "聽寫練習", d: "只聽聲音，把句子打出來，訓練聽力與拼寫。" },
@@ -66,6 +80,7 @@ export function renderHome(view, navigate) {
           ${badges.map((b) => `<span class="sbadge" title="連續 ${b.n} 天里程碑">${b.ico}<i>${b.n}</i></span>`).join("")}
           ${nextMilestone ? `<span class="sbadge sbadge-next" title="下一個里程碑">🎯<i>${nextMilestone}天</i></span>` : ""}
         </div>` : ""}
+        ${freezeHtml}
       </div>
 
       ${mistakeCount > 0 ? `

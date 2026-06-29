@@ -295,6 +295,15 @@ body {
 .sbadge i { font-style: normal; font-size: 12px; font-weight: 800; color: var(--text); }
 .sbadge-next { opacity: .65; border-style: dashed; box-shadow: none; }
 .sbadge-next i { color: var(--muted); }
+/* 連續保護（streak freeze）狀態列 */
+.streak-freeze { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 9px 12px;
+  border-radius: 12px; background: linear-gradient(180deg, var(--card-2), var(--bg-soft)); border: 1px solid var(--line); }
+.streak-freeze.has { border-color: rgba(56,189,248,.5); box-shadow: 0 0 0 1px rgba(56,189,248,.18) inset; }
+.streak-freeze .sf-ico { font-size: 20px; line-height: 1; }
+.streak-freeze .sf-ico.sf-dim { filter: grayscale(1); opacity: .55; }
+.streak-freeze .sf-txt { display: flex; flex-direction: column; gap: 1px; }
+.streak-freeze .sf-txt b { font-size: 13px; color: var(--text); }
+.streak-freeze .sf-txt span { font-size: 11px; color: var(--muted); }
 
 /* ---- 達標 / 里程碑 慶祝吐司 ---- */
 .celebrate-toast { position: fixed; left: 50%; top: 64px; z-index: 60;

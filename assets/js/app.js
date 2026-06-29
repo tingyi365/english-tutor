@@ -56,15 +56,33 @@ function isYesterday(prev, today) {
   const y = new Date(today + "T00:00:00"); y.setDate(y.getDate() - 1);
   return todayKey(y) === prev;
 }
+// 前天（剛好漏掉「昨天」一天）：用來判斷是否該動用「連續保護」補回缺口
+function isDayBeforeYesterday(prev, today) {
+  if (!prev) return false;
+  const y = new Date(today + "T00:00:00"); y.setDate(y.getDate() - 2);
+  return todayKey(y) === prev;
+}
 export function getDaily() {
   const today = todayKey();
   let d = JSON.parse(localStorage.getItem("daily") || "{}");
   if (d.date !== today) d = { date: today, count: 0 };
   return d;
 }
+// 連續保護（streak freeze）：漏一天不直接歸零、自動補回缺口。
+// 借鏡 Duolingo：streak freeze 是留存最強的機制（降低「斷連」焦慮、保住損失趨避動力）。
+// 設計成「零摩擦、免購買」——靠每天持續練習自動賺得，最符合「容易學」。
+export const MAX_FREEZE = 2;          // 最多存 2 張，避免永遠不可能斷連
+export const FREEZE_EARN_EVERY = 3;   // 連續每 3 天自動賺 1 張保護
 export function getStreak() {
   const s = JSON.parse(localStorage.getItem("streak") || "{}");
-  return { count: s.count || 0, best: s.best || 0, lastDay: s.lastDay || "" };
+  return { count: s.count || 0, best: s.best || 0, lastDay: s.lastDay || "", freezes: s.freezes || 0 };
+}
+// 還差幾天賺得下一張保護（freezes 已滿則回 0）
+export function freezesToNext() {
+  const s = getStreak();
+  if (s.freezes >= MAX_FREEZE) return 0;
+  const r = FREEZE_EARN_EVERY - (s.count % FREEZE_EARN_EVERY);
+  return r === 0 ? FREEZE_EARN_EVERY : r;
 }
 function bumpDaily(reps) {
   const today = todayKey();
@@ -80,12 +98,20 @@ function bumpDaily(reps) {
   localStorage.setItem("daily", JSON.stringify(d));
   // 連續天數：當天首次學習就接續（只要每天出現就不斷連，門檻最低、最容易維持）
   let s = JSON.parse(localStorage.getItem("streak") || "{}");
-  s.count = s.count || 0; s.best = s.best || 0;
-  let newMilestone = 0;
+  s.count = s.count || 0; s.best = s.best || 0; s.freezes = s.freezes || 0;
+  let newMilestone = 0, freezeUsed = 0;
   if (s.lastDay !== today) {
-    s.count = isYesterday(s.lastDay, today) ? s.count + 1 : 1;
+    if (isYesterday(s.lastDay, today)) {
+      s.count = s.count + 1;                       // 昨天有練 → 正常接續
+    } else if (isDayBeforeYesterday(s.lastDay, today) && s.freezes > 0 && s.count > 0) {
+      s.freezes -= 1; s.count = s.count + 1; freezeUsed = 1; // 漏一天 + 有保護 → 補回缺口、連續不歸零
+    } else {
+      s.count = 1;                                 // 漏 ≥2 天或無保護 → 重新開始
+    }
     s.lastDay = today;
     if (s.count > s.best) s.best = s.count;
+    // 持續練習自動賺保護：連續天數每滿 FREEZE_EARN_EVERY 天 +1（上限 MAX_FREEZE）
+    if (s.count > 0 && s.count % FREEZE_EARN_EVERY === 0 && s.freezes < MAX_FREEZE) s.freezes += 1;
     // 連續天數踩到里程碑(3/7/14/30/60/100)且還沒拿過 → 頒徽章
     if (STREAK_MILESTONES.includes(s.count)) {
       const earned = getEarnedBadges();
@@ -93,9 +119,11 @@ function bumpDaily(reps) {
     }
     localStorage.setItem("streak", JSON.stringify(s));
   }
-  // 即時正向回饋：里程碑較稀有，優先慶祝；否則達標慶祝
+  // 即時正向回饋：里程碑較稀有，優先慶祝；其次「保護生效」的安心回饋；否則達標慶祝
   if (newMilestone) {
     showCelebration(`${badgeIcon(newMilestone)} 連續學習 ${newMilestone} 天！`, `解鎖里程碑徽章 — 你的堅持正在變成實力 💪`);
+  } else if (freezeUsed) {
+    showCelebration(`🛡️ 連續保護生效！`, `昨天的缺口已自動補上 — 連續 ${s.count} 天沒有中斷，繼續加油 🔥`);
   } else if (justReached) {
     showCelebration("🎉 今日目標達成！", `完成 ${goal} 個練習・明天回來把連續變 ${s.count + 1} 天 🔥`);
   }
