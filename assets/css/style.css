@@ -164,6 +164,15 @@ body {
 .conv-chip.on { color: #fff; border-color: transparent;
   background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
 
+/* ---- 對話分支選項（第23輪：自己選想怎麼回應）---- */
+.conv-choices { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 4px; }
+.conv-choice { display: flex; flex-direction: column; gap: 2px; text-align: left; cursor: pointer;
+  background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 13px; transition: .16s; }
+.conv-choice:hover { border-color: var(--brand); transform: translateY(-1px); }
+.cc-label { font-size: 13px; font-weight: 700; color: var(--brand); }
+.cc-en { font-size: 15px; font-weight: 600; color: var(--text); }
+.cc-zh { font-size: 12px; color: var(--muted); }
+
 .stat-row { display: flex; gap: 10px; margin-top: 14px; }
 .stat { flex: 1; text-align: center; background: var(--card); border: 1px solid var(--line);
   border-radius: 14px; padding: 12px 6px; }

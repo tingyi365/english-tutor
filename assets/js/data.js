@@ -79,7 +79,11 @@ export const DIALOGUES = [
     turns: [
       { ai: "Hi! Welcome. What can I get for you today?", hint: "I'd like a latte, please.", zh: "我想要一杯拿鐵，謝謝。" },
       { ai: "Sure. What size would you like?", hint: "A medium one, please.", zh: "中杯，謝謝。" },
-      { ai: "Anything else? Maybe a snack?", hint: "No, thank you. That's all.", zh: "不用了，謝謝，這樣就好。" },
+      // 分支：要不要加點心（第23輪）。
+      { ai: "Anything else? Maybe a snack?", choices: [
+        { label: "🍪 加點心", en: "Yes, a chocolate cookie, please.", zh: "好，一塊巧克力餅乾，謝謝。", reply: "Sure, one cookie added." },
+        { label: "🙅 不用了", en: "No, thank you. That's all.", zh: "不用了，謝謝，這樣就好。", reply: "No problem." },
+      ] },
       { ai: "Great. That will be five dollars.", hint: "Here you are. Thank you!", zh: "錢在這裡，謝謝！" },
     ],
   },
@@ -90,7 +94,12 @@ export const DIALOGUES = [
       { ai: "Hello! I don't think we've met. I'm David.", hint: "Hi David, I'm Anna. Nice to meet you.", zh: "嗨大衛，我是安娜，很高興認識你。" },
       { ai: "Nice to meet you too! Where are you from?", hint: "I'm from Taiwan. How about you?", zh: "我來自台灣，你呢？" },
       { ai: "I'm from Canada. What do you do?", hint: "I'm a software engineer.", zh: "我是軟體工程師。" },
-      { ai: "Cool! Why are you learning English?", hint: "I want to improve my speaking for work.", zh: "我想為了工作加強口說。" },
+      // 分支：自己選為什麼學英文（第23輪：對話分支選項，挑一種說法練習＝更像真實互動）。
+      { ai: "Cool! Why are you learning English?", choices: [
+        { label: "💼 為了工作", en: "I want to improve my speaking for work.", zh: "我想為了工作加強口說。", reply: "That's a great goal. English really helps your career." },
+        { label: "✈️ 為了旅遊", en: "I'm learning it for traveling abroad.", zh: "我為了出國旅遊而學。", reply: "Nice! You'll enjoy your trips even more." },
+        { label: "📖 為了考試", en: "I'm preparing for an English exam.", zh: "我在準備英文考試。", reply: "Good luck! Keep practicing and you'll do great." },
+      ] },
     ],
   },
   {
@@ -128,7 +137,11 @@ export const DIALOGUES = [
     scene: "你想跟同事約個時間開會討論專案。",
     turns: [
       { ai: "Hi, do you have time to talk about the project?", hint: "Sure. When works for you?", zh: "當然，你什麼時間方便？" },
-      { ai: "How about tomorrow at ten?", hint: "Tomorrow at ten works for me.", zh: "明天十點我可以。" },
+      // 分支：接受提議的時間，或改約別的時間（第23輪）。
+      { ai: "How about tomorrow at ten?", choices: [
+        { label: "✅ 可以", en: "Tomorrow at ten works for me.", zh: "明天十點我可以。", reply: "Perfect. I'll book a meeting room." },
+        { label: "🔁 改時間", en: "Could we make it in the afternoon instead?", zh: "可以改約下午嗎？", reply: "Sure, let's say two o'clock then." },
+      ] },
       { ai: "Great. I'll send you a meeting invite.", hint: "Thanks. See you then.", zh: "謝謝，到時見。" },
     ],
   },

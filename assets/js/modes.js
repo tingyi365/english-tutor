@@ -941,13 +941,47 @@ export function renderConversation(view) {
     const t = d.turns[turn];
     pushBubble("ai", t.ai);
     setTimeout(() => speak(t.ai), 200);
-    renderControls(t);
+    // 分支對話（借鏡 Babbel：自己選想怎麼回應 → 對話更像真實互動＝更容易開口）。
+    // 有 choices 就先讓使用者挑一種說法；沒有就維持原本單一建議句路徑（向後相容）。
+    if (t.choices && t.choices.length) renderChoices(t);
+    else renderControls(t);
   }
 
-  function renderControls(t) {
+  // 分支選擇：列出 2-3 種回應方式，挑一種後轉成可練習的回應句（沿用 renderControls）。
+  function renderChoices(t) {
     const ctl = $("#convCtl", view);
     ctl.innerHTML = `
-      <div class="suggest-line">💡 建議這樣回答：<b>${esc(t.hint)}</b>（${esc(t.zh)}）</div>
+      <div class="suggest-line">💬 你想怎麼回應？選一種說法練習：</div>
+      <div class="conv-choices" id="convChoices">
+        ${t.choices.map((c, ci) => `
+          <button type="button" class="conv-choice" data-ci="${ci}">
+            <span class="cc-label">${esc(c.label)}</span>
+            <span class="cc-en">${esc(c.en)}</span>
+            <span class="cc-zh">${esc(c.zh)}</span>
+          </button>`).join("")}
+      </div>`;
+    view.querySelectorAll(".conv-choice").forEach((b) => {
+      b.onclick = () => {
+        const c = t.choices[+b.dataset.ci];
+        renderControls({ hint: c.en, zh: c.zh }, c.reply);
+      };
+    });
+  }
+
+  // 推進到下一輪；branch 選擇有對方回應(reply)時，先把回應 bubble 推出再續。
+  function advance(reply, delay) {
+    if (reply) {
+      pushBubble("ai", reply);
+      setTimeout(() => speak(reply), 250);
+    }
+    turn++;
+    setTimeout(nextTurn, reply ? Math.max(delay || 0, 900) : (delay || 0));
+  }
+
+  function renderControls(t, reply) {
+    const ctl = $("#convCtl", view);
+    ctl.innerHTML = `
+      <div class="suggest-line">💡 ${reply ? "就照這句練習：" : "建議這樣回答："}<b>${esc(t.hint)}</b>（${esc(t.zh)}）</div>
       <div class="btn-row">
         <button class="btn btn-ghost" id="hearHint">🔊 聽建議句</button>
         <button class="btn btn-mic" id="speakBtn" ${speechSupport.stt ? "" : "disabled"}>🎙️ 換我說</button>
@@ -955,11 +989,11 @@ export function renderConversation(view) {
       </div>
       <div class="heard mt" id="convHeard"><span class="muted">點「換我說」開口回應…</span></div>`;
     $("#hearHint", ctl).onclick = () => speak(t.hint);
-    $("#skipBtn", ctl).onclick = () => { turn++; nextTurn(); };
-    $("#speakBtn", ctl).onclick = () => speakTurn(t);
+    $("#skipBtn", ctl).onclick = () => advance(reply, 0);
+    $("#speakBtn", ctl).onclick = () => speakTurn(t, reply);
   }
 
-  function speakTurn(t) {
+  function speakTurn(t, reply) {
     if (listening) { recognizer && recognizer.stop(); return; }
     const heard = $("#convHeard", view);
     const btn = $("#speakBtn", view);
@@ -977,8 +1011,7 @@ export function renderConversation(view) {
         const grade = gradeLabel(score);
         pushBubble("me", finalText, `發音 ${score} 分・${grade.label}`);
         addStat({ practiced: 1, best: score });
-        turn++;
-        setTimeout(nextTurn, 600);
+        advance(reply, 600);
       },
     });
     recognizer.start();
