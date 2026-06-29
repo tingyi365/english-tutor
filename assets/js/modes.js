@@ -1192,6 +1192,7 @@ export function renderGrammar(view) {
         <div class="card">
           <div class="gap-sentence">${esc(parts[0])}<span class="gap-blank" id="blank">____</span>${esc(parts[1] || "")}</div>
           <div class="translation mb">${esc(q.zh)}</div>
+          <div class="read-hint">🎯 讀句子，從下面四個選項挑出空格裡正確的字 — 選好馬上告訴你對不對和原因。</div>
           <div class="opt-grid" id="opts"></div>
           <div id="gramResult"></div>
         </div>
