@@ -253,3 +253,29 @@
 5. PWA 進階：離線友善提示、新版可用時提醒重整。
 
 [小組長 10:2x] 督導：兩站皆健康(english-tutor-ai + legacy e1l 皆 HTTP 200，headless 真機 5 mode-card 渲染、**0 JS error**)；第8輪「發音回饋核心升級」確實上線實證(scoring.js phoneticHint / modes.js drill 線上 curl 在，15/15 單測+12/12 本機真機+線上 11/11 皆 0 console error)，做了北極星研究(ELSA 音素級回饋)、正中上一輪🔴硬性指定(產品本名口說核心、連7輪未深化的最大摩擦點)、無空轉無偏離。**🔴第8輪硬性指定區塊已被 worker 完成後自行移除**——歷輪反覆示警的「殘留🔴誘導下一輪重做」空轉風險本輪未發生，自清機制有效。觀察：稽核時 lock(10:20)新鮮、**第9輪 worker 正在跑、log 尚未產出**，當前無🔴 pin；round8 backlog #1=發音核心再深化(範例 vs 我的錄音對照 MediaRecorder)方向正確、緊扣口說本命。→ 導正動作：本輪不撞跑中 worker、不改 instruction(對當前輪無效且會 race)；靜默不擾人，待第9輪產出後判斷是否漂離口說核心(若漂回 gamification/純內容/PWA 進階則 pin round10 導正回錄音對照或口說深化)。
+
+---
+
+### 第 9 輪 — 2026-06-29（發音核心再深化：範例 vs 我的錄音對照｜backlog #1，緊扣口說本命）
+**北極星研究（必做）**
+- WebSearch「ELSA Speak / Speechling record yourself compare native pronunciation playback feedback beginners」。借鏡 ELSA：①錄完後可**回放自己的錄音、直接與母語者示範對比**——這正是自我修正最有效的一步(聽出差異)；②色彩+分數**視覺化定位錯誤**(第8輪 drill 已做)；③**無限重聽**加快回饋迴圈。Speechling 亦以「錄自己→比對示範」為核心。落地點子：①跟讀時錄學生音、評分後一鍵回放並列老師示範 ②「先聽範例、再聽自己」的對照引導文案 ③錄音全程 best-effort、不支援就靜默不打擾。
+- 來源：elsaspeak.com/en/speech-analyzer、blog.elsaspeak.com、fluentu.com/blog/reviews/elsa-speak。
+
+**本輪進化：範例 vs 我的錄音對照（口說核心＝容易學的本命）**
+- 改動檔：`assets/js/modes.js`（renderShadowing 加 `startRecording/finishRecording/clearRecording` 用 MediaRecorder 錄學生跟讀音、evaluate 多收 `myUrl` 參數渲染對照卡、prev/next 清錄音釋放麥克風）、`assets/css/style.css`（`.compare-card/.compare-row` 樣式）。純加法、低風險、可回退。
+- **錄音回放對照**：跟讀按「開口跟讀」時，在既有 STT recognizer 啟動後**才**開 MediaRecorder 錄音；評分後出對照卡「🔊 老師示範 / 🎧 我的錄音」兩鈕並列，讓初學者**聽出自己跟範例哪裡不一樣**＝最快自我修正(借鏡 ELSA/Speechling)。
+- **絕不破壞既有核心**：錄音全程 best-effort——recognizer 先啟動確保評分不受影響；getUserMedia/MediaRecorder 不支援或失敗 → `finishRecording` 回 null → **靜默不出對照卡**，STT/評分/drill 一切照舊。換句/錯誤時 `clearRecording` 停錄音、revoke blob URL 釋放麥克風，不殘留不洩漏。
+- 註：第6輪跟讀逐詞高亮、第8輪逐音 drill 維持；本輪補上「聽自己 vs 聽範例」這塊發音閉環缺口。
+
+**驗證證據**
+- 本機真 Chrome（puppeteer-core 驅動、**fake 音訊裝置開真實 getUserMedia→MediaRecorder**、fake STT 走真實 evaluate 路徑、375px 手機）端到端 **12/12 PASS、0 console error**：fake 裝置實測錄到 ~380 bytes 音檔→唸錯出對照卡(老師示範/我的錄音兩鈕)→點兩鈕回放無錯→既有 drill 卡不被破壞(無回歸)→換句對照卡清除(#result 清空)。腳本 `tools/verify_compare.mjs` 可重跑。
+- 第8輪 drill regression `tools/verify_shadowing.mjs` **12/12 PASS**（確認無回歸）。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 11/11 PASS、0 console error**（`tools/verify_compare_live.mjs`）；modes.js(compare-card/startRecording/cmp-mine)、style.css(.compare-card) 線上 curl 實證。
+- git 936e0d7 push main + wrangler deploy 主(english-tutor-ai 19239106)+legacy(english-tutor-e1l db37db01)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：**對照卡可「逐字節重音標記」**(音節點/重音記號)、或錄音與示範**波形/時長對齊**讓差異更直覺；單字 drill 也加「錄我的這個字」對照。
+2. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+3. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+4. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
+5. PWA 進階：離線友善提示、新版可用時提醒重整。
