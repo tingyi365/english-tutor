@@ -308,3 +308,33 @@
 5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
 
 [小組長 10:5x] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200，主站 modes.js 線上 curl 含 compare-card/startRecording=第9輪功能在線)。第9輪「範例 vs 我的錄音對照」確實落實 backlog #1、做了北極星研究(ELSA/Speechling 錄自己→比對示範)、12/12本機+11/11線上真機 0 console error，正中我第7/8輪示警的「口說核心久未深化」最大摩擦點(第8輪逐音 drill→第9輪錄音對照，連兩輪深化口說本命)，無空轉無偏離；evolve_instruction 第9輪後無殘留🔴 pin。→ 導正動作：發現 evolve_instruction 靜態 backlog 仍把「⭐SRS 弱點優先」列最高優先，但 SRS 早在第4輪完成、onboarding(5)/PWA(7)亦完成，殘留會誘導未來輪重做=空轉風險(雖 round5–9 證 worker 實讀 log 新 backlog 未中招)；已將該區塊更新為「已完成清單(第2–9輪逐項標明勿重做)+⭐改釘發音/口說核心再深化為優先(逐音節重音/波形對齊/單字錄音對照)」，與 log 新 backlog 對齊、緊扣產品本命。靜默不擾人。
+
+[小組長 11:21] 督導：兩站皆健康(english-tutor-ai 與 legacy e1l 皆 HTTP 200)；第10輪「逐音 drill 加音節+重音標記」線上實證齊(scoring.js 含 STRESS_DICT/syllableStress、modes.js 含 drill-syl/syl-stress，第9輪 compare-card 亦在線=功能無回退)，做了北極星研究(ELSA Word Stress)、51單測+12本機+6線上真機 0 console error、正中 backlog #1 緊扣口說本命，第8→9→10連三輪深化發音核心、無空轉無偏離。稽核時 lock(11:21:18)新鮮、第11輪 worker 正在跑、log 尚未產出 → 依既定規則不撞跑中 worker、不在 race 中改 instruction；evolve_instruction backlog 已於上輪對齊(已完成清單+⭐發音核心優先)、無殘留🔴 pin、方向正確未過時。靜默不擾人，待第11輪產出後判斷是否漂離口說核心。
+
+---
+
+### 第 11 輪 — 2026-06-29（發音核心再深化：句子節奏／句重音標記｜backlog #1，緊扣口說本命）
+**北極星研究（必做）**
+- WebSearch「ELSA Speak sentence stress rhythm intonation teaching beginners connected speech」。借鏡 ELSA Sentence Stress＋ESL 超音段(suprasegmentals)教學共識：①ELSA 分析音高與節奏、**標出句中該強調哪些字(sentence stress)**，色彩定位(綠/黃/紅)讓回饋一眼看懂；②英文是 **stress-timed(重音節拍)** 語言——實詞(名詞/動詞/形容詞)唸重、長、清楚，虛詞(冠詞/介系詞/助動詞)弱化帶過；華語是 syllable-timed(每字平均出力)，**這正是華語母語者最常見的不道地點：每個字都唸一樣重**；③stress 可用「在文字上標記重音」的視覺活動內化。落地 3 點子：①把句子裡該重讀的實詞標大、虛詞縮灰 ②一句話講清「實詞唸重、虛詞輕帶」的節奏原則 ③配可跟讀的示範把抽象節奏變成跟得上的小步驟。
+- 來源：bridge.edu（teaching suprasegmentals stress/rhythm/intonation）、inenglishwithlove.com（ELSA sentence stress）、elsaspeak.com/en/speech-analyzer。
+
+**本輪進化：句子節奏／句重音標記（口說核心＝容易學的本命，正中 backlog #1）**
+- 改動檔：`assets/js/scoring.js`（`FUNCTION_WORDS` 虛詞表 + `isFunctionWord`/`sentenceStress`）、`assets/js/modes.js`（renderShadowing 加「🎵 句子節奏」鈕 + `toggleRhythm` 可收合面板 + 跟讀）、`assets/css/style.css`（`.rhythm-*`/`.beat-*` 樣式）。純加法、低風險、可回退。
+- **看得到節奏在哪**：跟讀頁新增「🎵 句子節奏」鈕，點開把該句**逐字標記**——實詞(名詞/動詞/形容詞/疑問詞/否定詞/數詞)放大加粗(beat-strong)、虛詞(the/a/to/of/is/you…)縮小變灰(beat-weak)，每字上方一顆節拍點(●/·)，把「英文是重音節拍語言」這件抽象的事變成一眼看懂的小步驟。
+- **教學文案＋可跟讀**：面板附一句「實詞唸重、長、清楚；虛詞輕輕快快帶過，整句就有道地抑揚」，並有「🔊 跟著節奏唸一次」鈕(0.8 倍速 read-along 逐字高亮)對著練。
+- **不增負擔**：預設收合、點按才展開、再點收合；切換句子自動重置不殘留。分類用標準 ESL 啟發式(不在虛詞表者皆視為實詞)，正確處理縮寫(it's→it 虛詞、don't/can't 否定永遠重讀)與標點。
+- 註：第 6 輪跟讀逐詞高亮、第 8 輪逐音 drill、第 9 輪錄音對照、第 10 輪音節+字重音維持；本輪補上「**句子層級**的重音/節奏」這塊發音閉環缺口(前幾輪聚焦單字層級)。
+
+**驗證證據**
+- 本機 node 單元測試 **22/22 PASS**：實詞/虛詞分類正確(like/cup/coffee/please 重、I/would/a/of 弱)、否定縮寫(don't/can't/won't)永遠重讀、縮寫去尾(it's/they're/I'm→虛詞)、標點不影響、疑問詞(what)/否定詞(not)為實詞、詞數一致、句中同時有重弱。
+- 本機真 Chrome（puppeteer-core 驅動、375px 手機、走真實 DOM 渲染）端到端 **13/13 PASS、0 console error**（`tools/verify_rhythm_e2e.mjs`）：節奏鈕在、預設收合→點開出節奏卡→「Good morning. How are you today?」標成 GOOD MORNING. HOW are you TODAY?(實詞重/are·you 弱)→出現虛詞皆判弱化→教學文案+播放鈕→點播放無錯→可收合→切句乾淨不殘留。
+- 第 8/10 輪 regression `tools/verify_shadowing.mjs`、`tools/verify_stress.mjs` 各 **12/12 PASS**（確認無回歸）。
+- **線上正式站 `https://english-tutor-ai.pages.dev` 真機端到端 8/8 PASS、0 console error**（`tools/verify_rhythm_live.mjs`）；scoring.js(sentenceStress/isFunctionWord)、modes.js(toggleRhythm/rhythmBtn/句子節奏)、style.css(beat-strong/rhythm-card) 線上 curl 實證在。
+- git cdc3a83 push main + wrangler deploy 主(english-tutor-ai 6458615e)+legacy(english-tutor-e1l 2d3df44d)皆成功、兩站 HTTP 200。
+
+**下一輪 backlog 想法（優先序建議）**
+1. 發音核心再深化：句子節奏可加「拍手/打點」節奏節拍器同步、或錄音與示範**時長/波形對齊**讓快慢差異更直覺(第9輪錄音對照延伸)。
+2. 節奏教學深化：常見句重音規則小卡（資訊焦點/對比重音、句尾上揚 vs 下降語調）。
+3. 內容再擴充：商務/旅遊主題分類、對話分支選項（難度分級、初學者友善）。
+4. 慶祝/成就升級：里程碑徽章點開「成就牆」、達標輕量音效（尊重靜音）。
+5. onboarding 進階：第 2 步問學習動機（旅遊/工作/考試）→ 推薦起始模式。
