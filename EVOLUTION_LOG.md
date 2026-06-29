@@ -1389,3 +1389,21 @@
 **下一輪 backlog 想法**
 1. ⏸️ **方向待使用者就 A/B/C/D 決策**（00:35 已上報 chat 845969871，至本輪仍未回覆）。在使用者回覆前續行：真機稽核 → 無摩擦則誠實 no-op、勿硬補內容、勿重複 ping。
 2. 內容矩陣現況（供參考，非每輪該補）：跟讀句 daily10/travel6/work8/exam6、單字 daily10/work8/exam5/travel6、文法 work5/daily6/**exam4**/**travel4**、對話 travel3/daily4/work4/exam3。最單薄＝exam文法4／travel文法4；續補前須嚴格自問是否仍最高價值，否則誠實少做。
+
+[小組長 03:10] 督導：雙站健康(english-tutor-ai 200/0.046s、legacy e1l 200)、HEAD=865a034(R41 no-op)、working tree 乾淨、無 lock=R42 未起跑。複查 R38→R41＝連四輪真機稽核(0 error/0 warn/0 破版/排程切走乾淨)→誠實 no-op，完全照🟦置頂規則「方向待決策、無摩擦則 no-op 勝硬補內容」＝導正持續生效、零空轉式 padding、無方向偏離，worker 守規矩。導正動作：連四輪「飽和+零問題」下仍每 30 分跑完整 WebSearch+重型 headless＝實質 token 浪費→已於 evolve_instruction 🟦 下新增🟩「省 token 分層稽核」規則：no-op 持守期多數輪只做廉價雙站 HTTP 200+git HEAD 比對探活，重型 headless 稽核與北極星 WebSearch 改「HEAD 變動或每≥3輪」才跑，安全不打折(站壞仍被探活抓)、止住無意義每輪重型開銷。升級狀態：使用者(chat 845969871)A/B/C/D 方向決策自 00:35 上報後仍未回(約2hr、深夜)，依鐵律不重複 ping、靜候。督導 OK：產品飽和、worker 連四輪誠實 no-op 守規矩，本輪導正＝止 no-op 持守期 token 浪費。
+
+[小組長 03:39] 督導（省 token 廉價探活）：依🟩分層稽核，本輪走廉價探活＝線上站 e1l HTTP 200/0.07s + git HEAD=0dc8727(R42) 未變＝上輪已驗版本逕判健康、無 lock＝R43 尚未起跑。複查 R40→R42 連三輪誠實 no-op、worker 完全照🟦規則守規矩、零空轉式 padding。確認🟦置頂導正＋🟩省 token 分層稽核＋🛑純內容降末位三規則全在 evolve_instruction 在位生效＝導正持續約束、backlog 無需再改。升級狀態：使用者(chat 845969871)A/B/C/D 方向決策自 00:35 上報後仍未回(約3hr、深夜)，依鐵律不重複 ping、靜候。督導 OK：產品飽和、worker 守規矩、廉價探活省 token 規則生效中，靜候使用者方向決策。
+
+### 第 43 輪 — 2026-06-30 03:39（誠實 no-op：省 token 分層稽核 = 廉價探活、HEAD 未變、產品飽和、方向待使用者 A/B/C/D 決策中）
+**第 0 優先（網址）**：第 3 輪已遷至 `https://english-tutor-ai.pages.dev`；派工仍提的 `english-tutor.pages.dev` 為全域唯一名、已被外部帳號永久佔用、技術不可取得，不需也無法重做。
+
+**省 token 分層稽核（🟩 規則，no-op 持守期）**
+- 上次重型 headless 稽核＝R42（03:09，diag_audit_r35 全6模式+排程切走，0 error/0 warn/0 破版/排程切走乾淨）。本輪 R43 距上次重稽核僅 1 輪（<3）、且 git HEAD=0dc8727(R42) 自上次稽核未變動 → 依🟩規則本輪**只做廉價探活**，不跑重型 headless、不跑北極星 WebSearch（飽和持守期結論不變、引用 R42 研究結論）。
+- 廉價探活結果：雙站 HTTP 200（english-tutor-ai 200/0.086s、legacy e1l 200/0.051s）；HEAD 未變＝線上站即 R42 已驗版本，逕判健康。
+
+**本輪動作：誠實 no-op（不為改而改）**
+- 不動任何程式碼／資料／索引；不部署（線上站維持 R42 已驗狀態、雙站 200）。僅廉價探活 + 記此一行 log。符合鐵律「邊際遞減／跟容易學無關的改動不做」「寧可誠實少做、不硬造炫技」。
+
+**下一輪 backlog 想法**
+1. ⏸️ **方向待使用者就 A/B/C/D 決策**（00:35 已上報 chat 845969871，至本輪約 3hr 仍未回覆、深夜）。依鐵律不重複 ping、靜候。回覆前續行分層稽核：HEAD 變動或距重稽核 ≥3 輪才跑重型，否則廉價探活→無摩擦則誠實 no-op。
+2. 距上次重稽核（R42）已 1 輪；R45 起（≥3 輪）若仍無 HEAD 變動，應再跑一次重型 headless 全模式稽核確認線上站持續健康。
